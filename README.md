@@ -81,4 +81,4 @@ To regenerate optimized included images from the originals, run `python3 scripts
 - `scripts/build.ts`: Bun static build and deck-catalog generation.
 - `src/webmcp.ts`: optional, feature-detected reading/reveal tools for compatible browsers. The app works without WebMCP. No compatible browser was available for end-to-end WebMCP validation in the implementation environment.
 
-Tests cover complete bilingual data, unique random draws, reversal behavior, spread definitions, normalized assets, and historical identity mapping. Type checking and the production build are separate commands above. Browser visual verification was unavailable in the implementation environment.
+Tests also exercise repeated component transitions between all four spreads (including ten cards down to Daily Reflection), accessible card reveals, and Three.js resource cleanup using a mock renderer. They cover complete bilingual data, unique random draws, reversal behavior, spread definitions, normalized assets, and historical identity mapping. Type checking and the production build are separate commands above. Browser visual verification was unavailable in the implementation environment.

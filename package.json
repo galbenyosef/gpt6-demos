@@ -7,7 +7,8 @@
     "@types/bun": "latest",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
-    "@types/three": "^0.185.4"
+    "@types/three": "^0.185.4",
+    "happy-dom": "^20.14.0"
   },
   "peerDependencies": {
     "typescript": "^7"
