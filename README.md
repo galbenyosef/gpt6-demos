@@ -27,11 +27,14 @@ bun run build
 - The Celtic Cross: the traditional ten-position cross and staff arrangement.
 - Click or keyboard-activate a card to turn it in either direction; reveal all with a staggered animation.
 - Select a revealed position below the table to revisit its interpretation.
-- Switch English/Spanish or deck without losing the current draw.
+- Switch English/Spanish, deck, or theme without losing the current draw.
+- Choose Forest Charcoal, Midnight Obsidian, or Moonstone Veil beside the language selector; the preference is remembered, including matching card backs.
+- Right-click a table card (or press Shift+F10 / the context-menu key while focused) and select Zoom card. The large overlay preserves its current face and orientation; any key or click closes it and returns focus to the card.
+- The explanation image also has a Zoom button for touch devices.
 - Change spread, shuffle, or toggle reversals to begin a fresh draw. Cards are sampled without replacement using browser cryptographic randomness.
 - Optional reversed cards, reduced-motion preferences, keyboard access, native focus-trapped dialogs, responsive layouts, and a non-WebGL fallback.
 
-Interpretations are authored reflection prompts, not AI-generated answers or predictions. An optional question is kept as a personal reflection prompt; its text does not change the random draw. Only language preference is saved locally; questions and readings remain in memory.
+Interpretations are authored reflection prompts, not AI-generated answers or predictions. An optional question is kept as a personal reflection prompt; its text does not change the random draw. Only language and theme preferences are saved locally; questions and readings remain in memory.
 
 ## Add a deck without changing code
 
@@ -75,10 +78,13 @@ To regenerate optimized included images from the originals, run `python3 scripts
 
 - `src/App.tsx`: reading flow, language, settings, dialogs, and interpretation views.
 - `src/CardTable.tsx`: Three.js card geometry, textures, animation, resource cleanup, and fallback.
+- `src/themes.tsx` / `src/themes.css`: translated appearance selector, saved theme preference, and shared color roles.
+- `src/cardBack.ts`: matching geometric card backs for rendering and zoom.
+- `src/CardInspection.tsx`: accessible context menu and dismissible card magnifier.
 - `src/data.ts`: canonical identities, bilingual readings, spreads, and shuffle logic.
 - `scripts/decks.ts`: filesystem discovery and Etteilla-specific identity overrides.
 - `index.ts`: Bun development/production server with HTML imports.
 - `scripts/build.ts`: Bun static build and deck-catalog generation.
 - `src/webmcp.ts`: optional, feature-detected reading/reveal tools for compatible browsers. The app works without WebMCP. No compatible browser was available for end-to-end WebMCP validation in the implementation environment.
 
-Tests also exercise repeated component transitions between all four spreads (including ten cards down to Daily Reflection), accessible card reveals, and Three.js resource cleanup using a mock renderer. They cover complete bilingual data, unique random draws, reversal behavior, spread definitions, normalized assets, and historical identity mapping. Type checking and the production build are separate commands above. Browser visual verification was unavailable in the implementation environment.
+Tests also exercise repeated component transitions between all four spreads (including ten cards down to Daily Reflection), accessible card reveals, and Three.js resource cleanup using a mock renderer. Zoom regression coverage checks right-click and keyboard menus, reversed artwork, click/key dismissal, focus restoration, and unchanged draws. They cover complete bilingual data, unique random draws, reversal behavior, spread definitions, normalized assets, and historical identity mapping. Type checking and the production build are separate commands above. Browser visual verification was unavailable in the implementation environment.

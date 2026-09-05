@@ -34,3 +34,40 @@ test('switching from larger spreads to Daily Reflection clears stale card hit ar
  }finally{await act(async()=>root.unmount());host.remove();}
  expect(disposals).toBeGreaterThanOrEqual(9);
 });
+
+const {useCardInspection}=await import('./CardInspection');
+
+test('right-click zoom preserves the reading and dismisses on any key or click',async()=>{
+ const host=document.createElement('div');document.body.append(host);const root=createRoot(host);const flips:number[]=[];
+ function InspectableTable(){
+  const inspection=useCardInspection('es');
+  return <><CardTable deck={deck} drawn={[{id:'fool',reversed:true}]} revealed={[true]} positions={spreads.find(s=>s.id==='daily')!.positions} lang="es" onFlip={i=>flips.push(i)} selected={0} readingKey={0} onInspect={(e)=>inspection.openMenu(e,{image:'/decks/test/fool.jpg',name:'El Loco',reversed:true})}/>{inspection.overlay}</>;
+ }
+ try{
+  await act(async()=>root.render(<InspectableTable/>));
+  const card=host.querySelector('.card-hit') as HTMLButtonElement;
+  const open=async()=>{
+   await act(async()=>{card.dispatchEvent(new window.MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:880,clientY:390}) as unknown as Event);});
+   const option=host.querySelector('[role="menuitem"]') as HTMLButtonElement;
+   expect(option.textContent).toContain('Ampliar carta');
+   await act(async()=>option.click());
+   const popup=host.querySelector('dialog')!;
+   expect(popup.hasAttribute('open')).toBe(true);
+   expect(popup.querySelector('img')!.getAttribute('src')).toBe('/decks/test/fool.jpg');
+   expect(popup.querySelector('img')!.style.transform).toBe('rotate(180deg)');
+   expect(flips).toEqual([]);
+   return popup;
+  };
+  await open();
+  expect(document.body.style.overflow).toBe('hidden');
+  await act(async()=>{document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'q',bubbles:true,cancelable:true}) as unknown as Event);});
+  expect(host.querySelector('dialog')).toBeNull();expect(document.activeElement).toBe(card);expect(document.body.style.overflow).toBe('');
+  const popup=await open();
+  await act(async()=>popup.querySelector('img')!.click());
+  expect(host.querySelector('dialog')).toBeNull();expect(flips).toEqual([]);
+  await act(async()=>{card.dispatchEvent(new window.KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true,cancelable:true}) as unknown as Event);});
+  expect(host.querySelector('[role="menu"]')).not.toBeNull();
+  await act(async()=>{document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}) as unknown as Event);});
+  expect(host.querySelector('[role="menu"]')).toBeNull();expect(document.activeElement).toBe(card);
+ }finally{await act(async()=>root.unmount());host.remove();}
+});
