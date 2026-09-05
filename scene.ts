@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { buildEuropa } from './architecture';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -84,77 +85,15 @@ export function createExplorer(host: HTMLElement) {
   const ambient=new THREE.HemisphereLight('#c4e1ff','#b6b393',2.1);scene.add(ambient);
   const bounce=new THREE.DirectionalLight('#c9e6ff',.55);bounce.position.set(60,30,-30);scene.add(bounce);
 
-  // Tall graphite body, shallow convex curtain wall, and paired square crown windows.
-  box(47.6,48,18,0,25,0,granite);
-  box(48.4,.65,19,0,49.3,0,dark);
-  box(45,.4,17,0,50,0,edgeStone);
-  box(43,.55,14,0,50.4,-.4,dark);
-  box(37,1.3,9,0,50.9,-1.1,edgeStone);
-  const frontZ = (x:number) => 9 + 1.55 * (1-(x/24)**2);
-  for(let bay=0;bay<14;bay++){
-    const x=-21.8+bay*3.35;const z=frontZ(x);const angle=Math.atan(3.1*x/(24*24));
-    box(2.48,39.2,.35,x,24.1,z,glassMaterials[bay%8]!,angle);
-    for(let floor=0;floor<12;floor++){
-      const y=5.2+floor*3.28;
-      box(2.49,.075,.07,x,y,z+.21,aluminum,angle);
-      // Individual reflective panes retain the continuous, vertical glazing rhythm.
-      box(2.35,3.15,.018,x,y+1.64,z+.185,glassMaterials[Math.floor(random()*8)]!,angle);
+  buildEuropa({put, box, cylinder, rod, mat, granite, edgeStone, dark, aluminum,
+    brass, pavement, curb, grass, glow, glassMaterials, makeSignTexture: () => {
+      const canvas=document.createElement('canvas');canvas.width=1536;canvas.height=192;
+      const ctx=canvas.getContext('2d')!;ctx.fillStyle='#202727';ctx.fillRect(0,0,1536,192);
+      ctx.font='500 85px Arial';ctx.textAlign='center';ctx.fillStyle='#d5ceaf';ctx.fillText('EDIFICIO EUROPA',768,126);
+      const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+      texture.anisotropy=renderer.capabilities.getMaxAnisotropy();return texture;
     }
-    for(let top=0;top<2;top++){
-      box(2.42,2.03,.24,x,44.7+top*2.7,z+.01,edgeStone,angle);
-      box(1.78,1.4,.28,x,44.7+top*2.7,z+.17,glassMaterials[2]!,angle);
-      box(1.82,.11,.25,x,44.01+top*2.7,z+.31,aluminum,angle);
-    }
-    if(bay<13){const px=x+1.68;box(.86,48.1,1.12,px,25,frontZ(px)+.1,granite,angle);box(.085,40,.08,px-.44,24.2,frontZ(px)+.7,edgeStone,angle);}
-  }
-  box(1.45,48,1.2,-23.2,25,9.2,edgeStone);box(1.45,48,1.2,23.2,25,9.2,edgeStone);
-  // Side and rear façades continue around the fully navigable building.
-  for(const side of [-1,1]){
-    for(let bay=0;bay<5;bay++){
-      const z=-7+bay*3.4;box(.3,39,2.15,side*23.96,24.2,z,glassMaterials[(bay+3)%8]!);
-      for(let floor=0;floor<12;floor++)box(.09,.085,2.18,side*24.14,5.2+floor*3.28,z,aluminum);
-      for(let top=0;top<2;top++)box(.3,1.4,1.65,side*24.08,44.7+top*2.7,z,glassMaterials[3]!);
-      if(bay<4)box(.65,48,.9,side*24,25,z+1.7,granite);
-    }
-  }
-  for(let bay=0;bay<14;bay++){
-    const x=-21.8+bay*3.35;box(2.4,39,.25,x,24.1,-9.12,glassMaterials[bay%8]!);
-    for(let f=0;f<12;f++)box(2.42,.09,.04,x,5.2+f*3.28,-9.28,aluminum);
-    for(let t=0;t<2;t++)box(1.78,1.4,.26,x,44.7+t*2.7,-9.2,glassMaterials[1]!);
-    if(bay<13)box(.85,48,.6,x+1.68,25,-9.15,granite);
-  }
-  // Projecting cylindrical lift tower and stone crown at the entrance corner.
-  const towerX=-24.1,towerZ=8.3;
-  cylinder(3.45,3.45,39.5,towerX,24.5,towerZ,glassMaterials[3]!,48);
-  for(let i=0;i<14;i++){
-    const a=i/14*Math.PI*2;box(.13,39.5,.14,towerX+3.49*Math.sin(a),24.5,towerZ+3.49*Math.cos(a),aluminum,a);
-  }
-  for(let f=0;f<12;f++)cylinder(3.5,3.5,.07,towerX,5.6+f*3.28,towerZ,aluminum,48);
-  cylinder(4.5,4.5,5.9,towerX,46.6,towerZ,granite,32);
-  cylinder(4.7,4.7,.45,towerX,49.7,towerZ,dark,48);
-  for(let i=0;i<10;i++){
-    const a=i/10*Math.PI*2;box(1.62,1.75,.16,towerX+4.51*Math.sin(a),47.1,towerZ+4.51*Math.cos(a),edgeStone,a);box(1.17,1.15,.18,towerX+4.62*Math.sin(a),47.1,towerZ+4.62*Math.cos(a),glassMaterials[3]!,a);
-  }
-  cylinder(5.8,5.8,4.5,towerX,3.5,towerZ,glassMaterials[0]!,48);
-  cylinder(2.5,7.1,1.7,towerX,6.6,towerZ,dark,48);
-  cylinder(7.2,7.2,.18,towerX,5.77,towerZ,edgeStone,48);
-  for(let i=0;i<20;i++){
-    const a=i/20*Math.PI*2;box(.1,4.5,.1,towerX+5.85*Math.sin(a),3.5,towerZ+5.85*Math.cos(a),brass,a);
-  }
-  box(2.5,3.2,.22,towerX,2.85,towerZ+5.8,brass);box(2.25,2.95,.24,towerX,2.84,towerZ+5.94,glassMaterials[0]!);box(.07,3,.08,towerX,2.85,towerZ+6.09,brass);
-  // Entrance sign is a texture on real sign geometry.
-  const signCanvas=document.createElement('canvas');signCanvas.width=1024;signCanvas.height=160;const signCtx=signCanvas.getContext('2d')!;signCtx.fillStyle='#1f2828';signCtx.fillRect(0,0,1024,160);signCtx.font='500 67px Georgia';signCtx.textAlign='center';signCtx.fillStyle='#cfb67d';signCtx.fillText('EDIFICIO EUROPA',512,102);
-  const signTexture=new THREE.CanvasTexture(signCanvas);signTexture.colorSpace=THREE.SRGBColorSpace;
-  box(4.7,.7,.1,towerX,4.65,towerZ+5.85,new THREE.MeshStandardMaterial({map:signTexture,roughness:.5}));
-  // Smaller round garden pavilion from the reference images.
-  cylinder(4.4,4.4,3.2,25.5,2.8,9,glassMaterials[1]!,40);cylinder(.7,5.7,2.2,25.5,5.4,9,dark,40);cylinder(5.8,5.8,.17,25.5,4.35,9,edgeStone,40);
-  for(let i=0;i<16;i++){const a=i/16*Math.PI*2;box(.08,3.2,.08,25.5+4.45*Math.sin(a),2.8,9+4.45*Math.cos(a),aluminum,a);}
-  // Roof services, set behind the parapet.
-  for(let i=0;i<6;i++){
-    box(3.7,1.3,2.4,-12+i*4.8,51.5,-2,mat('#87918e'));
-    for(let j=0;j<6;j++)box(3.3,.06,.07,-12+i*4.8,51.1+j*.15,-.76,aluminum);
-  }
-  cylinder(.035,.07,4.2,18,53.4,-5,aluminum,8);cylinder(.04,.06,3,-17,53,-5,aluminum,8);
+  });
   // Paved garden island, surrounding avenues and crossing markings.
   box(900,.3,900,0,-.32,0,road);
   box(78,.8,57,0,.2,0,curb);
@@ -284,7 +223,7 @@ export function createExplorer(host: HTMLElement) {
   updateEnvironment();
   const preset:Record<ViewMode,{position:number[],target:number[]}>={
     urban:{position:[-83,59,105],target:[3,23,0]},
-    street:{position:[-52,9,67],target:[-5,26,4]},
+    street:{position:[-65,8.5,44],target:[-13,25,0]},
     aerial:{position:[-79,105,103],target:[0,17,0]},
   };
   let currentView:ViewMode='urban';
