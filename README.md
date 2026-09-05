@@ -16,18 +16,21 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 An interactive, photo-based reconstruction of Edificio Europa in Valencia. Explore the building with free orbit, pan, and zoom, or use three animated camera presets. Switch between daylight, golden-hour, and blue-hour lighting, and export the current view as a 4K PNG. The model is an interpretive reconstruction rather than a measured architectural survey.
 
+[![Edificio Europa — 3D demo](https://i.ytimg.com/vi/YwKfrL4P3N4/hqdefault.jpg)](https://youtu.be/YwKfrL4P3N4)
+
+[Edificio Europa — 3D demo](https://youtu.be/YwKfrL4P3N4)
+
 [Source and setup](./edificio-europa/README.md)
 
 ### Arcana — The Reading Room
 
 An Art Deco tarot experience with animated Three.js cards, four spreads, and card-by-card explanations and combined readings in English and Spanish. Choose between Rider–Waite–Smith and Grand Etteilla decks, switch among three visual themes, and enlarge cards for a closer look. New decks can be added through folders of consistently named images.
 
+[![Tarot Spread — Arcana demo](https://i.ytimg.com/vi/7ZIemecE9Cg/hqdefault.jpg)](https://youtu.be/7ZIemecE9Cg)
+
+[Tarot Spread — Arcana demo](https://youtu.be/7ZIemecE9Cg)
+
 [Source and setup](./tarot-spead/README.md) · [Adding a deck](./tarot-spead/DECKS.md)
-
-## YouTube videos
-
-- [Edificio Europa — 3D demo](https://youtu.be/YwKfrL4P3N4)
-- [Tarot Spread — Arcana demo](https://youtu.be/7ZIemecE9Cg)
 
 ---
 
