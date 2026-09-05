@@ -1,0 +1,473 @@
+[
+  {
+    "id": "rider-waite-tarot",
+    "name": {
+      "en": "Rider–Waite–Smith",
+      "es": "Rider–Waite–Smith"
+    },
+    "description": {
+      "en": "The iconic 1909 imagery of Pamela Colman Smith. A vivid language of symbols, intuition, and everyday experience.",
+      "es": "Las icónicas imágenes de Pamela Colman Smith de 1909. Un lenguaje de símbolos, intuición y experiencia cotidiana."
+    },
+    "files": {
+      "fool": "fool.jpg",
+      "magician": "magician.jpg",
+      "high-priestess": "high-priestess.jpg",
+      "empress": "empress.jpg",
+      "emperor": "emperor.jpg",
+      "hierophant": "hierophant.jpg",
+      "lovers": "lovers.jpg",
+      "chariot": "chariot.jpg",
+      "strength": "strength.jpg",
+      "hermit": "hermit.jpg",
+      "wheel-of-fortune": "wheel-of-fortune.jpg",
+      "justice": "justice.jpg",
+      "hanged-man": "hanged-man.jpg",
+      "death": "death.jpg",
+      "temperance": "temperance.jpg",
+      "devil": "devil.jpg",
+      "tower": "tower.jpg",
+      "star": "star.jpg",
+      "moon": "moon.jpg",
+      "sun": "sun.jpg",
+      "judgement": "judgement.jpg",
+      "world": "world.jpg",
+      "ace-of-wands": "ace-of-wands.jpg",
+      "two-of-wands": "two-of-wands.jpg",
+      "three-of-wands": "three-of-wands.jpg",
+      "four-of-wands": "four-of-wands.jpg",
+      "five-of-wands": "five-of-wands.jpg",
+      "six-of-wands": "six-of-wands.jpg",
+      "seven-of-wands": "seven-of-wands.jpg",
+      "eight-of-wands": "eight-of-wands.jpg",
+      "nine-of-wands": "nine-of-wands.jpg",
+      "ten-of-wands": "ten-of-wands.jpg",
+      "page-of-wands": "page-of-wands.jpg",
+      "knight-of-wands": "knight-of-wands.jpg",
+      "queen-of-wands": "queen-of-wands.jpg",
+      "king-of-wands": "king-of-wands.jpg",
+      "ace-of-cups": "ace-of-cups.jpg",
+      "two-of-cups": "two-of-cups.jpg",
+      "three-of-cups": "three-of-cups.jpg",
+      "four-of-cups": "four-of-cups.jpg",
+      "five-of-cups": "five-of-cups.jpg",
+      "six-of-cups": "six-of-cups.jpg",
+      "seven-of-cups": "seven-of-cups.jpg",
+      "eight-of-cups": "eight-of-cups.jpg",
+      "nine-of-cups": "nine-of-cups.jpg",
+      "ten-of-cups": "ten-of-cups.jpg",
+      "page-of-cups": "page-of-cups.jpg",
+      "knight-of-cups": "knight-of-cups.jpg",
+      "queen-of-cups": "queen-of-cups.jpg",
+      "king-of-cups": "king-of-cups.jpg",
+      "ace-of-swords": "ace-of-swords.jpg",
+      "two-of-swords": "two-of-swords.jpg",
+      "three-of-swords": "three-of-swords.jpg",
+      "four-of-swords": "four-of-swords.jpg",
+      "five-of-swords": "five-of-swords.jpg",
+      "six-of-swords": "six-of-swords.jpg",
+      "seven-of-swords": "seven-of-swords.jpg",
+      "eight-of-swords": "eight-of-swords.jpg",
+      "nine-of-swords": "nine-of-swords.jpg",
+      "ten-of-swords": "ten-of-swords.jpg",
+      "page-of-swords": "page-of-swords.jpg",
+      "knight-of-swords": "knight-of-swords.jpg",
+      "queen-of-swords": "queen-of-swords.jpg",
+      "king-of-swords": "king-of-swords.jpg",
+      "ace-of-pentacles": "ace-of-pentacles.jpg",
+      "two-of-pentacles": "two-of-pentacles.jpg",
+      "three-of-pentacles": "three-of-pentacles.jpg",
+      "four-of-pentacles": "four-of-pentacles.jpg",
+      "five-of-pentacles": "five-of-pentacles.jpg",
+      "six-of-pentacles": "six-of-pentacles.jpg",
+      "seven-of-pentacles": "seven-of-pentacles.jpg",
+      "eight-of-pentacles": "eight-of-pentacles.jpg",
+      "nine-of-pentacles": "nine-of-pentacles.jpg",
+      "ten-of-pentacles": "ten-of-pentacles.jpg",
+      "page-of-pentacles": "page-of-pentacles.jpg",
+      "knight-of-pentacles": "knight-of-pentacles.jpg",
+      "queen-of-pentacles": "queen-of-pentacles.jpg",
+      "king-of-pentacles": "king-of-pentacles.jpg"
+    },
+    "overrides": {}
+  },
+  {
+    "id": "etteilla-tarot",
+    "name": {
+      "en": "Grand Etteilla",
+      "es": "Grand Etteilla"
+    },
+    "description": {
+      "en": "An enigmatic eighteenth-century deck. Modern reflections inspired by its distinct imagery; not a reconstruction of historical Etteilla divination.",
+      "es": "Una enigmática baraja del siglo XVIII. Reflexiones modernas inspiradas en sus imágenes propias; no reconstruye la adivinación histórica de Etteilla."
+    },
+    "files": {
+      "fool": "fool.jpg",
+      "magician": "magician.jpg",
+      "high-priestess": "high-priestess.jpg",
+      "empress": "empress.jpg",
+      "emperor": "emperor.jpg",
+      "hierophant": "hierophant.jpg",
+      "lovers": "lovers.jpg",
+      "chariot": "chariot.jpg",
+      "strength": "strength.jpg",
+      "hermit": "hermit.jpg",
+      "wheel-of-fortune": "wheel-of-fortune.jpg",
+      "justice": "justice.jpg",
+      "hanged-man": "hanged-man.jpg",
+      "death": "death.jpg",
+      "temperance": "temperance.jpg",
+      "devil": "devil.jpg",
+      "tower": "tower.jpg",
+      "star": "star.jpg",
+      "moon": "moon.jpg",
+      "sun": "sun.jpg",
+      "judgement": "judgement.jpg",
+      "world": "world.jpg",
+      "ace-of-wands": "ace-of-wands.jpg",
+      "two-of-wands": "two-of-wands.jpg",
+      "three-of-wands": "three-of-wands.jpg",
+      "four-of-wands": "four-of-wands.jpg",
+      "five-of-wands": "five-of-wands.jpg",
+      "six-of-wands": "six-of-wands.jpg",
+      "seven-of-wands": "seven-of-wands.jpg",
+      "eight-of-wands": "eight-of-wands.jpg",
+      "nine-of-wands": "nine-of-wands.jpg",
+      "ten-of-wands": "ten-of-wands.jpg",
+      "page-of-wands": "page-of-wands.jpg",
+      "knight-of-wands": "knight-of-wands.jpg",
+      "queen-of-wands": "queen-of-wands.jpg",
+      "king-of-wands": "king-of-wands.jpg",
+      "ace-of-cups": "ace-of-cups.jpg",
+      "two-of-cups": "two-of-cups.jpg",
+      "three-of-cups": "three-of-cups.jpg",
+      "four-of-cups": "four-of-cups.jpg",
+      "five-of-cups": "five-of-cups.jpg",
+      "six-of-cups": "six-of-cups.jpg",
+      "seven-of-cups": "seven-of-cups.jpg",
+      "eight-of-cups": "eight-of-cups.jpg",
+      "nine-of-cups": "nine-of-cups.jpg",
+      "ten-of-cups": "ten-of-cups.jpg",
+      "page-of-cups": "page-of-cups.jpg",
+      "knight-of-cups": "knight-of-cups.jpg",
+      "queen-of-cups": "queen-of-cups.jpg",
+      "king-of-cups": "king-of-cups.jpg",
+      "ace-of-swords": "ace-of-swords.jpg",
+      "two-of-swords": "two-of-swords.jpg",
+      "three-of-swords": "three-of-swords.jpg",
+      "four-of-swords": "four-of-swords.jpg",
+      "five-of-swords": "five-of-swords.jpg",
+      "six-of-swords": "six-of-swords.jpg",
+      "seven-of-swords": "seven-of-swords.jpg",
+      "eight-of-swords": "eight-of-swords.jpg",
+      "nine-of-swords": "nine-of-swords.jpg",
+      "ten-of-swords": "ten-of-swords.jpg",
+      "page-of-swords": "page-of-swords.jpg",
+      "knight-of-swords": "knight-of-swords.jpg",
+      "queen-of-swords": "queen-of-swords.jpg",
+      "king-of-swords": "king-of-swords.jpg",
+      "ace-of-pentacles": "ace-of-pentacles.jpg",
+      "two-of-pentacles": "two-of-pentacles.jpg",
+      "three-of-pentacles": "three-of-pentacles.jpg",
+      "four-of-pentacles": "four-of-pentacles.jpg",
+      "five-of-pentacles": "five-of-pentacles.jpg",
+      "six-of-pentacles": "six-of-pentacles.jpg",
+      "seven-of-pentacles": "seven-of-pentacles.jpg",
+      "eight-of-pentacles": "eight-of-pentacles.jpg",
+      "nine-of-pentacles": "nine-of-pentacles.jpg",
+      "ten-of-pentacles": "ten-of-pentacles.jpg",
+      "page-of-pentacles": "page-of-pentacles.jpg",
+      "knight-of-pentacles": "knight-of-pentacles.jpg",
+      "queen-of-pentacles": "queen-of-pentacles.jpg",
+      "king-of-pentacles": "king-of-pentacles.jpg"
+    },
+    "overrides": {
+      "world": {
+        "name": {
+          "en": "Chaos",
+          "es": "El Caos"
+        },
+        "theme": {
+          "en": "Origins",
+          "es": "Orígenes"
+        },
+        "meaning": {
+          "en": "Before a form emerges, possibilities remain open. Give an uncertain beginning room to develop.",
+          "es": "Antes de que aparezca una forma, las posibilidades siguen abiertas. Dale espacio a un comienzo incierto."
+        },
+        "advice": {
+          "en": "Before a form emerges, possibilities remain open. Give an uncertain beginning room to develop.",
+          "es": "Antes de que aparezca una forma, las posibilidades siguen abiertas. Dale espacio a un comienzo incierto."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Before a form emerges, possibilities remain open. Give an uncertain beginning room to develop.",
+          "es": "Considera qué puede estar bloqueando este tema. Antes de que aparezca una forma, las posibilidades siguen abiertas. Dale espacio a un comienzo incierto."
+        }
+      },
+      "sun": {
+        "name": {
+          "en": "Light",
+          "es": "La Luz"
+        },
+        "theme": {
+          "en": "Illumination",
+          "es": "Iluminación"
+        },
+        "meaning": {
+          "en": "Clarity begins when you distinguish what is visible from what you have only assumed.",
+          "es": "La claridad empieza al distinguir lo visible de lo que solo has supuesto."
+        },
+        "advice": {
+          "en": "Clarity begins when you distinguish what is visible from what you have only assumed.",
+          "es": "La claridad empieza al distinguir lo visible de lo que solo has supuesto."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Clarity begins when you distinguish what is visible from what you have only assumed.",
+          "es": "Considera qué puede estar bloqueando este tema. La claridad empieza al distinguir lo visible de lo que solo has supuesto."
+        }
+      },
+      "empress": {
+        "name": {
+          "en": "Plants",
+          "es": "Las Plantas"
+        },
+        "theme": {
+          "en": "Growth",
+          "es": "Crecimiento"
+        },
+        "meaning": {
+          "en": "Living things grow through steady nourishment. Notice what needs care and time.",
+          "es": "Los seres vivos crecen con alimento constante. Observa lo que necesita cuidado y tiempo."
+        },
+        "advice": {
+          "en": "Living things grow through steady nourishment. Notice what needs care and time.",
+          "es": "Los seres vivos crecen con alimento constante. Observa lo que necesita cuidado y tiempo."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Living things grow through steady nourishment. Notice what needs care and time.",
+          "es": "Considera qué puede estar bloqueando este tema. Los seres vivos crecen con alimento constante. Observa lo que necesita cuidado y tiempo."
+        }
+      },
+      "star": {
+        "name": {
+          "en": "The Sky",
+          "es": "El Cielo"
+        },
+        "theme": {
+          "en": "Perspective",
+          "es": "Perspectiva"
+        },
+        "meaning": {
+          "en": "A wider view can make an immediate concern easier to understand.",
+          "es": "Una visión más amplia puede ayudarte a comprender una inquietud inmediata."
+        },
+        "advice": {
+          "en": "A wider view can make an immediate concern easier to understand.",
+          "es": "Una visión más amplia puede ayudarte a comprender una inquietud inmediata."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. A wider view can make an immediate concern easier to understand.",
+          "es": "Considera qué puede estar bloqueando este tema. Una visión más amplia puede ayudarte a comprender una inquietud inmediata."
+        }
+      },
+      "chariot": {
+        "name": {
+          "en": "Humankind & the Animals",
+          "es": "La humanidad y los animales"
+        },
+        "theme": {
+          "en": "Instinct",
+          "es": "Instinto"
+        },
+        "meaning": {
+          "en": "Consider how instinct and conscious intention can cooperate instead of competing.",
+          "es": "Considera cómo pueden cooperar el instinto y la intención consciente en lugar de competir."
+        },
+        "advice": {
+          "en": "Consider how instinct and conscious intention can cooperate instead of competing.",
+          "es": "Considera cómo pueden cooperar el instinto y la intención consciente en lugar de competir."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Consider how instinct and conscious intention can cooperate instead of competing.",
+          "es": "Considera qué puede estar bloqueando este tema. Considera cómo pueden cooperar el instinto y la intención consciente en lugar de competir."
+        }
+      },
+      "moon": {
+        "name": {
+          "en": "The Celestial Bodies",
+          "es": "Los Astros"
+        },
+        "theme": {
+          "en": "Rhythm",
+          "es": "Ritmo"
+        },
+        "meaning": {
+          "en": "Look for the rhythms shaping your energy and attention rather than forcing a constant pace.",
+          "es": "Observa los ritmos que dan forma a tu energía y atención sin forzar un ritmo constante."
+        },
+        "advice": {
+          "en": "Look for the rhythms shaping your energy and attention rather than forcing a constant pace.",
+          "es": "Observa los ritmos que dan forma a tu energía y atención sin forzar un ritmo constante."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Look for the rhythms shaping your energy and attention rather than forcing a constant pace.",
+          "es": "Considera qué puede estar bloqueando este tema. Observa los ritmos que dan forma a tu energía y atención sin forzar un ritmo constante."
+        }
+      },
+      "lovers": {
+        "name": {
+          "en": "Birds & Fish",
+          "es": "Las aves y los peces"
+        },
+        "theme": {
+          "en": "Adaptation",
+          "es": "Adaptación"
+        },
+        "meaning": {
+          "en": "Different environments call for different ways of moving. Work with your circumstances.",
+          "es": "Entornos diferentes piden distintas formas de moverse. Trabaja con tus circunstancias."
+        },
+        "advice": {
+          "en": "Different environments call for different ways of moving. Work with your circumstances.",
+          "es": "Entornos diferentes piden distintas formas de moverse. Trabaja con tus circunstancias."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Different environments call for different ways of moving. Work with your circumstances.",
+          "es": "Considera qué puede estar bloqueando este tema. Entornos diferentes piden distintas formas de moverse. Trabaja con tus circunstancias."
+        }
+      },
+      "high-priestess": {
+        "name": {
+          "en": "Rest",
+          "es": "El Reposo"
+        },
+        "theme": {
+          "en": "Restoration",
+          "es": "Recuperación"
+        },
+        "meaning": {
+          "en": "Rest is part of a creative cycle. A pause can help you return with more clarity.",
+          "es": "El descanso forma parte del ciclo creativo. Una pausa puede ayudarte a volver con más claridad."
+        },
+        "advice": {
+          "en": "Rest is part of a creative cycle. A pause can help you return with more clarity.",
+          "es": "El descanso forma parte del ciclo creativo. Una pausa puede ayudarte a volver con más claridad."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Rest is part of a creative cycle. A pause can help you return with more clarity.",
+          "es": "Considera qué puede estar bloqueando este tema. El descanso forma parte del ciclo creativo. Una pausa puede ayudarte a volver con más claridad."
+        }
+      },
+      "hanged-man": {
+        "name": {
+          "en": "Prudence",
+          "es": "La Prudencia"
+        },
+        "theme": {
+          "en": "Discernment",
+          "es": "Discernimiento"
+        },
+        "meaning": {
+          "en": "A careful assessment can reveal consequences that a quick decision would miss.",
+          "es": "Una evaluación cuidadosa puede revelar consecuencias que una decisión rápida pasaría por alto."
+        },
+        "advice": {
+          "en": "A careful assessment can reveal consequences that a quick decision would miss.",
+          "es": "Una evaluación cuidadosa puede revelar consecuencias que una decisión rápida pasaría por alto."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. A careful assessment can reveal consequences that a quick decision would miss.",
+          "es": "Considera qué puede estar bloqueando este tema. Una evaluación cuidadosa puede revelar consecuencias que una decisión rápida pasaría por alto."
+        }
+      },
+      "hierophant": {
+        "name": {
+          "en": "The High Priest",
+          "es": "El Gran Sacerdote"
+        },
+        "theme": {
+          "en": "Counsel",
+          "es": "Consejo"
+        },
+        "meaning": {
+          "en": "Consider the responsibility that comes with offering or receiving guidance.",
+          "es": "Considera la responsabilidad de ofrecer o recibir orientación."
+        },
+        "advice": {
+          "en": "Consider the responsibility that comes with offering or receiving guidance.",
+          "es": "Considera la responsabilidad de ofrecer o recibir orientación."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Consider the responsibility that comes with offering or receiving guidance.",
+          "es": "Considera qué puede estar bloqueando este tema. Considera la responsabilidad de ofrecer o recibir orientación."
+        }
+      },
+      "hermit": {
+        "name": {
+          "en": "The Capuchin",
+          "es": "El Capuchino"
+        },
+        "theme": {
+          "en": "Simplicity",
+          "es": "Sencillez"
+        },
+        "meaning": {
+          "en": "Stepping back from excess can make your essential needs easier to recognize.",
+          "es": "Alejarte de los excesos puede ayudarte a reconocer tus necesidades esenciales."
+        },
+        "advice": {
+          "en": "Stepping back from excess can make your essential needs easier to recognize.",
+          "es": "Alejarte de los excesos puede ayudarte a reconocer tus necesidades esenciales."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Stepping back from excess can make your essential needs easier to recognize.",
+          "es": "Considera qué puede estar bloqueando este tema. Alejarte de los excesos puede ayudarte a reconocer tus necesidades esenciales."
+        }
+      },
+      "emperor": {
+        "name": {
+          "en": "The African Ruler",
+          "es": "El gobernante africano"
+        },
+        "theme": {
+          "en": "Authority",
+          "es": "Autoridad"
+        },
+        "meaning": {
+          "en": "Examine how power is used, and whether leadership serves the people affected by it.",
+          "es": "Examina cómo se usa el poder y si el liderazgo sirve a las personas afectadas."
+        },
+        "advice": {
+          "en": "Examine how power is used, and whether leadership serves the people affected by it.",
+          "es": "Examina cómo se usa el poder y si el liderazgo sirve a las personas afectadas."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Examine how power is used, and whether leadership serves the people affected by it.",
+          "es": "Considera qué puede estar bloqueando este tema. Examina cómo se usa el poder y si el liderazgo sirve a las personas afectadas."
+        }
+      },
+      "fool": {
+        "name": {
+          "en": "Folly / The Alchemist",
+          "es": "La Locura / El Alquimista"
+        },
+        "theme": {
+          "en": "Experimentation",
+          "es": "Experimentación"
+        },
+        "meaning": {
+          "en": "Experimentation opens possibilities, but enthusiasm benefits from attention to consequences.",
+          "es": "Experimentar abre posibilidades, pero el entusiasmo se beneficia de atender a las consecuencias."
+        },
+        "advice": {
+          "en": "Experimentation opens possibilities, but enthusiasm benefits from attention to consequences.",
+          "es": "Experimentar abre posibilidades, pero el entusiasmo se beneficia de atender a las consecuencias."
+        },
+        "reversed": {
+          "en": "Consider what may be blocking this theme. Experimentation opens possibilities, but enthusiasm benefits from attention to consequences.",
+          "es": "Considera qué puede estar bloqueando este tema. Experimentar abre posibilidades, pero el entusiasmo se beneficia de atender a las consecuencias."
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,28 @@
+/* Shared roles keep every surface, dialog, and reading legible in each palette. */
+:root,[data-theme="forest"] {
+  color-scheme: dark;
+  --background:#101411; --surface:#161c15; --modal:#141c15; --input:#181e17;
+  --text:#e6e3d8; --text-soft:#b8bdb0; --muted:#92988b; --muted-dim:#7e8577;
+  --gold:#c5a66d; --gold-light:#dfc38b; --line:#b79b6029;
+  --button:#c1a36d; --button-hover:#d4b981; --button-border:#d8bc87; --button-ink:#172017;
+  --toggle:#1b2119; --badge:#152019dd; --card-back:#1d2d20;
+  --ambient:#2c37201c; --shadow-soft:#0003; --shadow:#0009; --backdrop:#050a07c9;
+}
+[data-theme="midnight"] {
+  color-scheme: dark;
+  --background:#070b14; --surface:#101827; --modal:#0e1728; --input:#101b2d;
+  --text:#e6eaf4; --text-soft:#b8c4d9; --muted:#99a8c2; --muted-dim:#8797b4;
+  --gold:#94abd4; --gold-light:#d0dcf2; --line:#8faad42e;
+  --button:#a8bbdf; --button-hover:#c1d0ed; --button-border:#c5d4ef; --button-ink:#0d1527;
+  --toggle:#1a263e; --badge:#0e192ee8; --card-back:#101a30;
+  --ambient:#314e842b; --shadow-soft:#0005; --shadow:#000a; --backdrop:#020611db;
+}
+[data-theme="moonstone"] {
+  color-scheme: light;
+  --background:#fafafb; --surface:#f0f1f4; --modal:#ffffff; --input:#ffffff;
+  --text:#292e3a; --text-soft:#465063; --muted:#616b7a; --muted-dim:#707986;
+  --gold:#626d86; --gold-light:#424e68; --line:#7e889b38;
+  --button:#596780; --button-hover:#465571; --button-border:#465571; --button-ink:#ffffff;
+  --toggle:#e2e5eb; --badge:#f7f8fbea; --card-back:#e5e8ee;
+  --ambient:#c5cddd26; --shadow-soft:#26304418; --shadow:#26304433; --backdrop:#e2e6efd9;
+}
