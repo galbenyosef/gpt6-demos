@@ -1,0 +1,61 @@
+import { createExplorer, type ViewMode, type LightMode } from './scene';
+
+const icons: Record<string,string> = {
+ arrow:'<path d="M7 17 17 7M7 7h10v10"/>', pin:'<path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+ cube:'<path d="m12 3 9 5v8l-9 5-9-5V8l9-5Z M3 8l9 5 9-5M12 13v8M7.5 5.5l9 5"/>', plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',reset:'<path d="M3 10a9 9 0 1 1 2 8M3 4v6h6"/>',expand:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>', camera:'<path d="M4 6h4l2-3h4l2 3h4v14H4Z"/><circle cx="12" cy="12" r="4"/>', info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/>', sun:'<circle cx="12" cy="12" r="4"/><path d="M12 1v2M12 21v2M1 12h2M21 12h2M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/>',moon:'<path d="M20 15A9 9 0 0 1 9 3a9 9 0 1 0 11 12Z"/>',play:'<path d="m9 5 11 7-11 7Z"/>',pause:'<path d="M8 5v14M16 5v14"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',chevron:'<path d="m9 5 7 7-7 7"/>',mouse:'<rect x="6" y="2" width="12" height="20" rx="6"/><path d="M12 2v7"/>', layers:'<path d="m12 3 10 5-10 5L2 8l10-5ZM2 12l10 5 10-5M2 16l10 5 10-5"/>', sunset:'<path d="M3 17h18M5 21h14M7 17a5 5 0 0 1 10 0M12 2v4M3 8l3 3M21 8l-3 3"/>'
+};
+const icon=(name:string)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]||icons.cube}</svg>`;
+const photos=['1_287_122485_l_gal.jpg','frontview.webp','Edificio-europa-atardecer1.jpg'];
+const views=[{id:'urban',label:'Urban perspective',sub:'The building in its element',tag:'01',photo:photos[0]},{id:'street',label:'Street level',sub:'Look up. Take it all in.',tag:'02',photo:photos[1]},{id:'aerial',label:'Skyline view',sub:'A different point of view',tag:'03',photo:photos[2]}];
+document.querySelector('#app')!.innerHTML=`
+<header><a class="brand" href="/" aria-label="Europa home"><span class="brand-mark">${icon('cube')}</span>EUROPA<span class="brand-sub">ARCHITECTURAL EXPLORER</span></a><nav><span class="location">${icon('pin')} Valencia, Spain <span class="nav-divider"></span>39.4720° N · 0.3570° W</span><button class="about-button" id="about">About the building ${icon('arrow')}</button></nav></header>
+<main><section class="intro"><div><div class="eyebrow"><span class="tiny-line"></span> VALENCIA, FROM A NEW PERSPECTIVE</div><h1>Edificio Europa<span>.</span></h1></div><p>A city landmark. Every angle.<br>Explore the architecture in three dimensions.</p></section>
+<section class="viewer" aria-label="Interactive 3D architectural explorer"><div id="canvas-host"></div><div class="viewer-vignette"></div>
+<div class="scene-label"><span class="live-dot"></span> INTERACTIVE 3D <span class="label-divider"></span><span id="scene-label">Urban perspective</span></div>
+<div class="viewer-top-right"><span class="quality">HIGH RESOLUTION</span><button class="round light-button" id="info" aria-label="Navigation help">${icon('info')}</button></div>
+<div class="scene-title"><span id="scene-number">01 / 03</span><h2 id="view-title">The urban perspective.</h2><p id="view-description">Glass, stone, and a Mediterranean skyline.</p></div>
+<aside class="perspectives"><div class="panel-heading"><span>CHOOSE YOUR PERSPECTIVE</span>${icon('layers')}</div>${views.map(v=>`<button class="view-card ${v.id==='urban'?'active':''}" data-view="${v.id}" aria-pressed="${v.id==='urban'}"><div class="view-photo"><img src="/stock-images/${v.photo}" alt="${v.label} reference photograph"><span>${v.tag}</span></div><div class="view-card-text"><strong>${v.label}</strong><small>${v.sub}</small></div><span class="selected-indicator">${v.id==='urban'?icon('chevron'):''}</span></button>`).join('')}<div class="panel-note">Three viewpoints. Infinite ways to explore.</div></aside>
+<div class="bottom-bar"><div class="lighting"><span class="control-label">LIGHT</span><button data-light="day" class="active" aria-pressed="true">${icon('sun')}<span>Daylight</span></button><button data-light="golden" aria-pressed="false">${icon('sunset')}<span>Golden hour</span></button><button data-light="blue" aria-pressed="false">${icon('moon')}<span>Blue hour</span></button></div><div class="navigation-tip">${icon('mouse')} Drag to orbit <span>·</span> Scroll to zoom</div><div class="camera-controls"><button id="rotate" title="Auto-rotate" aria-label="Auto-rotate" aria-pressed="false">${icon('play')}</button><span class="tool-divider"></span><button id="zoom-in" aria-label="Zoom in">${icon('plus')}</button><button id="zoom-out" aria-label="Zoom out">${icon('minus')}</button><button id="reset" aria-label="Reset view">${icon('reset')}</button><span class="tool-divider"></span><button id="capture" aria-label="Download 4K image" title="Download 4K image">${icon('camera')}</button><button id="fullscreen" aria-label="Toggle fullscreen">${icon('expand')}</button></div></div>
+<div id="loading"><span class="loading-spinner"></span><strong>Bringing Europa into perspective</strong><span>Preparing your 3D experience</span></div><div id="toast" role="status"></div>
+</section><footer><span>${icon('cube')} Built to be explored.<span class="footer-divider">/</span> A photo-based architectural study</span><a href="https://maps.app.goo.gl/gQwHSTFF8XgvJrEu8" target="_blank" rel="noopener noreferrer">Find it in Valencia ${icon('arrow')}</a></footer></main>
+<dialog id="about-dialog"><button class="dialog-close" aria-label="Close">${icon('close')}</button><div class="eyebrow">THE ARCHITECTURAL STUDY</div><h2>A landmark in reflection.</h2><img src="/stock-images/1_287_122485_l_gal.jpg" alt="Reference photograph of Edificio Europa in Valencia"><p>Edificio Europa stands in Valencia, Spain. Its dark vertical stone ribs, reflective glass façade, and cylindrical corner entrance give the building its distinctive silhouette.</p><p>This interactive reconstruction is based on the supplied photographs. Geometry, scale, landscaping, and neighboring buildings are interpretive, rather than a measured architectural survey.</p><a href="https://maps.app.goo.gl/gQwHSTFF8XgvJrEu8" target="_blank" rel="noopener noreferrer">View the location ${icon('arrow')}</a></dialog>
+<dialog id="help-dialog"><button class="dialog-close" aria-label="Close">${icon('close')}</button><div class="eyebrow">MAKE IT YOUR PERSPECTIVE</div><h2>Around. Above. Up close.</h2><dl><dt>Orbit the building</dt><dd>Click and drag, or swipe with one finger.</dd><dt>Zoom in and out</dt><dd>Scroll, pinch with two fingers, or use + and −.</dd><dt>Pan the scene</dt><dd>Right-click and drag, or drag with two fingers.</dd><dt>Keyboard navigation</dt><dd>Arrow keys pan. + and − zoom. R resets the view.</dd><dt>Keep a perspective</dt><dd>The camera button downloads a 3840 × 2160 PNG.</dd></dl></dialog>`;
+const toast=(message:string)=>{const el=document.querySelector('#toast')!;el.textContent=message;el.classList.add('visible');window.setTimeout(()=>el.classList.remove('visible'),3500)};
+const bind=(id:string,fn:()=>void)=>document.getElementById(id)!.addEventListener('click',fn);
+for(const [id,dialogId] of [['about','about-dialog'],['info','help-dialog']]) bind(id!,()=>{(document.getElementById(dialogId!) as HTMLDialogElement).showModal()});
+document.querySelectorAll('dialog').forEach(d=>{d.querySelector('button')!.addEventListener('click',()=>d.close());d.addEventListener('click',e=>{if(e.target===d)d.close()})});
+try {
+ const explorer=createExplorer(document.querySelector('#canvas-host')!);
+ let view:ViewMode='urban'; let rotating=false;
+ const titles={urban:['The urban perspective.','Glass, stone, and a Mediterranean skyline.'],street:['A closer kind of wonder.','Follow the reflections from the street to the sky.'],aerial:['Above the everyday.','Discover Europa’s place in the fabric of Valencia.']};
+ document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>{view=button.dataset.view as ViewMode;explorer.setView(view);document.querySelectorAll('[data-view]').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));b.querySelector('.selected-indicator')!.innerHTML=active?icon('chevron'):''});document.querySelector('#view-title')!.textContent=titles[view][0]!;document.querySelector('#view-description')!.textContent=titles[view][1]!;document.querySelector('#scene-label')!.textContent=views.find(v=>v.id===view)!.label;document.querySelector('#scene-number')!.textContent=`0${views.findIndex(v=>v.id===view)+1} / 03`;}));
+ document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(button=>button.addEventListener('click',()=>{explorer.setLight(button.dataset.light as LightMode);document.querySelectorAll('[data-light]').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button))})}));
+ bind('rotate',()=>{rotating=!rotating;explorer.setRotate(rotating);document.querySelector('#rotate')!.innerHTML=icon(rotating?'pause':'play');document.querySelector('#rotate')!.setAttribute('aria-pressed',String(rotating))});
+ bind('reset',()=>{explorer.setView(view);toast('Perspective reset')});bind('zoom-in',()=>explorer.zoom(.82));bind('zoom-out',()=>explorer.zoom(1.22));
+ bind('capture',()=>{try{explorer.capture();toast('Your 4K perspective is ready')}catch{toast('Image export was unavailable. Please try again.')}});
+ bind('fullscreen',()=>{const v=document.querySelector('.viewer')!;if(document.fullscreenElement)document.exitFullscreen();else v.requestFullscreen().catch(()=>toast('Fullscreen is unavailable in this browser'))});
+ document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]'))return;if(e.key==='+'||e.key==='=')explorer.zoom(.85);if(e.key==='-')explorer.zoom(1.18);if(e.key.toLowerCase()==='r')explorer.setView(view)});
+ requestAnimationFrame(()=>document.querySelector('#loading')!.classList.add('loaded'));
+} catch(error){console.error(error);document.querySelector('#loading')!.innerHTML='<strong>Your browser could not start the 3D view.</strong><span>Enable hardware acceleration or try a WebGL-capable browser.</span>';}
+
+// Optional WebMCP bridge uses exactly the same actions as the visible controls.
+type ExplorerTool = {name:string;description:string;inputSchema:object;annotations:{readOnlyHint:boolean;untrustedContentHint:boolean};execute:(input:unknown)=>unknown};
+const modelContext=(document as Document & {modelContext?:{registerTool:(tool:ExplorerTool,options:{signal:AbortSignal})=>void|Promise<void>}}).modelContext;
+if(modelContext?.registerTool){
+ const lifecycle=new AbortController();
+ window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
+ try{void Promise.resolve(modelContext.registerTool({
+  name:'configure_architectural_view',description:'Choose one of the three building perspectives and an optional lighting preset in the visible 3D explorer.',
+  inputSchema:{type:'object',properties:{perspective:{type:'string',enum:['urban','street','aerial']},light:{type:'string',enum:['day','golden','blue']}},required:['perspective'],additionalProperties:false},
+  annotations:{readOnlyHint:false,untrustedContentHint:false},
+  execute(input:unknown){
+   if(typeof input!=='object'||input===null)throw new Error('Expected a perspective configuration.');
+   const value=input as Record<string,unknown>;
+   if(Object.keys(value).some(k=>!['perspective','light'].includes(k))||!['urban','street','aerial'].includes(value.perspective as string)||(value.light!==undefined&&!['day','golden','blue'].includes(value.light as string)))throw new Error('Unknown perspective or lighting preset.');
+   if(!document.querySelector('#loading.loaded'))throw new Error('The 3D explorer is not available.');
+   document.querySelector<HTMLButtonElement>(`[data-view="${value.perspective}"]`)!.click();
+   if(value.light)document.querySelector<HTMLButtonElement>(`[data-light="${value.light}"]`)!.click();
+   return {perspective:value.perspective,light:document.querySelector<HTMLButtonElement>('[data-light].active')!.dataset.light};
+  }
+ },{signal:lifecycle.signal})).catch(error=>console.warn('Optional model context is unavailable',error));}catch(error){console.warn('Optional model context is unavailable',error);}
+}
