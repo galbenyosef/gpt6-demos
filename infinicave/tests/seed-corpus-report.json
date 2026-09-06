@@ -1,0 +1,29 @@
+{
+  "date": "2026-09-06T12:39:15.432Z",
+  "seedsPerSize": 1000,
+  "generator": "1.0.0",
+  "results": {
+    "small": {
+      "accepted": 1000,
+      "fallbackCandidates": 0,
+      "fallbackValidated": true,
+      "totalMs": 7408,
+      "maxGenerationMs": 22
+    },
+    "standard": {
+      "accepted": 1000,
+      "fallbackCandidates": 0,
+      "fallbackValidated": true,
+      "totalMs": 17493,
+      "maxGenerationMs": 38
+    },
+    "large": {
+      "accepted": 1000,
+      "fallbackCandidates": 0,
+      "fallbackValidated": true,
+      "totalMs": 37700,
+      "maxGenerationMs": 47
+    }
+  },
+  "totalMs": 62602
+}

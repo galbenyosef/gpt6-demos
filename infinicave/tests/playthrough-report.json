@@ -1,0 +1,87 @@
+{
+  "automated": true,
+  "note": "Real controls, collisions, damage and hazards; this is not human playtesting.",
+  "results": [
+    {
+      "seed": "flight-v1-0",
+      "size": "small",
+      "seconds": 69,
+      "deaths": 0,
+      "health": 100,
+      "rooms": 12,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-1",
+      "size": "small",
+      "seconds": 71,
+      "deaths": 0,
+      "health": 92,
+      "rooms": 12,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-2",
+      "size": "small",
+      "seconds": 72,
+      "deaths": 0,
+      "health": 100,
+      "rooms": 12,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-0",
+      "size": "standard",
+      "seconds": 162,
+      "deaths": 0,
+      "health": 100,
+      "rooms": 25,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-1",
+      "size": "standard",
+      "seconds": 151,
+      "deaths": 0,
+      "health": 100,
+      "rooms": 25,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-2",
+      "size": "standard",
+      "seconds": 150,
+      "deaths": 0,
+      "health": 92,
+      "rooms": 25,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-0",
+      "size": "large",
+      "seconds": 270,
+      "deaths": 0,
+      "health": 100,
+      "rooms": 42,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-1",
+      "size": "large",
+      "seconds": 268,
+      "deaths": 0,
+      "health": 100,
+      "rooms": 42,
+      "roundtripped": true
+    },
+    {
+      "seed": "flight-v1-2",
+      "size": "large",
+      "seconds": 270,
+      "deaths": 0,
+      "health": 92,
+      "rooms": 42,
+      "roundtripped": true
+    }
+  ]
+}
