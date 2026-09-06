@@ -36,6 +36,10 @@ An Art Deco tarot experience with animated Three.js cards, four spreads, and car
 
 A single-player, side-view exploration game inspired by John Vanderaart’s Eindeloos. Pilot an armed helicopter through seeded caverns and mechanical ruins, activate relays, and shut down the cave’s heart. Choose from three finite map sizes, discover optional routes, survive enemies and timed hazards, and recover at repair checkpoints. Each expedition keeps its own local save, with autosaving and JSON import/export.
 
+[![InfiniCave — Helicopter cave expedition demo](https://i.ytimg.com/vi/m6Nl7rRFqCg/hqdefault.jpg)](https://youtu.be/m6Nl7rRFqCg)
+
+[InfiniCave — Helicopter cave expedition demo](https://youtu.be/m6Nl7rRFqCg)
+
 [Source and setup](./infinicave/README.md) · [Game specification](./infinicave/specs/infinicave.md)
 
 ---
