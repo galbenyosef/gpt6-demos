@@ -3,6 +3,8 @@ import {
   RADIUS,
   SIM_VERSION,
   SCHEMA,
+  SPEED,
+  WALL_GRACE,
   copy,
   distance,
   objective,
@@ -48,6 +50,8 @@ export function initialRuntime(world: World): Runtime {
       health: 100,
       protection: 2,
       cooldown: 0,
+      wallContact: 0,
+      wallImpact: 0,
     },
     enemies: world.enemies.map((e) => ({
       id: e.id,
@@ -94,6 +98,8 @@ export function recover(context: Context, death = false) {
   context.runtime.player.vx = 0;
   context.runtime.player.vy = 0;
   context.runtime.player.protection = 3;
+  context.runtime.player.wallContact = 0;
+  context.runtime.player.wallImpact = 0;
   context.runtime.projectiles = [];
   if (death) context.stats.deaths++;
 }
@@ -155,13 +161,48 @@ export function tick(context: Context, input: Input): GameEvent[] {
   const next = move(w, p, p.vx * DT, p.vy * DT, s.relays, RADIUS, s.time);
   p.x = next.x;
   p.y = next.y;
+  // Moving machinery retains its own damage rules. Static walls and closed gates share this cushion.
+  const wallX = next.hitX && solid(w, { x: p.x + p.vx * DT, y: p.y }, s.relays);
+  const wallY = next.hitY && solid(w, { x: p.x, y: p.y + p.vy * DT }, s.relays);
+  const normalX = wallX ? Math.sign(p.vx) : 0,
+    normalY = wallY ? Math.sign(p.vy) : 0;
+  const impact = Math.min(
+    SPEED,
+    Math.hypot(wallX ? p.vx : 0, wallY ? p.vy : 0),
+  );
+  const pushing = input.x * normalX + input.y * normalY > 0.15;
   if (next.hitX) p.vx = 0;
   if (next.hitY) p.vy = 0;
-  function damage(amount: number) {
-    if (p.protection > 0) return;
+  function damage(amount: number, text?: string) {
+    if (p.protection > 0) return false;
     p.health = Math.max(0, p.health - amount);
     p.protection = 1.1;
-    events.push({ type: "hit", position: { x: p.x, y: p.y } });
+    events.push({
+      type: "hit",
+      position: { x: p.x, y: p.y },
+      ...(text ? { text } : {}),
+    });
+    return true;
+  }
+  if ((wallX || wallY) && (pushing || impact > 2)) {
+    p.wallContact = Math.min(WALL_GRACE, p.wallContact + DT);
+    p.wallImpact = Math.max(p.wallImpact, impact);
+    if (
+      p.wallContact >= WALL_GRACE &&
+      damage(
+        Math.round(12 + (22 * p.wallImpact) / SPEED),
+        "Hull scrape · pull away from the wall",
+      )
+    ) {
+      const rebound = 1.6 + p.wallImpact * 0.18;
+      if (wallX) p.vx = -normalX * rebound;
+      if (wallY) p.vy = -normalY * rebound;
+      p.wallContact = 0;
+      p.wallImpact = 0;
+    }
+  } else {
+    p.wallContact = Math.max(0, p.wallContact - DT * 2.5);
+    p.wallImpact = Math.max(0, p.wallImpact - DT * 6);
   }
   function bullet(position: Vec, vx: number, vy: number, hostile: boolean) {
     s.projectiles.push({
@@ -310,6 +351,8 @@ export function tick(context: Context, input: Input): GameEvent[] {
       p.protection = 2;
       p.vx = 0;
       p.vy = 0;
+      p.wallContact = 0;
+      p.wallImpact = 0;
       s.checkpointId = target.id;
       if (!s.activatedCheckpoints.includes(target.id))
         s.activatedCheckpoints.push(target.id);

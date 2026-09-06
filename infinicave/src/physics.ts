@@ -2,6 +2,7 @@ import {
   RADIUS,
   TILE,
   SPEED,
+  WALL_MARGIN,
   type World,
   type Vec,
   type Hazard,
@@ -61,6 +62,26 @@ export function solid(world: World, p: Vec, mask = 0, radius = RADIUS) {
 }
 export function hazardActive(h: Hazard, time: number) {
   return (((time + h.phase) % h.period) + h.period) % h.period < h.active;
+}
+/** Signed proximity to walls within the soft outer margin; never moves the collider. */
+export function wallCushion(world: World, p: Vec, mask: number): Vec {
+  const pressure = (dx: number, dy: number) => {
+    const blocked = (offset: number) =>
+      solid(world, { x: p.x + dx * offset, y: p.y + dy * offset }, mask);
+    if (!blocked(WALL_MARGIN)) return 0;
+    let free = 0,
+      blockedAt = WALL_MARGIN;
+    for (let i = 0; i < 6; i++) {
+      const mid = (free + blockedAt) / 2;
+      if (blocked(mid)) blockedAt = mid;
+      else free = mid;
+    }
+    return 1 - free / WALL_MARGIN;
+  };
+  return {
+    x: pressure(1, 0) - pressure(-1, 0),
+    y: pressure(0, 1) - pressure(0, -1),
+  };
 }
 export function hazardRect(h: Hazard, time: number) {
   if (!hazardActive(h, time)) return null;

@@ -7,7 +7,7 @@ import {
   type Vec,
 } from "./domain";
 import { stream } from "./generation";
-import { hazardRect } from "./physics";
+import { hazardRect, wallCushion } from "./physics";
 import type { GameEvent } from "./simulation";
 const UP = new THREE.Vector3(0, 0, 1);
 export class CaveRenderer {
@@ -768,12 +768,21 @@ export class CaveRenderer {
       p = s.player;
     const px = previous ? THREE.MathUtils.lerp(previous.x, p.x, alpha) : p.x,
       py = previous ? THREE.MathUtils.lerp(previous.y, p.y, alpha) : p.y;
+    const cushion = settings.reducedMotion
+      ? { x: 0, y: 0 }
+      : wallCushion(w, { x: px, y: py }, s.relays);
+    const squashX = Math.abs(cushion.x),
+      squashY = Math.abs(cushion.y);
     this.craft.position.set(
-      px,
-      py + (demo ? Math.sin(clock * 1.3) * 0.12 : 0),
+      px - cushion.x * 0.045,
+      py - cushion.y * 0.045 + (demo ? Math.sin(clock * 1.3) * 0.12 : 0),
       0.7,
     );
-    this.craft.scale.x = p.facing;
+    this.craft.scale.set(
+      p.facing * (1 - squashX * 0.14 + squashY * 0.05),
+      1 - squashY * 0.14 + squashX * 0.05,
+      1,
+    );
     this.craft.rotation.z = settings.reducedMotion ? 0 : -p.vx * 0.012;
     this.rotor.rotation.y = clock * 55;
     this.muzzleLife = Math.max(0, this.muzzleLife - delta);

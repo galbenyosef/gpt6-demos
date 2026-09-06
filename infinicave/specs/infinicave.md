@@ -6,7 +6,7 @@ Status: implementation-ready product and technical specification.
 
 InfiniCave is a single-player browser game built with HTML, TypeScript, and Three.js. The player pilots a small armed helicopter through a finite underground cave system, operates ancient machinery, survives hazards, and reaches the cave's heart to complete an expedition.
 
-The reference is John Vanderaart's *Eindeloos*, especially the side view, tiny helicopter within a large environment, interconnected chambers, brick-lined tunnels, natural caverns, mechanical gates, and final heart chamber. InfiniCave uses original art, audio, interface, and generated layouts. It should evoke the reference's exploration and spatial challenges with modern lighting, animation, responsive controls, and readable scenery.
+The reference is John Vanderaart's _Eindeloos_, especially the side view, tiny helicopter within a large environment, interconnected chambers, brick-lined tunnels, natural caverns, mechanical gates, and final heart chamber. InfiniCave uses original art, audio, interface, and generated layouts. It should evoke the reference's exploration and spatial challenges with modern lighting, animation, responsive controls, and readable scenery.
 
 The title describes the ability to create many expeditions. Every individual expedition has a bounded map, an attainable objective, and a definite ending.
 
@@ -54,13 +54,13 @@ Exploration and precise flying should matter more than relentless combat. The pl
 
 ### Controls
 
-| Action | Keyboard default | Gamepad default |
-| --- | --- | --- |
+| Action                        | Keyboard default   | Gamepad default    |
+| ----------------------------- | ------------------ | ------------------ |
 | Fly horizontally / vertically | WASD or arrow keys | Left stick / D-pad |
-| Fire | Space | Right trigger |
-| Interact | E | South face button |
-| Map | M | North face button |
-| Pause / resume | Escape | Menu button |
+| Fire                          | Space              | Right trigger      |
+| Interact                      | E                  | South face button  |
+| Map                           | M                  | North face button  |
+| Pause / resume                | Escape             | Menu button        |
 
 Diagonal input is normalized. Analog input uses a configurable dead zone. Controls are remappable, and simultaneous movement, fire, and interaction must work. Prevent browser scrolling for game controls only while the game surface has focus. Pause on focus loss or when the document becomes hidden; clear held inputs on pause and resume.
 
@@ -88,7 +88,7 @@ The helicopter has rotor animation, directional facing, mild visual banking, muz
 
 Use responsive acceleration, bounded speed, and damping toward a stable hover when input is released. There is no mandatory gravity compensation or fuel depletion. The helicopter can face left or right; vertical movement preserves its last horizontal facing.
 
-Use one documented circular collision footprint for generation clearance and runtime physics. Continuous or swept collision checks prevent tunnelling through walls at maximum speed. Sliding along walls is allowed. Ordinary wall contact blocks movement without draining health, making tight exploration forgiving; marked hazards and enemy attacks cause damage.
+Use one documented circular collision footprint for generation clearance and runtime physics. Continuous or swept collision checks prevent tunnelling through walls at maximum speed. Sliding along walls is allowed. Wall contact has a forgiving outer margin of 0.30 world units for visible compression around the unchanged circular core. A brief brush or glancing slide is harmless. Sustained inward pressure against the solid core gets 0.35 seconds of active-play grace before hull damage and a small rebound; damage scales with normal impact speed, from 12 to 34 hull points. The normal damage-protection timer prevents stacked hits. Pulling away releases wall pressure. Repeated impacts can destroy the craft and restore its checkpoint. Persist contact timing and impact strength for exact resume, and clear them on repair or checkpoint recovery. Marked hazards and enemy attacks retain their own damage rules.
 
 ### Health and recovery
 
@@ -134,11 +134,11 @@ Generation determinism does not imply cross-device, bit-identical input replays.
 
 These are starting design targets; maximum bounds are hard limits and room counts include optional rooms.
 
-| Size | Room target | Required relays | Maximum bounds, world units | Target first completion |
-| --- | --- | --- | --- | --- |
-| Small | 12–16 | 2 | 240 × 180 | 10–15 minutes |
-| Standard | 22–30 | 3 | 400 × 300 | 20–30 minutes |
-| Large | 36–48 | 4 | 600 × 450 | 35–50 minutes |
+| Size     | Room target | Required relays | Maximum bounds, world units | Target first completion |
+| -------- | ----------- | --------------- | --------------------------- | ----------------------- |
+| Small    | 12–16       | 2               | 240 × 180                   | 10–15 minutes           |
+| Standard | 22–30       | 3               | 400 × 300                   | 20–30 minutes           |
+| Large    | 36–48       | 4               | 600 × 450                   | 35–50 minutes           |
 
 Define one world unit as approximately the helicopter body's length. Passage clearance is based on the actual collision diameter plus a safety margin. Required routes use at least two collision diameters of clear width, with wider turning pockets where acceleration or hazards need them. A fully enclosed outer boundary prevents escape beyond the map.
 
@@ -194,18 +194,18 @@ Keep the newest valid save and one previous valid revision per context. Context 
 
 ### Persisted state
 
-| Group | Required fields |
-| --- | --- |
-| Identity | Context UUID, display name, created/updated/last-played timestamps |
-| Compatibility | Save schema, simulation version, generator version, content version |
-| Generation | Normalized seed, size/settings, accepted attempt or fallback ID, canonical world hash |
-| World | Bounds, collision geometry, rooms/connections, stable entity definitions, objective dependencies, initial placements |
-| Player | Position, velocity, facing, health, damage protection timer, weapon cooldown |
-| Simulation | Tick, simulation time, gameplay PRNG states, gate states, hazard phases, enemy positions/health/AI state/timers, active projectiles |
-| Progress | Activated relays, active checkpoint ID, explored map, collected optional items, current objective, status |
-| Recovery | Complete checkpoint snapshot, checkpoint discovery/progression state |
-| Statistics | Active play time, deaths, optional discoveries, completion time |
-| Integrity | Monotonic revision, payload checksum, previous valid revision reference |
+| Group         | Required fields                                                                                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Identity      | Context UUID, display name, created/updated/last-played timestamps                                                                  |
+| Compatibility | Save schema, simulation version, generator version, content version                                                                 |
+| Generation    | Normalized seed, size/settings, accepted attempt or fallback ID, canonical world hash                                               |
+| World         | Bounds, collision geometry, rooms/connections, stable entity definitions, objective dependencies, initial placements                |
+| Player        | Position, velocity, facing, health, damage protection timer, weapon cooldown, wall-contact timer and impact strength                |
+| Simulation    | Tick, simulation time, gameplay PRNG states, gate states, hazard phases, enemy positions/health/AI state/timers, active projectiles |
+| Progress      | Activated relays, active checkpoint ID, explored map, collected optional items, current objective, status                           |
+| Recovery      | Complete checkpoint snapshot, checkpoint discovery/progression state                                                                |
+| Statistics    | Active play time, deaths, optional discoveries, completion time                                                                     |
+| Integrity     | Monotonic revision, payload checksum, previous valid revision reference                                                             |
 
 Pause time, menus, and background time do not advance simulation timers. Settings such as volume and controls are global preferences. Held input, GPU objects, audio playback handles, workers, and transient decorative particles are not save data.
 

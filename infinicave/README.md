@@ -30,7 +30,7 @@ The production build is self-contained in `dist/`. Serve that directory over HTT
 
 Keyboard bindings can be remapped. Gamepad dead zone, effects/ambient volume, reduced motion, reduced flashing, and lower effects are available in Settings. Menus use keyboard or mouse. Touch flight is outside the initial scope.
 
-Release movement to hover. Ordinary walls block movement without damage. Amber machinery marks timed crossings; wait for the open window. Green stations repair the craft and set a checkpoint. Death or Return to Checkpoint restores its gameplay snapshot, including enemies, relays, and discovery. Time and death totals remain cumulative.
+Release movement to hover. Walls have a soft visual contact margin and a 0.35-second grace period. Brief brushes and glancing slides are harmless; sustained inward pressure damages the hull and bounces the craft away. Faster impacts cause more damage once the grace period is exhausted. Repeated impacts can destroy the helicopter. Amber machinery marks timed crossings; wait for the open window. Green stations repair the craft and set a checkpoint. Death or Return to Checkpoint restores its gameplay snapshot, including enemies, relays, and discovery. Time and death totals remain cumulative.
 
 ## Saving
 
@@ -61,7 +61,7 @@ Generation uses NFC-normalized, trimmed, case-preserving seeds; blank seeds come
 
 The mission spine contains ordered relay stages and checkpoints. Optional branches, loops, and diagonal passages are restricted to the same progression stage. Validation checks physical reachability at every relay mask, checkpoint safety, enclosing bounds, references, and representative timed crossings in both directions using the real movement and hazard rules. Up to 32 deterministic candidates are allowed, followed by a verified versioned fallback.
 
-Runtime time is `tick / 60`. Gate state derives from relay bits; hazard phase derives from the saved tick and immutable phase offsets. Neither wall time nor rendering drives gameplay. Schema and simulation version 1 are supported; no historical migrations are needed for this first schema. Future versions are rejected rather than regenerated.
+Runtime time is `tick / 60`. Gate state derives from relay bits; hazard phase derives from the saved tick and immutable phase offsets. Neither wall time nor rendering drives gameplay. Schema and simulation version 2 add persisted wall-contact timing and impact strength. Version 1 saves migrate on a validated copy with these fields initialized to zero; worlds and existing progress stay intact, and the original revision is retained until a successful save. Future versions are rejected rather than regenerated.
 
 ## Verification
 

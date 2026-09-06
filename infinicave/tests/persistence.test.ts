@@ -161,3 +161,36 @@ test("unsupported future revisions are not replaced with an older revision", asy
   await expect(loadContext(c.id)).rejects.toThrow("Unsupported");
   expect((await getRecord(c.id))!.current.payload.schema).toBe(999);
 });
+
+test("migrated saves leave the old revision intact through load and a failed commit", async () => {
+  const { digest } = await import("../src/generation");
+  const c = createContext(world, "Legacy migration");
+  await writeContext(c);
+  const record = (await getRecord(c.id))!,
+    old: any = record.current.payload;
+  old.schema = old.simulation = 1;
+  for (const state of [old.runtime, old.checkpoint]) {
+    delete state.player.wallContact;
+    delete state.player.wallImpact;
+  }
+  record.current.checksum = await digest(old);
+  await mutateRecord(c.id, (stored) => Object.assign(stored, record));
+  const upgraded = (await loadContext(c.id)).context;
+  expect(upgraded.schema).toBe(2);
+  expect((await getRecord(c.id))!.current.payload.schema).toBe(1);
+  const originalPut = IDBObjectStore.prototype.put;
+  IDBObjectStore.prototype.put = function () {
+    throw new DOMException("Migration quota failure", "QuotaExceededError");
+  };
+  try {
+    await expect(writeContext(upgraded)).rejects.toThrow("quota");
+  } finally {
+    IDBObjectStore.prototype.put = originalPut;
+  }
+  expect((await getRecord(c.id))!.current).toEqual(record.current);
+  await writeContext(upgraded);
+  const saved = (await getRecord(c.id))!;
+  expect(saved.current.payload.schema).toBe(2);
+  expect(saved.previous).toEqual(record.current);
+  expect(saved.current.payload.world).toEqual(world);
+});

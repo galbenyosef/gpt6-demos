@@ -342,3 +342,75 @@ test("the production static build starts an expedition without external requests
   expect(external).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test("legacy saves gain forgiving wall damage and remain playable", async ({
+  page,
+}) => {
+  const { generateWorld, digest } = await import("../../src/generation");
+  const { createContext } = await import("../../src/simulation");
+  const { move, solid } = await import("../../src/physics");
+  const world = await generateWorld("WALL-BROWSER", "small"),
+    old: any = createContext(world, "Wall flight");
+  const stop = move(world, world.spawn, -1000, 0, 0);
+  let free = stop.x,
+    blocked = free - 0.5;
+  for (let i = 0; i < 20; i++) {
+    const mid = (free + blocked) / 2;
+    if (solid(world, { x: mid, y: stop.y }, 0)) blocked = mid;
+    else free = mid;
+  }
+  Object.assign(old.runtime.player, {
+    x: free + 0.002,
+    y: stop.y,
+    protection: 0,
+  });
+  old.schema = old.simulation = 1;
+  old.stats.playTime = 30;
+  for (const state of [old.runtime, old.checkpoint]) {
+    delete state.player.wallContact;
+    delete state.player.wallImpact;
+  }
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "The deep is calling." }),
+  ).toBeVisible();
+  await page
+    .locator("#import-file")
+    .setInputFiles({
+      name: "old-flight.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(
+        JSON.stringify({
+          payload: old,
+          checksum: await digest(old),
+          previousRevision: null,
+        }),
+      ),
+    });
+  await page
+    .getByRole("button", { name: "Play Wall flight · imported", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Ready to continue." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Resume flight" }).click();
+  await page.keyboard.down("a");
+  await expect(page.locator("#health-value")).not.toHaveText("100");
+  expect(
+    Number(await page.locator("#health-value").innerText()),
+  ).toBeGreaterThan(0);
+  await page.screenshot({ path: "/tmp/infinicave-wall-contact.png" });
+  await page.keyboard.up("a");
+  await page.keyboard.down("d");
+  await page.waitForTimeout(400);
+  await page.keyboard.up("d");
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Save & exit" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Wall flight · imported", exact: true }),
+  ).toBeVisible();
+  const [saved] = await readRecords(page);
+  expect(saved.current.payload.schema).toBe(2);
+  expect(saved.current.payload.runtime.player.wallContact).toBe(0);
+  expect(saved.current.payload.world.hash).toBe(world.hash);
+});

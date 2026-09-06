@@ -2,6 +2,8 @@ import { z } from "zod";
 import {
   SCHEMA,
   SIM_VERSION,
+  WALL_GRACE,
+  SPEED,
   allRelays,
   type Context,
   type Envelope,
@@ -23,6 +25,8 @@ const runtime = z.object({
     health: n.min(0).max(100),
     protection: n.min(0).max(5),
     cooldown: n.min(0).max(1),
+    wallContact: n.min(0).max(WALL_GRACE),
+    wallImpact: n.min(0).max(SPEED),
   }),
   enemies: z
     .array(
@@ -167,6 +171,28 @@ const contextSchema = z.object({
   }),
   revision: n.int().min(0).max(1e12),
 });
+const legacyRuntime = runtime.extend({
+  player: runtime.shape.player.omit({ wallContact: true, wallImpact: true }),
+});
+const legacyContext = contextSchema.extend({
+  schema: z.literal(1),
+  simulation: z.literal(1),
+  runtime: legacyRuntime,
+  checkpoint: legacyRuntime,
+});
+function upgradeLegacy(source: z.infer<typeof legacyContext>): Context {
+  const upgrade = (state: z.infer<typeof legacyRuntime>) => ({
+    ...state,
+    player: { ...state.player, wallContact: 0, wallImpact: 0 },
+  });
+  return {
+    ...source,
+    schema: SCHEMA,
+    simulation: SIM_VERSION,
+    runtime: upgrade(source.runtime),
+    checkpoint: upgrade(source.checkpoint),
+  };
+}
 export async function validateEnvelope(
   value: unknown,
   checkGeometry = true,
@@ -181,14 +207,19 @@ export async function validateEnvelope(
     typeof envelope.payload.simulation !== "number"
   )
     throw new Error("The save payload is incomplete or damaged.");
+  const legacy =
+    envelope.payload.schema === 1 && envelope.payload.simulation === 1;
   if (
-    envelope.payload?.schema !== SCHEMA ||
-    envelope.payload?.simulation !== SIM_VERSION
+    !legacy &&
+    (envelope.payload.schema !== SCHEMA ||
+      envelope.payload.simulation !== SIM_VERSION)
   )
     throw new Error(
       "Unsupported save or simulation version. The original file has been left intact.",
     );
-  const parsed = contextSchema.safeParse(envelope.payload);
+  const parsed = (legacy ? legacyContext : contextSchema).safeParse(
+    envelope.payload,
+  );
   if (!parsed.success)
     throw new Error(
       `Invalid save data: ${parsed.error.issues[0]?.path.join(".")} ${parsed.error.issues[0]?.message}`,
@@ -200,7 +231,10 @@ export async function validateEnvelope(
     throw new Error(
       "The save checksum does not match. The file may be incomplete or damaged.",
     );
-  const c = parsed.data;
+  // Verify the original checksum above, then migrate a parsed copy. Storage changes only on commit.
+  const c = legacy
+    ? upgradeLegacy(parsed.data as z.infer<typeof legacyContext>)
+    : (parsed.data as Context);
   if ((await worldHash(c.world)) !== c.world.hash)
     throw new Error("The stored cave failed its integrity check.");
   if (checkGeometry) {
@@ -253,5 +287,7 @@ export async function validateEnvelope(
 
 export function listingContext(value: unknown): Context | null {
   const result = contextSchema.safeParse(value);
-  return result.success ? result.data : null;
+  if (result.success) return result.data;
+  const legacy = legacyContext.safeParse(value);
+  return legacy.success ? upgradeLegacy(legacy.data) : null;
 }

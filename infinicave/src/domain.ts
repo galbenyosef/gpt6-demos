@@ -1,11 +1,14 @@
-export const SCHEMA = 1;
-export const SIM_VERSION = 1;
+export const SCHEMA = 2;
+export const SIM_VERSION = 2;
 export const GENERATOR_VERSION = "1.0.0";
 export const CONTENT_VERSION = "1.0.0";
 export const TILE = 1;
 export const RADIUS = 0.48;
 export const DT = 1 / 60;
 export const SPEED = 8;
+// Cosmetic contact begins outside the solid core; damage has a separate grace period.
+export const WALL_MARGIN = 0.3;
+export const WALL_GRACE = 0.35;
 export type Size = "small" | "standard" | "large";
 export type Vec = { x: number; y: number };
 export type RoomKind =
@@ -96,6 +99,8 @@ export interface Player extends Vec {
   health: number;
   protection: number;
   cooldown: number;
+  wallContact: number;
+  wallImpact: number;
 }
 export interface Enemy extends Vec {
   id: string;

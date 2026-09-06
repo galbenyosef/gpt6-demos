@@ -7,6 +7,7 @@ The product specification remains `specs/infinicave.md`. This checklist records 
 - [x] Bun development and self-contained static production builds, pinned dependencies.
 - [x] Three.js side view, original helicopter and cave scenery, stone instancing/chunk culling, camera, particles, positional synthesized sound.
 - [x] Fixed 60 Hz flight, circular swept collision, hover damping, simultaneous fire/movement/interaction, finite seeded enemies.
+- [x] Forgiving wall contact: 0.30-unit cosmetic cushion, 0.35-second contact grace, impact-scaled damage and rebound; persisted contact state and version 1 save migration.
 - [x] Keyboard remapping, gamepad flight, configurable dead zone, focus/visibility pause, cleared held input, comfort settings.
 - [x] Three finite map sizes, ordered relay gates, checkpoints, optional branches/loops/diagonals, a final heart.
 - [x] Separate seeded streams, canonical SHA-256 world documents, bounded attempts and versioned validated fallback layouts.
