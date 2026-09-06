@@ -1,6 +1,8 @@
 # InfiniCave
 
-A single-player cave expedition game built with Bun, TypeScript, Three.js, and native HTML overlays. Pilot a small helicopter through a seeded underground world, activate its relays, and shut down its heart. Each expedition has its own stored world, progress, and ending.
+A single-player, side-view helicopter exploration game built with Bun, TypeScript, and Three.js. Pilot a small armed helicopter through underground caverns and mechanical ruins, activate ancient relays, and shut down the cave's heart. Inspired by John Vanderaart's *Eindeloos*, InfiniCave uses original visuals, audio, and generated layouts.
+
+Each seeded expedition has a finite map, its own saved progress, and a definite ending. Create another expedition whenever you want a new cave to explore.
 
 ## Run
 
@@ -9,14 +11,18 @@ bun install
 bun run dev
 ```
 
-Open **http://localhost:3000**. Set `PORT` to use another port.
+Open `http://localhost:3000`. Set `PORT` to use another port. Use a desktop browser with WebGL, Web Workers, IndexedDB, and Web Locks support; deployed games require HTTPS for save ownership across tabs.
 
-```sh
-bun run build
-bun run preview
-```
+## Features
 
-The production build is self-contained in `dist/`. Serve that directory over HTTP or HTTPS; there is no application server, account, external asset request, or database service in production. Fonts and their SIL Open Font Licenses are bundled locally. The development server rebuilds the generation worker on request.
+- Small, Standard, and Large expeditions with repeatable seeded layouts, interconnected chambers, optional branches, and loops.
+- Side-on 2.5D scenery with extruded cave walls, an animated helicopter, glowing machinery, lighting, and synthesized positional sound.
+- Responsive flight, stable hovering, unlimited ammunition, and forgiving wall contact before damaging impacts.
+- Relay-operated gates, pursuing and patrolling drones, stationary emitters, electrical beams, retracting barriers, and sliding blocks.
+- A discovery map, repair checkpoints, unlimited retries, and a final heart shutdown with expedition statistics.
+- Multiple independent local saves, autosaving, exact-state resume, and JSON import/export for backups or moving expeditions between browsers.
+- Remappable keyboard controls, gamepad flight, configurable audio, reduced motion, reduced flashing, and lower-effects settings.
+- A self-contained static build with locally bundled fonts and no account or backend requirement.
 
 ## Controls
 
@@ -63,12 +69,27 @@ The mission spine contains ordered relay stages and checkpoints. Optional branch
 
 Runtime time is `tick / 60`. Gate state derives from relay bits; hazard phase derives from the saved tick and immutable phase offsets. Neither wall time nor rendering drives gameplay. Schema and simulation version 2 add persisted wall-contact timing and impact strength. Version 1 saves migrate on a validated copy with these fields initialized to zero; worlds and existing progress stay intact, and the original revision is retained until a successful save. Future versions are rejected rather than regenerated.
 
-## Verification
+## Validate and build
 
 ```sh
 bun test
 bun run typecheck
 bun run build
+```
+
+The production build is self-contained in `dist/`. Publish that directory to a static HTTPS host, or preview it locally:
+
+```sh
+bun run preview
+```
+
+Open `http://localhost:3001` for the preview; `PORT` overrides its port too. The build needs no application server, external asset requests, or database service. Fonts and their SIL Open Font Licenses are bundled locally. The development server uses Bun HTML imports and rebuilds the generation worker on request.
+
+## Verification
+
+Run the broader generation, simulated-flight, and browser checks with:
+
+```sh
 bun run test:corpus
 bun run test:playthrough
 bun run test:browser
@@ -82,4 +103,4 @@ Browser tests use Playwright’s packaged CLI (which requires its Node runtime);
 - `tests/seed-corpus-report.json`: fixed corpus of 1,000 seeds for each size, plus all fallback layouts.
 - `tests/playthrough-report.json`: three automated normal-control completions per size, each with a mid-expedition state round trip. These route-aware runs are automation, not human playtests.
 
-See [the implementation checklist](specs/implementation.md) for release verification still requiring human playtesting and reference-device measurements. The expedition-length estimates are initial design targets, not measured completion times.
+See [the game specification](specs/infinicave.md) for the design and [the implementation checklist](specs/implementation.md) for release verification still requiring human playtesting and reference-device measurements. The expedition-length estimates are initial design targets, not measured completion times.

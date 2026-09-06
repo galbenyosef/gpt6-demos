@@ -6,7 +6,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects range from an architectural explorer to a tarot reading room. Each demo is a standalone application with its own source code, setup instructions, and a YouTube walkthrough below.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, and a helicopter cave expedition. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
 
@@ -31,6 +31,12 @@ An Art Deco tarot experience with animated Three.js cards, four spreads, and car
 [Tarot Spread — Arcana demo](https://youtu.be/7ZIemecE9Cg)
 
 [Source and setup](./tarot-spead/README.md) · [Adding a deck](./tarot-spead/DECKS.md)
+
+### InfiniCave — Helicopter cave expedition
+
+A single-player, side-view exploration game inspired by John Vanderaart’s Eindeloos. Pilot an armed helicopter through seeded caverns and mechanical ruins, activate relays, and shut down the cave’s heart. Choose from three finite map sizes, discover optional routes, survive enemies and timed hazards, and recover at repair checkpoints. Each expedition keeps its own local save, with autosaving and JSON import/export.
+
+[Source and setup](./infinicave/README.md) · [Game specification](./infinicave/specs/infinicave.md)
 
 ---
 
