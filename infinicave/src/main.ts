@@ -92,16 +92,20 @@ try {
     localStorage.getItem("infinicave-settings") || "null",
   );
   if (saved && typeof saved === "object") {
-    for (const field of ["effects", "music", "deadZone"] as const)
+    for (const field of ["effects", "helicopter", "music", "deadZone"] as const)
       if (typeof saved[field] === "number" && Number.isFinite(saved[field]))
         settings[field] = Math.max(
           0,
           Math.min(field === "deadZone" ? 0.5 : 1, saved[field]),
         );
+    // Preserve the old effects slider's rotor mute when upgrading preferences.
+    if (saved.helicopter === undefined && typeof saved.effects === "number")
+      settings.helicopter = Math.min(1, settings.effects * (0.35 / 0.45));
     for (const field of [
       "reducedMotion",
       "reducedFlashing",
       "lowEffects",
+      "muteAudio",
     ] as const)
       if (typeof saved[field] === "boolean") settings[field] = saved[field];
     if (
@@ -172,10 +176,10 @@ function toast(message: string, error = false) {
 function errorText(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
-function setMode(next: Mode) {
+function setMode(next: Mode, audioTail = 0) {
   mode = next;
   input.activate(next === "playing");
-  audio.active(next === "playing");
+  audio.active(next === "playing", audioTail);
   accumulator = 0;
   previous = undefined;
   if (next !== "playing") hud.innerHTML = "";
@@ -634,11 +638,11 @@ function settingsPanel() {
       : "home";
   setMode("settings");
   overlay(
-    `<div class="panel-heading"><h2>Make yourself at home.</h2><button class="ghost" data-action="back-panel" aria-label="Back">${icon("close")}</button></div><div class="settings-section">Sound</div>${range("effects", "Effects volume", "Rotor, weapons, machinery & signals", 0, 1, 0.05)}${range("music", "Ambient volume", "A quiet undertone for the descent", 0, 1, 0.05)}<div class="settings-section">Comfort & performance</div>${toggle("reducedMotion", "Reduced motion", "Disable banking, screen shake & camera look-ahead")}${toggle("reducedFlashing", "Reduced flashing", "Steady damage feedback & electrical effects")}${toggle("lowEffects", "Lower effects", "Reduced resolution and decorative particles")}<div class="settings-section">Gamepad</div>${range("deadZone", "Stick dead zone", "Ignore small unintended stick movements", 0, 0.5, 0.01)}<div class="panel-actions"><button class="secondary" data-action="controls">Remap controls ${icon("keyboard")}</button><button class="primary" data-action="back-panel">Done</button></div>`,
+    `<div class="panel-heading"><h2>Make yourself at home.</h2><button class="ghost" data-action="back-panel" aria-label="Back">${icon("close")}</button></div><div class="settings-section">Sound</div>${toggle("muteAudio", "Mute all audio", "Silence everything while keeping your volume choices")}${range("helicopter", "Helicopter volume", "Rotor, engine & airflow · set to 0 to turn off", 0, 1, 0.05)}${range("effects", "Effects volume", "Weapons, impacts, machinery & signals · 0 turns off", 0, 1, 0.05)}${range("music", "Music volume", "An original ambient track · 0 turns off", 0, 1, 0.05)}<div class="settings-section">Comfort & performance</div>${toggle("reducedMotion", "Reduced motion", "Disable banking, screen shake & camera look-ahead")}${toggle("reducedFlashing", "Reduced flashing", "Steady damage feedback & electrical effects")}${toggle("lowEffects", "Lower effects", "Reduced resolution and decorative particles")}<div class="settings-section">Gamepad</div>${range("deadZone", "Stick dead zone", "Ignore small unintended stick movements", 0, 0.5, 0.01)}<div class="panel-actions"><button class="secondary" data-action="controls">Remap controls ${icon("keyboard")}</button><button class="primary" data-action="back-panel">Done</button></div>`,
   );
 }
 function range(
-  name: "effects" | "music" | "deadZone",
+  name: "effects" | "helicopter" | "music" | "deadZone",
   label: string,
   help: string,
   min: number,
@@ -648,7 +652,7 @@ function range(
   return `<label class="settings-row"><span>${label}<small>${help}</small></span><input type="range" data-setting="${name}" aria-label="${label}" min="${min}" max="${max}" step="${step}" value="${settings[name]}"></label>`;
 }
 function toggle(
-  name: "reducedMotion" | "reducedFlashing" | "lowEffects",
+  name: "reducedMotion" | "reducedFlashing" | "lowEffects" | "muteAudio",
   label: string,
   help: string,
 ) {
@@ -938,10 +942,16 @@ app.addEventListener("input", (event) => {
   const el = event.target as HTMLInputElement,
     field = el.dataset.setting as keyof Settings;
   if (!field) return;
-  if (field === "effects" || field === "music" || field === "deadZone")
+  if (
+    field === "effects" ||
+    field === "helicopter" ||
+    field === "music" ||
+    field === "deadZone"
+  )
     settings[field] = Number(el.value);
   else if (
     field === "lowEffects" ||
+    field === "muteAudio" ||
     field === "reducedMotion" ||
     field === "reducedFlashing"
   )
@@ -1039,6 +1049,7 @@ function frame(now: number) {
       if (mode !== "playing") break;
       previous = { x: context.runtime.player.x, y: context.runtime.player.y };
       const events = tick(context, sampled);
+      audio.motion(context.runtime.player, sampled);
       accumulator -= DT;
       for (const event of events) {
         renderer?.event(event, settings);
@@ -1054,7 +1065,7 @@ function frame(now: number) {
           void save(true);
         }
         if (event.type === "complete") {
-          setMode("loading");
+          setMode("loading", 2);
           app.innerHTML = "";
           hud.innerHTML = "";
           completionTimer = 0;
@@ -1070,9 +1081,6 @@ function frame(now: number) {
         void save(true);
       }
     }
-    audio.motion(
-      Math.hypot(context.runtime.player.vx, context.runtime.player.vy),
-    );
     if (now - hudTime > 100) {
       hudTime = now;
       updateHud();

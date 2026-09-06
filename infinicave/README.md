@@ -22,6 +22,7 @@ Open `http://localhost:3000`. Set `PORT` to use another port. Use a desktop brow
 - A discovery map, repair checkpoints, unlimited retries, and a final heart shutdown with expedition statistics.
 - Multiple independent local saves, autosaving, exact-state resume, and JSON import/export for backups or moving expeditions between browsers.
 - Remappable keyboard controls, gamepad flight, configurable audio, reduced motion, reduced flashing, and lower-effects settings.
+- Layered helicopter audio that changes with climbing, descending, banking, speed, and braking; richer combat and machinery effects; an optional original ambient soundtrack.
 - A self-contained static build with locally bundled fonts and no account or backend requirement.
 
 ## Controls
@@ -34,9 +35,17 @@ Open `http://localhost:3000`. Set `PORT` to use another port. Use a desktop brow
 | Map      | M             | North button       |
 | Pause    | Escape        | Menu button        |
 
-Keyboard bindings can be remapped. Gamepad dead zone, effects/ambient volume, reduced motion, reduced flashing, and lower effects are available in Settings. Menus use keyboard or mouse. Touch flight is outside the initial scope.
+Keyboard bindings can be remapped. Gamepad dead zone, audio volumes, reduced motion, reduced flashing, and lower effects are available in Settings. Menus use keyboard or mouse. Touch flight is outside the initial scope.
 
 Release movement to hover. Walls have a soft visual contact margin and a 0.35-second grace period. Brief brushes and glancing slides are harmless; sustained inward pressure damages the hull and bounces the craft away. Faster impacts cause more damage once the grace period is exhausted. Repeated impacts can destroy the helicopter. Amber machinery marks timed crossings; wait for the open window. Green stations repair the craft and set a checkpoint. Death or Return to Checkpoint restores its gameplay snapshot, including enemies, relays, and discovery. Time and death totals remain cumulative.
+
+## Sound
+
+Settings provides independent **Helicopter**, **Effects**, and **Music** volume sliders. Set any slider to zero to disable that layer, or enable **Mute all audio** to silence everything while retaining your volume choices. Preferences stay on this device. Music starts off for new settings; existing volume preferences are preserved.
+
+The helicopter mixes rotor throb, engine whine, and airflow. Pitch responds smoothly to climb/descent, banking, speed, thrust, and braking. Effects include gunfire, explosions, hull impacts, a growing wall scrape, low-hull warning pulses, relay machinery, repair chimes, discovery signals, and a completion fanfare. The optional background track is an original 24-second ambient loop with soft chords, bass, and a bell melody.
+
+All sounds are synthesized locally with Web Audio; no recordings or music downloads are required. Audio starts when you begin or resume flight and pauses with the game, including on focus loss. The completion fanfare accompanies the shutdown before audio stops. Sound cues supplement the visible HUD and effects.
 
 ## Saving
 
@@ -98,6 +107,7 @@ bun run test:browser
 Browser tests use Playwright’s packaged CLI (which requires its Node runtime); development, builds, generation, and unit tests use Bun. Install Chromium with `bunx playwright install chromium` if needed. `CHROMIUM_PATH` can select an existing Chromium binary; the test wrapper also detects an installed Linux Playwright Chromium cache.
 
 - `tests/core.test.ts`: determinism, physical/progression rejection fixtures, flight, exact controlled-step save round trips, checkpoint recovery, compatibility.
+- `tests/audio.test.ts` and `tests/browser/audio.pw.ts`: movement-dependent pitch, wall scrape response, real Web Audio output and channel isolation, mute, pause/resume cleanup, and saved audio preferences.
 - `tests/persistence.test.ts`: save ordering, corrupt-revision recovery, quota failures, interrupted transactions, import limits, and persisted completion after a real simulated flight.
 - `tests/browser/`: creation, controls, pause/focus, independent contexts, imports/exports, writer locks, worker parity, save-error UI, completion inspection, preferences, responsive menus, and GPU-resource stability.
 - `tests/seed-corpus-report.json`: fixed corpus of 1,000 seeds for each size, plus all fallback layouts.

@@ -175,7 +175,9 @@ export interface Controls {
 }
 export interface Settings {
   effects: number;
+  helicopter: number;
   music: number;
+  muteAudio: boolean;
   deadZone: number;
   reducedMotion: boolean;
   reducedFlashing: boolean;
@@ -184,7 +186,9 @@ export interface Settings {
 }
 export const DEFAULT_SETTINGS: Settings = {
   effects: 0.45,
-  music: 0.2,
+  helicopter: 0.35,
+  music: 0,
+  muteAudio: false,
   deadZone: 0.18,
   reducedMotion: false,
   reducedFlashing: false,

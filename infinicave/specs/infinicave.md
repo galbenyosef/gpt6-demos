@@ -246,7 +246,7 @@ Render nearby cave chunks and batch repeated geometry. Chunk culling is a render
 
 Target 60 FPS at 1080p on an agreed integrated-GPU reference laptop, with a lower-effects setting. Establish that device and measure performance during implementation. Dispose of scene resources when switching contexts; repeated switches must not leak GPU objects, event listeners, audio nodes, or workers.
 
-Use positional rotor, weapon, machine, and enemy sounds, with separate music/effects volume and mute controls. Start audio only after a user gesture. All gameplay-essential audio cues also have visible equivalents.
+Use layered helicopter audio whose pitch and timbre respond smoothly to speed, climb/descent, banking, thrust, and braking, plus positional weapon, impact, machine, and enemy effects. Add wall-pressure scrape, low-hull warning, repair/relay/discovery signals, and a completion fanfare. Provide an optional original synthesized background track with chords, bass, and melody. Helicopter, effects, and music each have an independent volume slider whose zero setting disables that layer; a global mute preserves the individual volume choices. Music defaults off for new preferences, and existing users retain their saved volumes and rotor mute. Start audio only after a user gesture, suspend it with gameplay or focus loss, and allow the completion fanfare to finish during shutdown. All gameplay-essential audio cues also have visible equivalents. Audio synthesis and music sequencing must not consume gameplay randomness or modify saved simulation state.
 
 ## 8. Acceptance criteria and verification
 

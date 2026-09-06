@@ -6,6 +6,7 @@ The product specification remains `specs/infinicave.md`. This checklist records 
 
 - [x] Bun development and self-contained static production builds, pinned dependencies.
 - [x] Three.js side view, original helicopter and cave scenery, stone instancing/chunk culling, camera, particles, positional synthesized sound.
+- [x] Movement-sensitive rotor/engine/airflow layers, expanded combat and machinery effects, wall scrape and low-hull signals, original optional ambient track, separate helicopter/effects/music volumes, and persistent global mute.
 - [x] Fixed 60 Hz flight, circular swept collision, hover damping, simultaneous fire/movement/interaction, finite seeded enemies.
 - [x] Forgiving wall contact: 0.30-unit cosmetic cushion, 0.35-second contact grace, impact-scaled damage and rebound; persisted contact state and version 1 save migration.
 - [x] Keyboard remapping, gamepad flight, configurable dead zone, focus/visibility pause, cleared held input, comfort settings.
@@ -25,6 +26,7 @@ The product specification remains `specs/infinicave.md`. This checklist records 
 - Normal-control flight automation completes three seeds per size, without invulnerability or teleporting, and checks a save round trip midway.
 - Unit tests exercise malformed geometry/progression, exact next-tick equality after save/load, state rollback, compatibility, queued save ordering, quota failure, aborted transactions, recovery from corrupt latest saves, import limits, and completion persistence.
 - Chromium integration tests cover the end-to-end menus and storage workflows, worker/nonworker hashes, failure feedback, completed-context inspection, preference persistence, and stable GPU resource counts across repeated world rebuilds.
+- Audio checks cover movement-dependent pitch, mirrored banking, braking, and wall pressure. Chromium measures actual output for each independent audio bus, zero-volume and global-mute silence, pitch changes, pause/resume cleanup, completion-tail suspension, and preference migration/persistence.
 
 Reports describe the environment in which they were measured. Automated pilots know their route and are not evidence for human discovery time or readability.
 
@@ -34,5 +36,6 @@ Reports describe the environment in which they were measured. Automated pilots k
 - [ ] Agree on an integrated-GPU reference laptop and measure 60 FPS at 1080p, including enemy/hazard-heavy rooms and lower-effects mode.
 - [ ] Run interactive browser checks on Firefox and Safari as well as Chromium; validate physical gamepad behavior on target hardware.
 - [ ] Exercise real disk-pressure/quota behavior on target browser profiles in addition to injected transaction failures.
+- [ ] Listen on speakers and headphones to assess the helicopter mix, warning clarity, and soundtrack balance during an unfamiliar expedition.
 
 Initial design targets remain 10–15, 20–30, and 35–50 minutes for first human completion. Route-aware automation is much faster, so the UI estimates must be recalibrated after playtesting. No reference-laptop performance result is claimed by this implementation.
