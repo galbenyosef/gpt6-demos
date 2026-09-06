@@ -50,11 +50,6 @@ Everyone is invited and welcome to contribute: open issues, propose pull request
 
 This project follows the [FOSS Pluralism Manifesto](./FOSS_PLURALISM_MANIFESTO.md), which affirms respect for people, freedom to critique ideas, and space for diverse perspectives.
 
-Keep domain logic independent from the UI and platform adapters. Musical objects
-compile into separate realtime execution state, and audio processing must never
-depend on UI progress. Follow the constraints in `openspec/config.yaml` and the
-relevant change artifacts.
-
 Before submitting a change, complete its verification tasks and update the
 relevant OpenSpec artifacts when behavior or requirements change.
 
