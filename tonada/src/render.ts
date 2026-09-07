@@ -1,4 +1,4 @@
-import { type Project } from './document';
+import { type Project, playbackTracks } from './document';
 import { Engine, CEILING } from './engine';
 import { eventsFor, soundEvent, tickSeconds } from './scheduler';
 import { LIMITS, validateProject } from './validation';
@@ -11,7 +11,8 @@ export async function renderAudio(
 ) {
   const p = validateProject(structuredClone(project));
   const data = eventsFor(p, range, patternId);
-  const release = Math.max(...[...p.tracks, p.chordTrack].map((t) => t.voice.release));
+  const tracks = playbackTracks(p, range, patternId);
+  const release = Math.max(...tracks.map((t) => t.voice.release));
   const repeats =
     p.master.feedback > 0 ? Math.ceil(Math.log(0.0001) / Math.log(p.master.feedback)) : 1;
   const delayTail = (60 / p.tempo) * p.master.delayDivision * repeats;
@@ -20,7 +21,7 @@ export async function renderAudio(
   if (duration > LIMITS.renderSeconds)
     throw new Error('Render exceeds the 180-second limit. Shorten the song or render a pattern.');
   const c = new OfflineAudioContext(2, Math.ceil(duration * rate), rate);
-  const engine = new Engine(c, [...p.tracks, p.chordTrack], p.master, p.seed, p.samples, p.tempo);
+  const engine = new Engine(c, tracks, p.master, p.seed, p.samples, p.tempo);
   data.events.forEach((e) => engine.schedule(soundEvent(e, p)));
   progress(0.05);
   for (let i = 1; i <= 4; i++) {

@@ -1,5 +1,7 @@
 import {
   newProject,
+  activatePattern,
+  patternTrackId,
   History,
   barTicks,
   patternTicks,
@@ -29,6 +31,7 @@ import { Store, RecoveryError, download, exportProject, importProject } from '..
 import { Transport, tickSeconds, eventsFor } from '../scheduler';
 import { renderAudio, wav, midi, thumbnail } from '../render';
 import { decodeSample, Capture } from '../sampler';
+import { TEMPLATES, applyTemplate, type TemplateId } from '../templates';
 import { Visual } from '../visual';
 import { Engine } from '../engine';
 import { loadPacks, type Pack } from '../packs';
@@ -38,6 +41,7 @@ const app = document.querySelector<HTMLElement>('#app')!,
   store = new Store(),
   history = new History(),
   capture = new Capture();
+let selectedTemplate: TemplateId = 'ambient';
 let looping = true,
   metronome = false;
 let project: Project | null = null,
@@ -117,6 +121,8 @@ function fail(error: unknown) {
 function edit(fn: () => void, structural = false, redraw = true) {
   history.push(p());
   fn();
+  if (pattern().sound)
+    pattern().sound = structuredClone({ tracks: p().tracks, chordTrack: p().chordTrack });
   dirty = true;
   editVersion++;
   saveState = t('Unsaved', 'Sin guardar');
@@ -158,9 +164,14 @@ function endAudition() {
   auditionContext = null;
 }
 async function audition(pitch: number) {
-  if (transport?.engine && transport.context) {
+  if (
+    transport?.engine &&
+    transport.context &&
+    transport.engine.tracks.has(patternTrackId(pattern(), track().id))
+  ) {
     transport.engine.schedule({
       track: track().id,
+      channel: patternTrackId(pattern(), track().id),
       pitch,
       velocity: 0.7,
       time: transport.context.currentTime + 0.01,
@@ -224,6 +235,7 @@ async function openProject(value: Project) {
   history.past = [];
   history.future = [];
   patternIndex = 0;
+  activatePattern(p(), 0);
   bar = 0;
   trackIndex = 4;
   screen = 'desk';
@@ -351,8 +363,12 @@ function song() {
 function spectrum() {
   return `<section class="spectrum-card"><div class="spectrum-title"><span>${t('SPECTRUM SURFACE', 'SUPERFICIE ESPECTRAL')} <span class="muted">/ ${esc(track().name)}</span></span><span>${transport?.playing ? t('LIVE', 'EN VIVO') : t('AWAITING SOUND', 'ESPERANDO SONIDO')}</span></div><div class="visual" id="visual"></div><div class="spectrum-axes"><span>20 Hz</span><span>200 Hz</span><span>2 kHz</span><span>20 kHz</span></div></section>`;
 }
+function templateChooser() {
+  const selected = TEMPLATES.find((x) => x.id === selectedTemplate)!;
+  return `<section class="template-chooser" aria-label="${t('Arrangement templates', 'Plantillas de arreglos')}"><div class="template-controls"><label for="arrangement-template">${t('Start from a template', 'Partir de una plantilla')}</label><select id="arrangement-template">${TEMPLATES.map((item) => `<option value="${item.id}" ${selectedTemplate === item.id ? 'selected' : ''}>${item.name[language]}</option>`).join('')}</select>${button('apply-template', t('＋ Add pattern', '＋ Añadir patrón'), `class="primary" ${p().patterns.length >= 64 ? 'disabled' : ''}`)}</div><p id="template-description">${selected.description[language]} <span>${t('New pattern · current key & tempo · existing work kept', 'Nuevo patrón · tonalidad y tempo actuales · conserva tu trabajo')}</span></p></section>`;
+}
 function desk() {
-  return `<div class="view-title"><div><span class="eyebrow">${esc(pattern().name)} / ${t('EDITOR', 'EDITOR')}</span><h2 style="margin-top:7px">${esc(track().name)} <span class="muted" style="font-weight:400">${track().percussive ? t('sequence', 'secuencia') : t('piano roll', 'piano roll')}</span></h2></div><div class="bars">${Array.from({ length: pattern().bars }, (_, i) => `<button data-bar="${i}" class="${bar === i ? 'active' : ''}" aria-label="${t('Bar', 'Compás')} ${i + 1}">${String(i + 1).padStart(2, '0')}</button>`).join('')}</div></div><div class="editor-toolbar">${button('lock', `♧ ${t('Scale lock', 'Bloqueo de escala')}`, `aria-pressed="${p().scaleLock}"`)}${button('arm', `● ${t('Step entry', 'Entrada por pasos')}`, `aria-pressed="${armed}"`)}<span class="spacer"></span><select id="pattern-bars" aria-label="${t('Pattern bars', 'Compases del patrón')}">${Array.from({ length: 8 }, (_, i) => `<option value="${i + 1}" ${pattern().bars === i + 1 ? 'selected' : ''}>${i + 1} ${t('bars', 'compases')}</option>`).join('')}</select><select id="resolution" aria-label="${t('Grid resolution', 'Resolución de cuadrícula')}">${[120, 240, 480, 960].map((v) => `<option value="${v}" ${v === pattern().resolution ? 'selected' : ''}>1/${(PPQ * 4) / v}</option>`).join('')}</select>${button('oct-down', '−8', `aria-label="${t('Octave down', 'Bajar octava')}"`)}${button('oct-up', '+8', `aria-label="${t('Octave up', 'Subir octava')}"`)}</div>${grid()}<div class="editor-toolbar"><div class="note-tools">${button('snap', t('Snap to harmony', 'Ajustar a armonía'))}${button('fit', t('Fit rhythm', 'Ajustar ritmo'))}${button('transpose', t('↑ Scale degree', '↑ Grado de escala'))}${button('clear', t('Clear track', 'Vaciar pista'))}</div><span class="spacer"></span><label class="hint">${t('Length (steps)', 'Duración (pasos)')} <input id="note-length" type="number" min=".25" max="${patternTicks(p(), pattern()) / pattern().resolution}" step=".25" value="${selectedNote() ? Number((selectedNote()!.duration / pattern().resolution).toFixed(2)) : 0.8}" ${selectedNote() ? '' : 'disabled'}></label><span class="velocity"><small>${t('Velocity', 'Velocidad')}</small> <input id="velocity" type="range" min=".01" max="1" step=".01" value="${selectedNote()?.velocity ?? 0.7}" aria-label="${t('Selected note velocity', 'Velocidad de nota seleccionada')}"></span></div>${chords()}${showVisual ? spectrum() : ''}${song()}`;
+  return `${templateChooser()}<div class="view-title"><div><span class="eyebrow">${esc(pattern().name)} / ${t('EDITOR', 'EDITOR')}</span><h2 style="margin-top:7px">${esc(track().name)} <span class="muted" style="font-weight:400">${track().percussive ? t('sequence', 'secuencia') : t('piano roll', 'piano roll')}</span></h2></div><div class="bars">${Array.from({ length: pattern().bars }, (_, i) => `<button data-bar="${i}" class="${bar === i ? 'active' : ''}" aria-label="${t('Bar', 'Compás')} ${i + 1}">${String(i + 1).padStart(2, '0')}</button>`).join('')}</div></div><div class="editor-toolbar">${button('lock', `♧ ${t('Scale lock', 'Bloqueo de escala')}`, `aria-pressed="${p().scaleLock}"`)}${button('arm', `● ${t('Step entry', 'Entrada por pasos')}`, `aria-pressed="${armed}"`)}<span class="spacer"></span><select id="pattern-bars" aria-label="${t('Pattern bars', 'Compases del patrón')}">${Array.from({ length: 8 }, (_, i) => `<option value="${i + 1}" ${pattern().bars === i + 1 ? 'selected' : ''}>${i + 1} ${t('bars', 'compases')}</option>`).join('')}</select><select id="resolution" aria-label="${t('Grid resolution', 'Resolución de cuadrícula')}">${[120, 240, 480, 960].map((v) => `<option value="${v}" ${v === pattern().resolution ? 'selected' : ''}>1/${(PPQ * 4) / v}</option>`).join('')}</select>${button('oct-down', '−8', `aria-label="${t('Octave down', 'Bajar octava')}"`)}${button('oct-up', '+8', `aria-label="${t('Octave up', 'Subir octava')}"`)}</div>${grid()}<div class="editor-toolbar"><div class="note-tools">${button('snap', t('Snap to harmony', 'Ajustar a armonía'))}${button('fit', t('Fit rhythm', 'Ajustar ritmo'))}${button('transpose', t('↑ Scale degree', '↑ Grado de escala'))}${button('clear', t('Clear track', 'Vaciar pista'))}</div><span class="spacer"></span><label class="hint">${t('Length (steps)', 'Duración (pasos)')} <input id="note-length" type="number" min=".25" max="${patternTicks(p(), pattern()) / pattern().resolution}" step=".25" value="${selectedNote() ? Number((selectedNote()!.duration / pattern().resolution).toFixed(2)) : 0.8}" ${selectedNote() ? '' : 'disabled'}></label><span class="velocity"><small>${t('Velocity', 'Velocidad')}</small> <input id="velocity" type="range" min=".01" max="1" step=".01" value="${selectedNote()?.velocity ?? 0.7}" aria-label="${t('Selected note velocity', 'Velocidad de nota seleccionada')}"></span></div>${chords()}${showVisual ? spectrum() : ''}${song()}`;
 }
 const voiceLabels: Record<string, [string, string, string]> = {
   detune: ['Detune', 'Desafinación', 'ct'],
@@ -469,7 +485,9 @@ function draw() {
           }),
         flash,
       );
-      visual.setAnalyser(transport?.engine?.tracks.get(track().id)?.analyser);
+      visual.setAnalyser(
+        transport?.engine?.tracks.get(patternTrackId(pattern(), track().id))?.analyser,
+      );
     } catch {
       host.innerHTML = `<div class="no-gl">${t('WebGL is unavailable. Use the mixer sliders; every sound control remains available.', 'WebGL no está disponible. Usa los controles del mezclador; todos los controles de sonido siguen disponibles.')}</div>`;
     }
@@ -824,6 +842,29 @@ async function action(action: string, el: HTMLElement) {
         pattern().chords.forEach((c) => (c.duration = barTicks(p())));
       });
       break;
+    case 'apply-template':
+      if (p().patterns.length >= 64)
+        throw new Error(t('Maximum 64 patterns.', 'Máximo 64 patrones.'));
+      // Construct first so a capacity error cannot create an undo entry or alter the document.
+      {
+        const next = structuredClone(p());
+        const index = applyTemplate(next, selectedTemplate, language);
+        stop();
+        edit(() => {
+          project = next;
+          patternIndex = index;
+          bar = 0;
+          trackIndex = 4;
+          scope = 'pattern';
+        }, true);
+        notify(
+          t(
+            'Template added as a new pattern. Press Play to hear it.',
+            'Plantilla añadida como nuevo patrón. Pulsa Reproducir para escucharla.',
+          ),
+        );
+      }
+      break;
     case 'duplicate-pattern':
       if (p().patterns.length >= 64) throw new Error('Maximum 64 patterns.');
       edit(() => {
@@ -1066,6 +1107,12 @@ document.addEventListener('change', (event) => {
       edit(() => Object.assign(sample, next), true);
     } else
       switch (el.id) {
+        case 'arrangement-template':
+          if (TEMPLATES.some((item) => item.id === el.value)) {
+            selectedTemplate = el.value as TemplateId;
+            draw();
+          }
+          break;
         case 'tempo': {
           const value = Number(el.value);
           if (value < 40 || value > 240 || !Number.isFinite(value)) {
@@ -1089,6 +1136,7 @@ document.addEventListener('change', (event) => {
         case 'pattern-select':
           stop();
           patternIndex = Number(el.value);
+          activatePattern(p(), patternIndex);
           bar = 0;
           draw();
           break;

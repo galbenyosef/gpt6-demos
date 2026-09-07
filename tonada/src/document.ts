@@ -72,6 +72,7 @@ export type Pattern = {
   resolution: number;
   notes: Note[];
   chords: Chord[];
+  sound?: { tracks: Track[]; chordTrack: Track };
 };
 export type Sample = {
   id: string;
@@ -354,5 +355,36 @@ export class History {
     const next = this.future.pop();
     if (next) this.past.push(editSnapshot(p));
     return next ?? p;
+  }
+}
+
+export function patternTrackId(pattern: Pattern, trackId: string) {
+  return pattern.sound ? `${pattern.id}/${trackId}` : trackId;
+}
+export function playbackTracks(
+  p: Project,
+  range: 'pattern' | 'song',
+  patternId = p.patterns[0]!.id,
+): Track[] {
+  const patterns = (range === 'song' ? [...new Set(p.song)] : [patternId]).map(
+    (id) => p.patterns.find((pat) => pat.id === id)!,
+  );
+  const result = new Map<string, Track>();
+  for (const pattern of patterns) {
+    const sound = pattern.sound ?? p;
+    const tracks = [...sound.tracks, sound.chordTrack];
+    const solo = tracks.some((t) => t.solo);
+    for (const track of tracks) {
+      const id = patternTrackId(pattern, track.id);
+      result.set(id, { ...track, id, mute: track.mute || (solo && !track.solo), solo: false });
+    }
+  }
+  return [...result.values()];
+}
+export function activatePattern(p: Project, index: number) {
+  const sound = p.patterns[index]?.sound;
+  if (sound) {
+    p.tracks = structuredClone(sound.tracks);
+    p.chordTrack = structuredClone(sound.chordTrack);
   }
 }

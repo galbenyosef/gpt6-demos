@@ -966,3 +966,33 @@ progress {
     transition: none !important;
   }
 }
+
+.template-chooser {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 13px 15px;
+  background: var(--panel);
+}
+.template-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.template-controls label {
+  font-size: 13px;
+  margin-right: auto;
+}
+.template-controls select {
+  min-width: 125px;
+}
+.template-chooser p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-top: 9px;
+}
+.template-chooser p span {
+  display: block;
+  font-size: 11px;
+}

@@ -3,6 +3,7 @@ import { random } from './theory';
 export const CEILING = 0.89;
 export type SoundEvent = {
   track: string;
+  channel?: string;
   pitch: number;
   velocity: number;
   time: number;
@@ -227,8 +228,8 @@ export class Engine {
     }
   }
   schedule(event: SoundEvent) {
-    const t = this.configs.get(event.track),
-      chain = this.tracks.get(event.track);
+    const t = this.configs.get(event.channel ?? event.track),
+      chain = this.tracks.get(event.channel ?? event.track);
     if (!t || !chain) return;
     const v = t.voice,
       c = this.context,

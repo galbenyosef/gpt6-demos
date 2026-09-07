@@ -1,5 +1,12 @@
 import { MODES } from './theory';
-import { type Project, type Voice, VERSION, patternTicks, defaultVoice } from './document';
+import {
+  type Project,
+  type Voice,
+  type Track,
+  VERSION,
+  patternTicks,
+  defaultVoice,
+} from './document';
 export const LIMITS = {
   samples: 16,
   sampleBytes: 16 * 1024 * 1024,
@@ -57,6 +64,21 @@ export function validateVoice(v: Voice) {
     number((v as unknown as Record<string, unknown>)[key], ...range);
   if (v.sampleId) string(v.sampleId);
 }
+function validateTrack(t: Track) {
+  string(t.name);
+  string(t.instrument);
+  string(t.preset);
+  assert(/^#[0-9a-fA-F]{6}$/.test(t.color), 'Invalid color.');
+  for (const k of ['mute', 'solo', 'percussive'] as const)
+    assert(typeof t[k] === 'boolean', 'Invalid track flag.');
+  number(t.level, 0, 1.5);
+  number(t.pan, -1, 1);
+  number(t.reverb, 0, 1);
+  number(t.delay, 0, 1);
+  number(t.saturation, 0, 1);
+  number(t.cutoff, 30, 18000);
+  validateVoice(t.voice);
+}
 export function validateProject(value: unknown): Project {
   const p = value as Project;
   assert(p && typeof p === 'object', 'Not a project document.');
@@ -82,19 +104,7 @@ export function validateProject(value: unknown): Project {
     string(t.id);
     assert(!ids.has(t.id), 'Duplicate track.');
     ids.add(t.id);
-    string(t.name);
-    string(t.instrument);
-    string(t.preset);
-    assert(/^#[0-9a-fA-F]{6}$/.test(t.color), 'Invalid color.');
-    for (const k of ['mute', 'solo', 'percussive'] as const)
-      assert(typeof t[k] === 'boolean', 'Invalid track flag.');
-    number(t.level, 0, 1.5);
-    number(t.pan, -1, 1);
-    number(t.reverb, 0, 1);
-    number(t.delay, 0, 1);
-    number(t.saturation, 0, 1);
-    number(t.cutoff, 30, 18000);
-    validateVoice(t.voice);
+    validateTrack(t);
   }
   assert(
     Array.isArray(p.patterns) && p.patterns.length >= 1 && p.patterns.length <= 64,
@@ -106,6 +116,24 @@ export function validateProject(value: unknown): Project {
     string(pattern.id);
     assert(!patterns.has(pattern.id), 'Duplicate pattern.');
     patterns.add(pattern.id);
+    if (pattern.sound) {
+      assert(
+        Array.isArray(pattern.sound.tracks) && pattern.sound.tracks.length === 8,
+        'Invalid pattern sound tracks.',
+      );
+      assert(pattern.sound.chordTrack?.id === 'chords', 'Invalid pattern chord sound.');
+      const seen = new Set<string>();
+      for (const track of [...pattern.sound.tracks, pattern.sound.chordTrack]) {
+        assert(ids.has(track.id) && !seen.has(track.id), 'Invalid pattern sound reference.');
+        seen.add(track.id);
+        validateTrack(track);
+      }
+      assert(
+        pattern.sound.tracks.every((track, i) => track.id === p.tracks[i]!.id),
+        'Pattern track order mismatch.',
+      );
+    }
+
     string(pattern.name);
     number(pattern.bars, 1, 8, true);
     assert([120, 240, 480, 960].includes(pattern.resolution), 'Invalid step resolution.');
@@ -176,7 +204,11 @@ export function validateProject(value: unknown): Project {
     number(s.loopEnd, s.loopStart + 0.00001, s.end);
     assert(typeof s.loop === 'boolean', 'Invalid loop.');
   }
-  for (const t of [...p.tracks, p.chordTrack])
+  for (const t of [
+    ...p.tracks,
+    p.chordTrack,
+    ...p.patterns.flatMap((pat) => (pat.sound ? [...pat.sound.tracks, pat.sound.chordTrack] : [])),
+  ])
     if (t.voice.sampleId) assert(samples.has(t.voice.sampleId), 'Missing sample.');
   assert(p.master, 'Missing master chain.');
   number(p.master.level, 0, 1);

@@ -1,3 +1,5 @@
+import { TEMPLATES, createTemplate, applyTemplate } from '../src/templates';
+import { activatePattern } from '../src/document';
 import { describe, test, expect } from 'bun:test';
 import {
   MODES,
@@ -152,5 +154,83 @@ describe('document and scheduling', () => {
     expect(validatePack(pack).presets.length).toBe(8);
     delete pack.presets[0].name.es;
     expect(() => validatePack(pack)).toThrow();
+  });
+});
+
+describe('arrangement templates', () => {
+  test('five distinct arrangements stay in scale and fit every supported meter', () => {
+    const signatures: [number, number][] = [
+      [4, 4],
+      [3, 4],
+      [6, 8],
+      [5, 4],
+    ];
+    for (const template of TEMPLATES)
+      for (const mode of Object.keys(MODES) as Mode[])
+        for (const signature of signatures) {
+          const p = newProject({ tonic: 11, mode, tempo: 137, signature, seed: 'templates' }, true);
+          const index = applyTemplate(p, template.id);
+          const pat = p.patterns[index]!;
+          expect(validateProject(p)).toBe(p);
+          expect(p.tempo).toBe(137);
+          expect(p.signature).toEqual(signature);
+          expect(pat.chords).toHaveLength(4);
+          expect(pat.notes.length).toBeGreaterThan(20);
+          for (const n of pat.notes)
+            if (!pat.sound!.tracks.find((t) => t.id === n.track)!.percussive)
+              expect(inScale(n.pitch, p.tonic, p.mode)).toBe(true);
+        }
+    const p = newProject();
+    expect(
+      new Set(
+        TEMPLATES.map((t) =>
+          JSON.stringify(
+            createTemplate(p, t.id).notes.map((n) => [n.track, n.tick, n.duration, n.pitch]),
+          ),
+        ),
+      ).size,
+    ).toBe(5);
+  });
+  test('application preserves previous notes, sounds, samples and song and is undoable', () => {
+    let p = newProject({ seed: 'preserve' });
+    p.tracks[4]!.voice.cutoff = 777;
+    p.tracks[4]!.pan = -0.7;
+    const before = structuredClone(p),
+      history = new History();
+    history.push(p);
+    const index = applyTemplate(p, 'house');
+    expect(index).toBe(1);
+    expect(p.patterns[0]!.notes).toEqual(before.patterns[0]!.notes);
+    expect(p.patterns[0]!.sound).toEqual({ tracks: before.tracks, chordTrack: before.chordTrack });
+    expect(p.song).toEqual(before.song);
+    expect(p.samples).toEqual(before.samples);
+    activatePattern(p, 0);
+    expect(p.tracks).toEqual(before.tracks);
+    activatePattern(p, 1);
+    expect(p.tracks[4]!.instrument).toBe('House organ');
+    const events = eventsFor(p, 'pattern', p.patterns[0]!.id);
+    expect(events.events.every((e) => e.channel?.startsWith(p.patterns[0]!.id + '/'))).toBe(true);
+    p = history.undo(p);
+    expect(p).toEqual(before);
+    p = history.redo(p);
+    expect(p.patterns.length).toBe(2);
+  });
+  test('invalid snapshots and sample references are rejected; capacity refusal is atomic', () => {
+    const p = newProject();
+    applyTemplate(p, 'ambient');
+    const broken = structuredClone(p);
+    broken.patterns[1]!.sound!.tracks[0]!.voice.cutoff = Infinity;
+    expect(() => validateProject(broken)).toThrow();
+    const missing = structuredClone(p);
+    missing.patterns[0]!.sound!.tracks[7]!.voice.sampleId = 'missing';
+    expect(() => validateProject(missing)).toThrow();
+    while (p.patterns.length < 64) {
+      const pat = structuredClone(p.patterns[0]!);
+      pat.id = crypto.randomUUID();
+      p.patterns.push(pat);
+    }
+    const before = JSON.stringify(p);
+    expect(() => applyTemplate(p, 'minimal')).toThrow();
+    expect(JSON.stringify(p)).toBe(before);
   });
 });

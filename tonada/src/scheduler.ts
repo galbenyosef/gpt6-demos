@@ -1,4 +1,10 @@
-import { type Project, type Pattern, patternTicks } from './document';
+import {
+  type Project,
+  type Pattern,
+  patternTicks,
+  patternTrackId,
+  playbackTracks,
+} from './document';
 import { PPQ, random } from './theory';
 import { Engine, type SoundEvent } from './engine';
 export const INTERVAL_MS = 25,
@@ -38,6 +44,7 @@ export function eventsFor(
       );
       events.push({
         track: note.track,
+        channel: patternTrackId(pattern, note.track),
         pitch: note.pitch,
         velocity,
         tick: Math.max(offset, offset + note.tick + jitter),
@@ -50,6 +57,7 @@ export function eventsFor(
       chord.voicing.forEach((pitch, j) =>
         events.push({
           track: 'chords',
+          channel: patternTrackId(pattern, 'chords'),
           pitch,
           velocity: 0.65,
           tick: ct,
@@ -75,6 +83,7 @@ export function eventsFor(
 export function soundEvent(e: MusicalEvent, p: Project, origin = 0): SoundEvent {
   return {
     track: e.track,
+    channel: e.channel,
     pitch: e.pitch,
     velocity: e.velocity,
     time: origin + tickSeconds(e.tick, p.tempo, p.swing),
@@ -116,7 +125,7 @@ export class Transport {
     await this.context.resume();
     this.engine = new Engine(
       this.context,
-      [...p.tracks, p.chordTrack],
+      playbackTracks(p, this.range, this.patternId),
       p.master,
       p.seed,
       p.samples,
@@ -159,7 +168,7 @@ export class Transport {
       this.anchorTime = now + 0.02;
       this.anchorTick = this.committed;
     }
-    this.engine.update([...p.tracks, p.chordTrack], p.master.level, now);
+    this.engine.update(playbackTracks(p, this.range, this.patternId), p.master.level, now);
     const ahead = now + AHEAD;
     const data = eventsFor(p, this.range, this.patternId);
     const cycleTicks = data.ticks;
@@ -174,7 +183,13 @@ export class Transport {
         const beat = Math.ceil(this.committed / PPQ) * PPQ;
         if (beat < end)
           this.engine.schedule({
-            track: 'track-2',
+            track: p.tracks[2]!.id,
+            channel: patternTrackId(
+              p.patterns.find(
+                (pat) => pat.id === (this.range === 'song' ? p.song[0] : this.patternId),
+              )!,
+              p.tracks[2]!.id,
+            ),
             pitch: beat % (PPQ * p.signature[0]) === 0 ? 84 : 76,
             velocity: 0.6,
             time: this.time(beat, p),

@@ -1,3 +1,4 @@
+import * as templates from '../src/templates';
 import * as document from '../src/document';
 import * as render from '../src/render';
 import * as persistence from '../src/persistence';
@@ -9,6 +10,7 @@ import * as validation from '../src/validation';
 Object.assign(window, {
   tonada: {
     ...document,
+    ...templates,
     ...render,
     ...persistence,
     ...scheduler,
