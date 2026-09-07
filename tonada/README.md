@@ -40,6 +40,10 @@ bun run verify:corpus
 
 Browser tests use a separate server on **4317**, with hot reload disabled. Tests cover the model, assistance, audio reproducibility, pitch, ADSR, filter response, overload, voice stealing, project export/import, sample capacity, independent projects, revision recovery, quota/transaction failures, cross-tab locks, keyboard editing, WAV download, local samples, and WebGL fallback. `docs/verification/` holds the measured browser-specific audio and corpus reports. See [verification notes](docs/verification.md) for limits and outstanding human work.
 
+## Example projects
+
+The [examples directory](examples/README.md) contains two importable projects: **After Hours · Classic House** (124 BPM) and **Velvet Blue · Ambient Soul** (76 BPM). Each includes several patterns and a complete song arrangement. Open them using **Projects → Import project**, then select **Song** in the transport to play the full arrangement.
+
 ## Packs
 
 Add `public/packs/<lowercase-slug>/pack.json`; no registry change is necessary. [The essentials pack](public/packs/essentials/pack.json) is a complete example. Display names, descriptions and preset names require `en` and `es`. Each voice stores every parameter; sampler presets additionally specify a generator. Currently `pluck` accepts frequency 30–4000 Hz and duration 0.1–10 seconds. Its triangle oscillator is enveloped in an `OfflineAudioContext` at 22,050 Hz and encoded as 16-bit PCM. Generated WAVs and the catalog are build outputs, not recorded source assets.
