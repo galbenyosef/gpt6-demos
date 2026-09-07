@@ -1,0 +1,25 @@
+{
+  "name": "tonada",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "1.55.1",
+    "@types/bun": "1.3.0",
+    "@types/three": "0.180.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "build": "bun run generate:packs && bun scripts/build.ts",
+    "generate:packs": "bun scripts/generate-packs.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test tests/model.test.ts",
+    "test:browser": "playwright test",
+    "verify:corpus": "CORPUS=1 playwright test tests/audio.spec.ts"
+  }
+}

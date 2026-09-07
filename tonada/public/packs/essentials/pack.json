@@ -1,0 +1,298 @@
+{
+  "slug": "essentials",
+  "name": {
+    "en": "Tonada essentials",
+    "es": "Esenciales de Tonada"
+  },
+  "description": {
+    "en": "Seven synthesized voices and a generated sampled pluck.",
+    "es": "Siete voces sintetizadas y una muestra de cuerda generada."
+  },
+  "presets": [
+    {
+      "id": "0",
+      "name": {
+        "en": "Round kick",
+        "es": "Bombo redondo"
+      },
+      "voice": {
+        "mode": "subtractive",
+        "wave": "sine",
+        "detune": 0,
+        "sub": 0,
+        "noise": 0,
+        "attack": 0.008,
+        "decay": 0.18,
+        "sustain": 0,
+        "release": 0.08,
+        "cutoff": 800,
+        "resonance": 0.7,
+        "filterDepth": 0,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 2,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 110
+      }
+    },
+    {
+      "id": "1",
+      "name": {
+        "en": "Dust snare",
+        "es": "Caja polvorienta"
+      },
+      "voice": {
+        "mode": "subtractive",
+        "wave": "triangle",
+        "detune": 7,
+        "sub": 0,
+        "noise": 0.85,
+        "attack": 0.008,
+        "decay": 0.12,
+        "sustain": 0,
+        "release": 0.08,
+        "cutoff": 6500,
+        "resonance": 0.7,
+        "filterDepth": 1200,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 2,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      }
+    },
+    {
+      "id": "2",
+      "name": {
+        "en": "Silk hat",
+        "es": "Charles de seda"
+      },
+      "voice": {
+        "mode": "subtractive",
+        "wave": "triangle",
+        "detune": 7,
+        "sub": 0,
+        "noise": 1,
+        "attack": 0.008,
+        "decay": 0.035,
+        "sustain": 0,
+        "release": 0.03,
+        "cutoff": 11000,
+        "resonance": 0.7,
+        "filterDepth": 1200,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 2,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      }
+    },
+    {
+      "id": "3",
+      "name": {
+        "en": "Warm analog",
+        "es": "Bajo analógico"
+      },
+      "voice": {
+        "mode": "subtractive",
+        "wave": "sawtooth",
+        "detune": 7,
+        "sub": 0.4,
+        "noise": 0,
+        "attack": 0.008,
+        "decay": 0.22,
+        "sustain": 0.35,
+        "release": 0.25,
+        "cutoff": 650,
+        "resonance": 0.7,
+        "filterDepth": 1400,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 2,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      }
+    },
+    {
+      "id": "4",
+      "name": {
+        "en": "Glass keys",
+        "es": "Teclas de cristal"
+      },
+      "voice": {
+        "mode": "fm",
+        "wave": "triangle",
+        "detune": 7,
+        "sub": 0.15,
+        "noise": 0,
+        "attack": 0.008,
+        "decay": 0.22,
+        "sustain": 0.2,
+        "release": 0.65,
+        "cutoff": 3500,
+        "resonance": 0.7,
+        "filterDepth": 1200,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 1.7,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      }
+    },
+    {
+      "id": "5",
+      "name": {
+        "en": "Copper pluck",
+        "es": "Púa de cobre"
+      },
+      "voice": {
+        "mode": "fm",
+        "wave": "triangle",
+        "detune": 7,
+        "sub": 0.15,
+        "noise": 0,
+        "attack": 0.008,
+        "decay": 0.16,
+        "sustain": 0,
+        "release": 0.3,
+        "cutoff": 3500,
+        "resonance": 0.7,
+        "filterDepth": 1200,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 3,
+        "index": 2.5,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      }
+    },
+    {
+      "id": "6",
+      "name": {
+        "en": "Soft air",
+        "es": "Aire suave"
+      },
+      "voice": {
+        "mode": "subtractive",
+        "wave": "sawtooth",
+        "detune": 12,
+        "sub": 0.15,
+        "noise": 0,
+        "attack": 0.3,
+        "decay": 0.22,
+        "sustain": 0.35,
+        "release": 1.4,
+        "cutoff": 1100,
+        "resonance": 0.7,
+        "filterDepth": 1200,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 2,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      }
+    },
+    {
+      "id": "wood",
+      "name": {
+        "en": "Wooden tine",
+        "es": "Lámina de madera"
+      },
+      "voice": {
+        "mode": "sampler",
+        "wave": "triangle",
+        "detune": 7,
+        "sub": 0.15,
+        "noise": 0,
+        "attack": 0.008,
+        "decay": 0.22,
+        "sustain": 0.35,
+        "release": 0.25,
+        "cutoff": 3500,
+        "resonance": 0.7,
+        "filterDepth": 1200,
+        "filterAttack": 0.01,
+        "filterDecay": 0.25,
+        "filterSustain": 0.2,
+        "filterRelease": 0.25,
+        "ratio": 2,
+        "index": 2,
+        "modDecay": 0.3,
+        "lfoRate": 4,
+        "lfoDepth": 0,
+        "lfoTarget": "pitch",
+        "velocityAmp": 0.8,
+        "velocityCutoff": 1000,
+        "pan": 0,
+        "pitchDrop": 0
+      },
+      "generator": {
+        "id": "pluck",
+        "frequency": 261.625565,
+        "duration": 1.5
+      }
+    }
+  ]
+}
