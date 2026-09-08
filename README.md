@@ -6,7 +6,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, and a music composition desk. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, and an orbital mechanics laboratory. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
 
@@ -63,6 +63,16 @@ A local music composition desk built with Three.js and Web Audio. Create pattern
 [Tonada — Music composition desk demo](https://youtu.be/8P9yiukoHns)
 
 [Source and setup](./tonada/README.md) · [Example projects](./tonada/examples/README.md)
+
+### Orbital — Mechanics laboratory
+
+An interactive spacecraft dynamics and mission-planning workspace built with Three.js and a physics simulation running in a Web Worker. Place spacecraft in orbit, plan impulsive or finite-duration burns, and inspect how their trajectories and orbital elements change. Explore Earth–Moon transfers and lunar capture, compare planned and coasting paths, switch reference frames, and accelerate or replay mission time. Includes a simplified Earth–Mars scenario, a Hohmann transfer helper, analysis charts, and local mission saves with JSON import/export.
+
+[![Orbital — Mechanics laboratory demo](https://i.ytimg.com/vi/hqoUdaAgZiw/hqdefault.jpg)](https://youtu.be/hqoUdaAgZiw)
+
+[Orbital — Mechanics laboratory demo](https://youtu.be/hqoUdaAgZiw)
+
+[Source and setup](./orbital-mechanics-laboratory/README.md) · [Demo specification](./orbital-mechanics-laboratory/specs/orbital-mechanics-laboratory.md)
 
 ---
 

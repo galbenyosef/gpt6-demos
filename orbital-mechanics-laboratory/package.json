@@ -4,9 +4,20 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/three": "^0.185.4",
+    "prettier": "^3.9.6"
   },
   "peerDependencies": {
     "typescript": "^7"
+  },
+  "dependencies": {
+    "three": "^0.185.1"
+  },
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "build": "bun build.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
   }
 }
