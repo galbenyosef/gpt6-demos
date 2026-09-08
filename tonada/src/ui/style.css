@@ -996,3 +996,90 @@ progress {
   display: block;
   font-size: 11px;
 }
+/* A single musical grid spans the pattern; zoom changes only its scale. */
+.zoom-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: -8px;
+}
+.zoom-toolbar label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.zoom-toolbar select,
+.zoom-toolbar button {
+  font-size: 12px;
+  min-height: 29px;
+}
+.zoom-toolbar small {
+  margin-left: auto;
+  font-size: 11px;
+}
+.grid-wrap {
+  overflow: hidden;
+}
+.grid-scroll {
+  height: 390px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #65726b #192021;
+  scrollbar-width: thin;
+}
+.grid-scroll.drum-scroll {
+  height: 248px;
+}
+.grid {
+  min-width: 100%;
+  width: calc(58px + (100% - 58px) * var(--zoom-ratio, 1));
+  grid-template-columns: 58px repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: 32px;
+  grid-auto-rows: var(--row-height, 25px);
+}
+.grid.drum {
+  grid-auto-rows: 66px;
+}
+.grid .pitch,
+.grid .cell {
+  min-height: 0;
+  min-width: 0;
+}
+.grid .pitch {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+}
+.grid .step-number {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  overflow: hidden;
+  white-space: nowrap;
+  height: 32px;
+}
+.grid .step-number.corner {
+  left: 0;
+  z-index: 6;
+}
+.grid .bar-start {
+  border-left: 2px solid #71806b;
+}
+.grid:not(.drum) .cell.on:after {
+  right: auto;
+  width: max(2px, calc(var(--note-span, 1) * 100% - 4px));
+  z-index: 2;
+  pointer-events: none;
+}
+.grid .cell.on:before {
+  z-index: 3;
+  pointer-events: none;
+}
+.bars {
+  flex-wrap: wrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .grid-scroll {
+    scroll-behavior: auto;
+  }
+}

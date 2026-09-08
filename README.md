@@ -6,7 +6,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, and a helicopter cave expedition. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, and a music composition desk. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
 
@@ -41,6 +41,16 @@ A single-player, side-view exploration game inspired by John Vanderaart’s Eind
 [InfiniCave — Helicopter cave expedition demo](https://youtu.be/m6Nl7rRFqCg)
 
 [Source and setup](./infinicave/README.md) · [Game specification](./infinicave/specs/infinicave.md)
+
+### Tonada — Music composition desk
+
+A local music composition desk built with Three.js and Web Audio. Create patterns with a zoomable piano roll, drum grid, and chord tools, or start from five arrangement templates. Shape sounds with synthesis, FM, and sampling, mix tracks in a 3D room, and chain patterns into songs. Projects stay on your device, with JSON import/export and WAV and MIDI export; classic house and ambient soul example projects are included.
+
+[![Tonada — Music composition desk demo](https://i.ytimg.com/vi/8P9yiukoHns/hqdefault.jpg)](https://youtu.be/8P9yiukoHns)
+
+[Tonada — Music composition desk demo](https://youtu.be/8P9yiukoHns)
+
+[Source and setup](./tonada/README.md) · [Example projects](./tonada/examples/README.md)
 
 ---
 

@@ -35,6 +35,7 @@ import { TEMPLATES, applyTemplate, type TemplateId } from '../templates';
 import { Visual } from '../visual';
 import { Engine } from '../engine';
 import { loadPacks, type Pack } from '../packs';
+import { anchoredScroll, visibleBarCount } from './viewport';
 import { language, setLanguage, t, esc } from './strings';
 const app = document.querySelector<HTMLElement>('#app')!,
   modal = document.querySelector<HTMLDialogElement>('#modal')!,
@@ -69,6 +70,11 @@ let project: Project | null = null,
   raf = 0,
   lastFrame = 0,
   editVersion = 0;
+let horizontalZoom: 1 | 2 | 'fit' = 1;
+let pitchRowHeight = 25;
+let gridScroll = { left: 0, top: 0 };
+let gridViewKey = '';
+let restoreGridScroll: (() => void) | null = null;
 const p = () => project!;
 const pattern = () => p().patterns[patternIndex]!;
 const track = () => (trackIndex === 8 ? p().chordTrack : p().tracks[trackIndex]!);
@@ -235,6 +241,7 @@ async function openProject(value: Project) {
   history.past = [];
   history.future = [];
   patternIndex = 0;
+  selectedStep = 0;
   activatePattern(p(), 0);
   bar = 0;
   trackIndex = 4;
@@ -278,53 +285,114 @@ function transportBar() {
 function trackRow(item: Track, index: number) {
   return `<div class="track ${index === trackIndex ? 'selected' : ''} ${index === 8 ? 'chord' : ''}" style="--track:${item.color}"><div class="track-head"><span class="track-number">${index === 8 ? '♯' : String(index + 1).padStart(2, '0')}</span><button class="select-track" data-track="${index}" aria-pressed="${index === trackIndex}"><span class="track-name">${esc(item.name)}</span><small>${esc(item.instrument)}</small></button></div><div class="track-tools"><input aria-label="${esc(item.name)} ${t('level', 'nivel')}" data-mix="level" data-index="${index}" type="range" min="0" max="1.5" step=".01" value="${item.level}"><button data-mute="${index}" aria-label="${t('Mute', 'Silenciar')} ${esc(item.name)}" aria-pressed="${item.mute}">M</button><button data-solo="${index}" aria-label="Solo ${esc(item.name)}" aria-pressed="${item.solo}">S</button></div></div>`;
 }
+function gridRows() {
+  if (track().percussive) return [42, 38, 36];
+  const root = degreePitch(0, p().tonic, p().mode, octave);
+  const lo = Math.max(0, Math.min(24, root - 5)),
+    hi = Math.min(127, Math.max(108, root + 18));
+  const rows = p().scaleLock
+    ? scalePitches(p().tonic, p().mode, lo, hi)
+    : Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
+  for (const note of pattern().notes.filter((n) => n.track === track().id))
+    if (!rows.includes(note.pitch)) rows.push(note.pitch);
+  return rows.sort((a, b) => b - a);
+}
 function grid() {
   const pat = pattern(),
     percussive = track().percussive;
-  const count = barTicks(p()) / pat.resolution;
-  let rows: number[];
-  if (percussive) rows = [42, 38, 36];
-  else {
-    rows = (
-      p().scaleLock
-        ? scalePitches(
-            p().tonic,
-            p().mode,
-            degreePitch(0, p().tonic, p().mode, octave) - 5,
-            degreePitch(0, p().tonic, p().mode, octave) + 18,
-          )
-        : Array.from({ length: 25 }, (_, i) => degreePitch(0, p().tonic, p().mode, octave) - 5 + i)
-    ).filter((n) => n >= 0 && n <= 127);
-    for (const n of pat.notes.filter((n) => n.track === track().id))
-      if (p().scaleLock && !inScale(n.pitch, p().tonic, p().mode) && !rows.includes(n.pitch))
-        rows.push(n.pitch);
-    rows = rows.sort((a, b) => b - a).slice(0, 30);
+  const count = Math.ceil(patternTicks(p(), pat) / pat.resolution);
+  selectedStep = Math.max(0, Math.min(count - 1, selectedStep));
+  const rows = gridRows();
+  if (!rows.includes(selectedPitch)) selectedPitch = nearest(selectedPitch, rows);
+  const notes = new Map(
+    pat.notes.map((n) => [`${n.track}:${n.pitch}:${Math.round(n.tick / pat.resolution)}`, n]),
+  );
+  let chordEnd = 0;
+  const chords = pat.chords.map((chord) => {
+    const start = chordEnd;
+    chordEnd += chord.duration;
+    return { chord, start, end: chordEnd };
+  });
+  const sounding = Array.from(
+    { length: count },
+    (_, step) =>
+      chords.find((c) => step * pat.resolution >= c.start && step * pat.resolution < c.end)?.chord,
+  );
+  let html = `<div class="grid-wrap"><div id="grid-scroll" class="grid-scroll ${percussive ? 'drum-scroll' : ''}" tabindex="-1" aria-label="${t('Scrollable note editor', 'Editor de notas desplazable')}"><div class="grid ${percussive ? 'drum' : ''}" role="grid" aria-label="${t('Note editor', 'Editor de notas')}" style="--cols:${count};--track:${track().color};--row-height:${pitchRowHeight}px;--zoom-ratio:${pat.bars / visibleBarCount(horizontalZoom, pat.bars)}"><span class="step-number corner">${percussive ? t('VOICE', 'VOZ') : t('NOTE', 'NOTA')}</span>`;
+  for (let step = 0; step < count; step++) {
+    const tick = step * pat.resolution,
+      local = tick % barTicks(p()),
+      start = local === 0;
+    html += `<span class="step-number ${start ? 'bar-start' : ''}" title="${t('Bar', 'Compás')} ${Math.floor(tick / barTicks(p())) + 1}">${start ? `${Math.floor(tick / barTicks(p())) + 1}.1` : local % PPQ === 0 ? String(Math.floor(local / PPQ) + 1) : '·'}</span>`;
   }
-  let html = `<div class="grid-wrap"><div class="grid ${percussive ? 'drum' : ''}" role="grid" aria-label="${t('Note editor', 'Editor de notas')}" style="--cols:${count};--track:${track().color}"><span class="step-number">${percussive ? t('VOICE', 'VOZ') : t('NOTE', 'NOTA')}</span>`;
-  for (let step = 0; step < count; step++)
-    html += `<span class="step-number">${step % 4 === 0 ? `${Math.floor(step / 4) + 1}` : '·'}</span>`;
   for (const pitch of rows) {
-    const ti = percussive ? [42, 38, 36].indexOf(pitch) : trackIndex;
-    const actualTrack = percussive ? [2, 1, 0][ti]! : trackIndex;
-    const chord = pat.chords[Math.min(bar, pat.chords.length - 1)];
-    const kind = chord ? classification(pitch, chord, p().tonic, p().mode) : 'scale';
-    html += `<span class="pitch ${kind === 'chord' ? 'chord-tone' : ''}">${percussive ? esc(p().tracks[actualTrack]!.name) : `${kind === 'chord' ? '◆' : kind === 'tension' ? '!' : '·'} ${pitchName(pitch)}`}</span>`;
+    const actualTrack = percussive ? [2, 1, 0][[42, 38, 36].indexOf(pitch)]! : trackIndex;
+    const labelChord = pat.chords[Math.min(bar, pat.chords.length - 1)];
+    const rowKind = labelChord ? classification(pitch, labelChord, p().tonic, p().mode) : 'scale';
+    html += `<span class="pitch ${rowKind === 'chord' ? 'chord-tone' : ''}" data-row-pitch="${pitch}">${percussive ? esc(p().tracks[actualTrack]!.name) : `${rowKind === 'chord' ? '◆' : rowKind === 'tension' ? '!' : '·'} ${pitchName(pitch)}`}</span>`;
     for (let step = 0; step < count; step++) {
-      const tick = bar * barTicks(p()) + step * pat.resolution;
-      const on = pat.notes.some(
-        (n) =>
-          n.track === p().tracks[actualTrack]!.id &&
-          n.pitch === pitch &&
-          Math.round(n.tick / pat.resolution) === Math.round(tick / pat.resolution),
-      );
-      html += `<button class="cell ${on ? 'on' : ''} ${step % 4 === 0 ? 'beat' : ''} ${kind === 'chord' ? 'harmony' : ''} ${selectedStep === step && selectedPitch === pitch ? 'selected' : ''}" data-step="${step}" data-pitch="${pitch}" data-note-track="${actualTrack}" role="gridcell" aria-label="${percussive ? esc(p().tracks[actualTrack]!.name) : pitchName(pitch)}, ${t('bar', 'compás')} ${bar + 1}, ${t('step', 'paso')} ${step + 1}, ${on ? t('on', 'activo') : t('off', 'inactivo')}" aria-selected="${on}" tabindex="${selectedStep === step && selectedPitch === pitch ? 0 : -1}" style="--track:${p().tracks[actualTrack]!.color}"></button>`;
+      const tick = step * pat.resolution,
+        atBar = Math.floor(tick / barTicks(p())),
+        localStep = Math.floor((tick % barTicks(p())) / pat.resolution);
+      const note = notes.get(`${p().tracks[actualTrack]!.id}:${pitch}:${step}`),
+        kind = sounding[step]
+          ? classification(pitch, sounding[step]!, p().tonic, p().mode)
+          : 'scale';
+      const selected = selectedStep === step && selectedPitch === pitch;
+      html += `<button class="cell ${note ? 'on' : ''} ${tick % PPQ === 0 ? 'beat' : ''} ${tick % barTicks(p()) === 0 ? 'bar-start' : ''} ${kind === 'chord' ? 'harmony' : ''} ${selected ? 'selected' : ''}" data-step="${step}" data-pitch="${pitch}" data-note-track="${actualTrack}" role="gridcell" aria-label="${percussive ? esc(p().tracks[actualTrack]!.name) : pitchName(pitch)}, ${t('bar', 'compás')} ${atBar + 1}, ${t('step', 'paso')} ${localStep + 1}, ${note ? t('on', 'activo') : t('off', 'inactivo')}" aria-selected="${!!note}" tabindex="${selected ? 0 : -1}" style="--track:${p().tracks[actualTrack]!.color};--note-span:${percussive ? 1 : Math.min(count - step, (note?.duration ?? pat.resolution) / pat.resolution)}"></button>`;
     }
   }
   return (
     html +
-    `</div><div class="grid-caption"><span>${t('Click to add/remove · Shift-click to select', 'Clic para añadir/quitar · Mayús-clic para seleccionar')}</span><span class="legend">◆ ${t('Chord tone', 'Nota del acorde')} &nbsp; · ${t('Scale tone', 'Nota de escala')}</span></div></div>`
+    `</div></div><div class="grid-caption"><span>${t('Click to add/remove · Shift-click to select', 'Clic para añadir/quitar · Mayús-clic para seleccionar')}</span><span class="legend">◆ ${t('Chord tone', 'Nota del acorde')} &nbsp; · ${t('Scale tone', 'Nota de escala')}</span></div></div>`
   );
 }
+function zoomControls() {
+  return `<div class="zoom-toolbar"><label for="roll-zoom">${t('View', 'Vista')}</label><select id="roll-zoom" aria-label="${t('Horizontal zoom', 'Zoom horizontal')}"><option value="1" ${horizontalZoom === 1 ? 'selected' : ''}>${t('1 bar', '1 compás')}</option><option value="2" ${horizontalZoom === 2 ? 'selected' : ''}>${t('2 bars', '2 compases')}</option><option value="fit" ${horizontalZoom === 'fit' ? 'selected' : ''}>${t('Whole pattern', 'Patrón completo')}</option></select>${button('fit-pattern', t('Fit pattern', 'Ajustar patrón'))}<label for="pitch-zoom">${t('Rows', 'Filas')}</label><select id="pitch-zoom" aria-label="${t('Pitch row height', 'Altura de las filas')}" ${track().percussive ? 'disabled' : ''}>${[18, 25, 36, 48].map((height, i) => `<option value="${height}" ${pitchRowHeight === height ? 'selected' : ''}>${[t('Compact', 'Compactas'), t('Normal', 'Normales'), t('Large', 'Grandes'), t('Extra large', 'Muy grandes')][i]}</option>`).join('')}</select><small>${t('Alt + wheel: time zoom · Shift + Alt + wheel: pitch zoom', 'Alt + rueda: zoom temporal · Mayús + Alt + rueda: zoom de notas')}</small></div>`;
+}
+function setRollZoom(
+  zoom: 1 | 2 | 'fit',
+  height = pitchRowHeight,
+  anchorX?: number,
+  anchorY?: number,
+) {
+  const scroller = document.querySelector<HTMLElement>('#grid-scroll');
+  if (!scroller) return;
+  const oldBars = visibleBarCount(horizontalZoom, pattern().bars),
+    newBars = visibleBarCount(zoom, pattern().bars);
+  const x = anchorX ?? (scroller.clientWidth + 58) / 2,
+    y = anchorY ?? scroller.clientHeight / 2;
+  const left =
+    zoom === 'fit' ? 0 : anchoredScroll(scroller.scrollLeft, x, 58, 1 / oldBars, 1 / newBars);
+  const top = track().percussive
+    ? scroller.scrollTop
+    : anchoredScroll(scroller.scrollTop, y, 32, pitchRowHeight, height);
+  horizontalZoom = zoom;
+  pitchRowHeight = height;
+  restoreGridScroll = () => {
+    const grid = document.querySelector<HTMLElement>('#grid-scroll');
+    if (grid) {
+      grid.scrollLeft = left;
+      grid.scrollTop = top;
+    }
+  };
+  draw();
+}
+function focusGridSelection() {
+  const scroller = document.querySelector<HTMLElement>('#grid-scroll'),
+    cell = document.querySelector<HTMLElement>(
+      `[data-step="${selectedStep}"][data-pitch="${selectedPitch}"]`,
+    );
+  if (!scroller || !cell) return;
+  const bounds = scroller.getBoundingClientRect(),
+    rect = cell.getBoundingClientRect();
+  if (rect.left < bounds.left + 58) scroller.scrollLeft -= bounds.left + 58 - rect.left;
+  else if (rect.right > bounds.right) scroller.scrollLeft += rect.right - bounds.right;
+  if (rect.top < bounds.top + 32) scroller.scrollTop -= bounds.top + 32 - rect.top;
+  else if (rect.bottom > bounds.bottom) scroller.scrollTop += rect.bottom - bounds.bottom;
+  cell.focus({ preventScroll: true });
+}
+
 function chordName(c: ReturnType<typeof progression>[number]) {
   const pitches = chordPitches(c.degree, p().tonic, p().mode, c.quality),
     root = KEYS[pitches[0]! % 12],
@@ -368,7 +436,7 @@ function templateChooser() {
   return `<section class="template-chooser" aria-label="${t('Arrangement templates', 'Plantillas de arreglos')}"><div class="template-controls"><label for="arrangement-template">${t('Start from a template', 'Partir de una plantilla')}</label><select id="arrangement-template">${TEMPLATES.map((item) => `<option value="${item.id}" ${selectedTemplate === item.id ? 'selected' : ''}>${item.name[language]}</option>`).join('')}</select>${button('apply-template', t('＋ Add pattern', '＋ Añadir patrón'), `class="primary" ${p().patterns.length >= 64 ? 'disabled' : ''}`)}</div><p id="template-description">${selected.description[language]} <span>${t('New pattern · current key & tempo · existing work kept', 'Nuevo patrón · tonalidad y tempo actuales · conserva tu trabajo')}</span></p></section>`;
 }
 function desk() {
-  return `${templateChooser()}<div class="view-title"><div><span class="eyebrow">${esc(pattern().name)} / ${t('EDITOR', 'EDITOR')}</span><h2 style="margin-top:7px">${esc(track().name)} <span class="muted" style="font-weight:400">${track().percussive ? t('sequence', 'secuencia') : t('piano roll', 'piano roll')}</span></h2></div><div class="bars">${Array.from({ length: pattern().bars }, (_, i) => `<button data-bar="${i}" class="${bar === i ? 'active' : ''}" aria-label="${t('Bar', 'Compás')} ${i + 1}">${String(i + 1).padStart(2, '0')}</button>`).join('')}</div></div><div class="editor-toolbar">${button('lock', `♧ ${t('Scale lock', 'Bloqueo de escala')}`, `aria-pressed="${p().scaleLock}"`)}${button('arm', `● ${t('Step entry', 'Entrada por pasos')}`, `aria-pressed="${armed}"`)}<span class="spacer"></span><select id="pattern-bars" aria-label="${t('Pattern bars', 'Compases del patrón')}">${Array.from({ length: 8 }, (_, i) => `<option value="${i + 1}" ${pattern().bars === i + 1 ? 'selected' : ''}>${i + 1} ${t('bars', 'compases')}</option>`).join('')}</select><select id="resolution" aria-label="${t('Grid resolution', 'Resolución de cuadrícula')}">${[120, 240, 480, 960].map((v) => `<option value="${v}" ${v === pattern().resolution ? 'selected' : ''}>1/${(PPQ * 4) / v}</option>`).join('')}</select>${button('oct-down', '−8', `aria-label="${t('Octave down', 'Bajar octava')}"`)}${button('oct-up', '+8', `aria-label="${t('Octave up', 'Subir octava')}"`)}</div>${grid()}<div class="editor-toolbar"><div class="note-tools">${button('snap', t('Snap to harmony', 'Ajustar a armonía'))}${button('fit', t('Fit rhythm', 'Ajustar ritmo'))}${button('transpose', t('↑ Scale degree', '↑ Grado de escala'))}${button('clear', t('Clear track', 'Vaciar pista'))}</div><span class="spacer"></span><label class="hint">${t('Length (steps)', 'Duración (pasos)')} <input id="note-length" type="number" min=".25" max="${patternTicks(p(), pattern()) / pattern().resolution}" step=".25" value="${selectedNote() ? Number((selectedNote()!.duration / pattern().resolution).toFixed(2)) : 0.8}" ${selectedNote() ? '' : 'disabled'}></label><span class="velocity"><small>${t('Velocity', 'Velocidad')}</small> <input id="velocity" type="range" min=".01" max="1" step=".01" value="${selectedNote()?.velocity ?? 0.7}" aria-label="${t('Selected note velocity', 'Velocidad de nota seleccionada')}"></span></div>${chords()}${showVisual ? spectrum() : ''}${song()}`;
+  return `${templateChooser()}<div class="view-title"><div><span class="eyebrow">${esc(pattern().name)} / ${t('EDITOR', 'EDITOR')}</span><h2 style="margin-top:7px">${esc(track().name)} <span class="muted" style="font-weight:400">${track().percussive ? t('sequence', 'secuencia') : t('piano roll', 'piano roll')}</span></h2></div><div class="bars">${Array.from({ length: pattern().bars }, (_, i) => `<button data-bar="${i}" class="${bar === i ? 'active' : ''}" aria-label="${t('Bar', 'Compás')} ${i + 1}">${String(i + 1).padStart(2, '0')}</button>`).join('')}</div></div><div class="editor-toolbar">${button('lock', `♧ ${t('Scale lock', 'Bloqueo de escala')}`, `aria-pressed="${p().scaleLock}"`)}${button('arm', `● ${t('Step entry', 'Entrada por pasos')}`, `aria-pressed="${armed}"`)}<span class="spacer"></span><select id="pattern-bars" aria-label="${t('Pattern bars', 'Compases del patrón')}">${Array.from({ length: 8 }, (_, i) => `<option value="${i + 1}" ${pattern().bars === i + 1 ? 'selected' : ''}>${i + 1} ${t('bars', 'compases')}</option>`).join('')}</select><select id="resolution" aria-label="${t('Grid resolution', 'Resolución de cuadrícula')}">${[120, 240, 480, 960].map((v) => `<option value="${v}" ${v === pattern().resolution ? 'selected' : ''}>1/${(PPQ * 4) / v}</option>`).join('')}</select>${button('oct-down', '−8', `aria-label="${t('Octave down', 'Bajar octava')}"`)}${button('oct-up', '+8', `aria-label="${t('Octave up', 'Subir octava')}"`)}</div>${zoomControls()}${grid()}<div class="editor-toolbar"><div class="note-tools">${button('snap', t('Snap to harmony', 'Ajustar a armonía'))}${button('fit', t('Fit rhythm', 'Ajustar ritmo'))}${button('transpose', t('↑ Scale degree', '↑ Grado de escala'))}${button('clear', t('Clear track', 'Vaciar pista'))}</div><span class="spacer"></span><label class="hint">${t('Length (steps)', 'Duración (pasos)')} <input id="note-length" type="number" min=".25" max="${patternTicks(p(), pattern()) / pattern().resolution}" step=".25" value="${selectedNote() ? Number((selectedNote()!.duration / pattern().resolution).toFixed(2)) : 0.8}" ${selectedNote() ? '' : 'disabled'}></label><span class="velocity"><small>${t('Velocity', 'Velocidad')}</small> <input id="velocity" type="range" min=".01" max="1" step=".01" value="${selectedNote()?.velocity ?? 0.7}" aria-label="${t('Selected note velocity', 'Velocidad de nota seleccionada')}"></span></div>${chords()}${showVisual ? spectrum() : ''}${song()}`;
 }
 const voiceLabels: Record<string, [string, string, string]> = {
   detune: ['Detune', 'Desafinación', 'ct'],
@@ -454,6 +522,8 @@ function mixer() {
   return `<div class="view-title"><h2>${t('A space for every sound', 'Un espacio para cada sonido')}</h2><span class="tag">${t('PAN × REVERB', 'PAN × REVERB')}</span></div><p class="hint">${t('Drag a voice left or right to pan. Move it up to send more sound into the room.', 'Arrastra una voz a izquierda o derecha para panoramizar. Sube para enviar más sonido a la sala.')}</p>${showVisual ? '<div class="spectrum-card"><div id="visual" class="visual mixer-space"></div><div class="spectrum-axes"><span>← L</span><span>↑ REVERB</span><span>R →</span></div></div>' : ''}<div class="mixer-channels">${[...p().tracks, p().chordTrack].map((tr, i) => `<section class="mixer-channel" style="--track:${tr.color}"><h3>${i + 1} · ${esc(tr.name)}</h3>${mixRange(tr, i, 'level', t('Level', 'Nivel'), 0, 1.5, 0.01)}${mixRange(tr, i, 'pan', t('Pan', 'Panorama'), -1, 1, 0.01)}${mixRange(tr, i, 'reverb', t('Reverb', 'Reverb'), 0, 1, 0.01)}${mixRange(tr, i, 'delay', t('Delay', 'Delay'), 0, 1, 0.01)}${mixRange(tr, i, 'saturation', t('Saturation', 'Saturación'), 0, 1, 0.01)}${mixRange(tr, i, 'cutoff', t('Filter', 'Filtro'), 30, 18000, 10)}</section>`).join('')}</div>${group(t('Master room', 'Sala máster'), `<div class="form-grid">${(['reverbDecay', 'preDelay', 'delayDivision', 'feedback'] as const).map((key, i) => `<label>${[t('Decay (s)', 'Caída (s)'), t('Pre-delay (s)', 'Pre-delay (s)'), t('Delay (beats)', 'Delay (pulsos)'), t('Feedback', 'Realimentación')][i]}<input data-master="${key}" type="number" min="${[0.1, 0, 0.125, 0][i]}" max="${[4, 0.2, 2, 0.75][i]}" step="${[0.1, 0.01, 0.125, 0.01][i]}" value="${p().master[key]}"></label>`).join('')}</div><p class="hint">${t('Master limiter always active · −1 dBFS ceiling. Room changes take effect on the next playback.', 'Limitador máster siempre activo · techo de −1 dBFS. Los cambios de sala se aplican en la próxima reproducción.')}</p>`)}`;
 }
 function draw() {
+  const oldGrid = document.querySelector<HTMLElement>('#grid-scroll');
+  if (oldGrid) gridScroll = { left: oldGrid.scrollLeft, top: oldGrid.scrollTop };
   visual?.dispose();
   visual = null;
   const focused = (document.activeElement as HTMLElement)?.id;
@@ -470,6 +540,51 @@ function draw() {
     header() +
     transportBar() +
     `<div class="workspace"><aside class="tracks"><div class="eyebrow">${t('TRACKS', 'PISTAS')}<span>08</span></div>${p().tracks.map(trackRow).join('')}${trackRow(p().chordTrack, 8)}</aside><section class="main-surface"><nav class="view-tabs" aria-label="${t('Workspace', 'Área de trabajo')}">${(['desk', 'instrument', 'mixer'] as const).map((v, i) => button(v, [t('Compose', 'Componer'), t('Instrument', 'Instrumento'), t('Mixer', 'Mezclador')][i]!, `class="${view === v ? 'active' : ''}"`)).join('')}<span style="margin-left:auto;align-self:center">${button('undo', '↶', `class="quiet" aria-label="${t('Undo', 'Deshacer')}" ${history.past.length ? '' : 'disabled'}`)}${button('redo', '↷', `class="quiet" aria-label="${t('Redo', 'Rehacer')}" ${history.future.length ? '' : 'disabled'}`)}</span></nav>${view === 'desk' ? desk() : view === 'instrument' ? instrument(true) + chords() : mixer()}</section><aside class="inspector">${view === 'instrument' ? group(t('Feel', 'Expresión'), feel()) : instrument()}</aside></div><footer class="footer"><span><span class="dot"></span>${t('All sound stays on your device', 'Todo el sonido permanece en tu dispositivo')}</span><div class="settings"><label><input id="show-visual" type="checkbox" ${showVisual ? 'checked' : ''}> ${t('3D views', 'Vistas 3D')}</label><label><input id="reduced-flash" type="checkbox" ${flash ? 'checked' : ''}> ${t('Reduced flashing', 'Destellos reducidos')}</label>${button('feel', t('Feel', 'Expresión'), 'class="quiet"')}${button('help', '?', `class="quiet" aria-label="${t('Keyboard shortcuts', 'Atajos de teclado')}"`)}</div><span><kbd>SPACE</kbd> ${t('play', 'reproducir')} &nbsp; <kbd>⌘ Z</kbd> ${t('undo', 'deshacer')}</span></footer>`;
+  const scroller = document.querySelector<HTMLElement>('#grid-scroll');
+  if (scroller) {
+    const key = `${p().id}/${pattern().id}/${trackIndex}/${p().tonic}/${p().mode}/${p().scaleLock}`;
+    if (key !== gridViewKey) {
+      gridViewKey = key;
+      const rows = gridRows(),
+        topPitch = nearest(degreePitch(0, p().tonic, p().mode, octave) + 18, rows);
+      gridScroll = {
+        left: 0,
+        top: track().percussive ? 0 : rows.indexOf(topPitch) * pitchRowHeight,
+      };
+    }
+    scroller.scrollLeft = gridScroll.left;
+    scroller.scrollTop = gridScroll.top;
+    restoreGridScroll?.();
+    restoreGridScroll = null;
+    scroller.addEventListener(
+      'wheel',
+      (event) => {
+        if (!event.altKey) return;
+        event.preventDefault();
+        const bounds = scroller.getBoundingClientRect();
+        if (event.shiftKey && !track().percussive) {
+          const sizes = [18, 25, 36, 48],
+            at = sizes.indexOf(pitchRowHeight);
+          setRollZoom(
+            horizontalZoom,
+            sizes[Math.max(0, Math.min(3, at + (event.deltaY < 0 ? 1 : -1)))]!,
+            event.clientX - bounds.left,
+            event.clientY - bounds.top,
+          );
+        } else {
+          const levels: (1 | 2 | 'fit')[] = ['fit', 2, 1];
+          const at = levels.indexOf(horizontalZoom);
+          setRollZoom(
+            levels[Math.max(0, Math.min(2, at + (event.deltaY < 0 ? 1 : -1)))]!,
+            pitchRowHeight,
+            event.clientX - bounds.left,
+            event.clientY - bounds.top,
+          );
+        }
+      },
+      { passive: false },
+    );
+  }
   const host = document.querySelector<HTMLElement>('#visual');
   if (host) {
     try {
@@ -511,10 +626,7 @@ function selectedNote() {
     (n) =>
       n.track === track().id &&
       n.pitch === selectedPitch &&
-      Math.round(n.tick / pattern().resolution) ===
-        Math.round(
-          (bar * barTicks(p()) + selectedStep * pattern().resolution) / pattern().resolution,
-        ),
+      Math.round(n.tick / pattern().resolution) === selectedStep,
   );
 }
 function toggleNote(step: number, pitch: number, index = trackIndex) {
@@ -522,18 +634,16 @@ function toggleNote(step: number, pitch: number, index = trackIndex) {
   const tr = p().tracks[index]!;
   if (p().scaleLock && !tr.percussive && !inScale(pitch, p().tonic, p().mode)) {
     const existing = pattern().notes.find(
-      (n) =>
-        n.track === tr.id &&
-        n.pitch === pitch &&
-        n.tick === bar * barTicks(p()) + step * pattern().resolution,
+      (n) => n.track === tr.id && n.pitch === pitch && n.tick === step * pattern().resolution,
     );
     if (!existing) return;
   }
   selectedStep = step;
+  bar = Math.floor((step * pattern().resolution) / barTicks(p()));
   selectedPitch = pitch;
   trackIndex = index;
   edit(() => {
-    const tick = bar * barTicks(p()) + step * pattern().resolution;
+    const tick = step * pattern().resolution;
     const at = pattern().notes.findIndex(
       (n) =>
         n.track === tr.id &&
@@ -756,10 +866,12 @@ async function action(action: string, el: HTMLElement) {
       break;
     case 'oct-up':
       octave = Math.min(7, octave + 1);
+      gridViewKey = '';
       draw();
       break;
     case 'oct-down':
       octave = Math.max(1, octave - 1);
+      gridViewKey = '';
       draw();
       break;
     case 'undo':
@@ -853,6 +965,7 @@ async function action(action: string, el: HTMLElement) {
         edit(() => {
           project = next;
           patternIndex = index;
+          selectedStep = 0;
           bar = 0;
           trackIndex = 4;
           scope = 'pattern';
@@ -864,6 +977,9 @@ async function action(action: string, el: HTMLElement) {
           ),
         );
       }
+      break;
+    case 'fit-pattern':
+      setRollZoom('fit');
       break;
     case 'duplicate-pattern':
       if (p().patterns.length >= 64) throw new Error('Maximum 64 patterns.');
@@ -1017,6 +1133,13 @@ document.addEventListener('click', (event) => {
     }
     if (el.dataset.bar) {
       bar = Number(el.dataset.bar);
+      selectedStep = Math.ceil((bar * barTicks(p())) / pattern().resolution);
+      restoreGridScroll = () => {
+        const grid = document.querySelector<HTMLElement>('#grid-scroll');
+        if (grid)
+          grid.scrollLeft =
+            (bar * (grid.clientWidth - 58)) / visibleBarCount(horizontalZoom, pattern().bars);
+      };
       draw();
       return;
     }
@@ -1039,6 +1162,7 @@ document.addEventListener('click', (event) => {
     if (el.dataset.step) {
       if (event.shiftKey) {
         selectedStep = Number(el.dataset.step);
+        bar = Math.floor((selectedStep * pattern().resolution) / barTicks(p()));
         selectedPitch = Number(el.dataset.pitch);
         trackIndex = Number(el.dataset.noteTrack);
         draw();
@@ -1136,6 +1260,7 @@ document.addEventListener('change', (event) => {
         case 'pattern-select':
           stop();
           patternIndex = Number(el.value);
+          selectedStep = 0;
           activatePattern(p(), patternIndex);
           bar = 0;
           draw();
@@ -1160,8 +1285,17 @@ document.addEventListener('change', (event) => {
           }, true);
           break;
         }
+        case 'roll-zoom':
+          setRollZoom(el.value === 'fit' ? 'fit' : (Number(el.value) as 1 | 2));
+          break;
+        case 'pitch-zoom':
+          setRollZoom(horizontalZoom, Number(el.value));
+          break;
         case 'resolution':
-          edit(() => (pattern().resolution = Number(el.value)));
+          edit(() => {
+            selectedStep = Math.floor((selectedStep * pattern().resolution) / Number(el.value));
+            pattern().resolution = Number(el.value);
+          });
           break;
         case 'note-length':
           if (selectedNote()) {
@@ -1289,7 +1423,11 @@ app.addEventListener('keydown', (event) => {
     void audition(safePitch).catch(fail);
     if (armed) {
       toggleNote(selectedStep, safePitch);
-      selectedStep = (selectedStep + 1) % (barTicks(p()) / pattern().resolution);
+      selectedStep =
+        (selectedStep + 1) % Math.ceil(patternTicks(p(), pattern()) / pattern().resolution);
+      bar = Math.floor((selectedStep * pattern().resolution) / barTicks(p()));
+      draw();
+      focusGridSelection();
     }
     return;
   }
@@ -1327,7 +1465,7 @@ app.addEventListener('keydown', (event) => {
         );
       return;
     }
-    const count = barTicks(p()) / pattern().resolution;
+    const count = Math.ceil(patternTicks(p(), pattern()) / pattern().resolution);
     if (key === 'arrowleft') selectedStep = (selectedStep + count - 1) % count;
     if (key === 'arrowright') selectedStep = (selectedStep + 1) % count;
     if (key === 'arrowup' || key === 'arrowdown') {
@@ -1338,16 +1476,16 @@ app.addEventListener('keydown', (event) => {
       index = (index + (key === 'arrowup' ? -1 : 1) + pitches.length) % pitches.length;
       selectedPitch = pitches[index] ?? 60;
     }
+    bar = Math.floor((selectedStep * pattern().resolution) / barTicks(p()));
     draw();
-    document
-      .querySelector<HTMLElement>(`[data-step="${selectedStep}"][data-pitch="${selectedPitch}"]`)
-      ?.focus();
+    focusGridSelection();
     return;
   }
   if (key === 'enter' && el.matches('[data-step]')) {
     event.preventDefault();
     if (event.shiftKey) {
       selectedStep = Number(el.dataset.step);
+      bar = Math.floor((selectedStep * pattern().resolution) / barTicks(p()));
       selectedPitch = Number(el.dataset.pitch);
       draw();
       return;
@@ -1363,15 +1501,10 @@ function frame(now: number) {
     const display = document.querySelector('#position');
     if (display)
       display.textContent = `${String(Math.floor(pos / barTicks(p())) + 1).padStart(2, '0')} : ${String((Math.floor(pos / PPQ) % p().signature[0]) + 1).padStart(2, '0')}`;
-    const step = Math.floor((pos % barTicks(p())) / pattern().resolution);
+    const step = Math.floor((pos % patternTicks(p(), pattern())) / pattern().resolution);
     document
       .querySelectorAll<HTMLElement>('[data-step]')
-      .forEach((el) =>
-        el.classList.toggle(
-          'playing',
-          Number(el.dataset.step) === step && Math.floor(pos / barTicks(p())) === bar,
-        ),
-      );
+      .forEach((el) => el.classList.toggle('playing', Number(el.dataset.step) === step));
     if (transport.engine) {
       transport.engine.analyser.getByteTimeDomainData(meterData);
       let peak = 0;

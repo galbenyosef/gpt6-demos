@@ -40,6 +40,10 @@ bun run verify:corpus
 
 Browser tests use a separate server on **4317**, with hot reload disabled. Tests cover the model, assistance, audio reproducibility, pitch, ADSR, filter response, overload, voice stealing, project export/import, sample capacity, independent projects, revision recovery, quota/transaction failures, cross-tab locks, keyboard editing, WAV download, local samples, and WebGL fallback. `docs/verification/` holds the measured browser-specific audio and corpus reports. See [verification notes](docs/verification.md) for limits and outstanding human work.
 
+## Piano roll zoom
+
+Use **View** to show one bar, two bars, or the whole pattern. **Fit pattern** displays the complete timeline. Scroll horizontally to reach later bars and vertically to explore octaves; **Rows** changes pitch-row height. **Alt + wheel** zooms time around the pointer, and **Shift + Alt + wheel** changes row height. Arrow keys keep the selected cell in view. Zoom changes only the editor view: grid snapping and note timing remain unchanged.
+
 ## Example projects
 
 The [examples directory](examples/README.md) contains two importable projects: **After Hours · Classic House** (124 BPM) and **Velvet Blue · Ambient Soul** (76 BPM). Each includes several patterns and a complete song arrangement. Open them using **Projects → Import project**, then select **Song** in the transport to play the full arrangement.

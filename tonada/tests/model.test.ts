@@ -234,3 +234,14 @@ describe('arrangement templates', () => {
     expect(JSON.stringify(p)).toBe(before);
   });
 });
+
+describe('piano roll viewport', () => {
+  test('anchors scale around the pointer and clamps the beginning', async () => {
+    const { anchoredScroll, visibleBarCount } = await import('../src/ui/viewport');
+    expect(anchoredScroll(100, 258, 58, 1, 2)).toBe(400);
+    expect(anchoredScroll(400, 258, 58, 2, 1)).toBe(100);
+    expect(anchoredScroll(0, 258, 58, 2, 1)).toBe(0);
+    expect(visibleBarCount(2, 1)).toBe(1);
+    expect(visibleBarCount('fit', 8)).toBe(8);
+  });
+});
