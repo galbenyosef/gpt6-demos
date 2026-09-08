@@ -6,8 +6,8 @@ set -m
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
-DEMOS=(edificio-europa infinicave tonada tarot-spead)
-PORTS=(3000 3001 3002 3003)
+DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory)
+PORTS=(3000 3001 3002 3003 3004)
 for demo in "${DEMOS[@]}"; do
   if [[ ! -f "$ROOT_DIR/$demo/package.json" ]]; then
     echo "Missing project: $ROOT_DIR/$demo" >&2
@@ -52,9 +52,9 @@ for i in "${!DEMOS[@]}"; do
     exec bun run dev
   ) > "$fifo" 2>&1 &
   SERVER_PIDS+=("$!")
-  printf '%-18s http://localhost:%s\n' "$demo" "$port"
+  printf '%-28s http://localhost:%s\n' "$demo" "$port"
 done
-printf '\nPress Ctrl+C to stop all four demos.\n\n'
+printf '\nPress Ctrl+C to stop all %s demos.\n\n' "${#DEMOS[@]}"
 
 # Bash 3.2 (included with macOS) has no wait -n.
 while true; do

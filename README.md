@@ -18,7 +18,7 @@ Install each demo’s dependencies with `bun install` in its directory, then run
 ./run-all.sh
 ```
 
-The launcher starts Edificio Europa on [port 3000](http://localhost:3000), InfiniCave on [port 3001](http://localhost:3001), Tonada on [port 3002](http://localhost:3002), and Tarot Spread on [port 3003](http://localhost:3003). Logs are labelled by demo. Press **Ctrl+C** to stop all four; if a demo exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3000](http://localhost:3000), InfiniCave on [port 3001](http://localhost:3001), Tonada on [port 3002](http://localhost:3002), Tarot Spread on [port 3003](http://localhost:3003), and Orbital on [port 3004](http://localhost:3004). Logs are labelled by demo. Press **Ctrl+C** to stop all five; if a demo exits, the launcher stops the others too. The assigned ports must be free.
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 
