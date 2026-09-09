@@ -24,6 +24,8 @@ Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#
 
 ### Demo portal
 
+![GPT6 Demos portal showing all seven interactive demos](./images/portal.png)
+
 Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the seven demos in a four-column, two-row grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
 
 The page uses plain HTML, inline CSS, and relative image paths, so it needs no build, JavaScript, or external assets and works over HTTP or `file://`. The demo servers must still be running for the links to open. To serve only the portal, run `bun run portal-server.ts` from the repository root (default port 3000; override with `PORT`). If you change a demo port in `run-all.sh`, update its link in `index.html` too.
