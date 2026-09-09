@@ -1,0 +1,5 @@
+import {test,expect} from 'bun:test';
+import {readDimensions} from '../server/image-dimensions';
+import {imageData} from '../server/validation';
+test('checks PNG dimensions before accepting input',()=>{const b=Buffer.alloc(33);Buffer.from([137,80,78,71,13,10,26,10]).copy(b);b.write('IHDR',12);b.writeUInt32BE(1024,16);b.writeUInt32BE(768,20);expect(readDimensions(b,'png')).toEqual({width:1024,height:768});expect(imageData(`data:image/png;base64,${b.toString('base64')}`)).toContain('data:image/png');b.writeUInt32BE(20000,16);expect(()=>imageData(`data:image/png;base64,${b.toString('base64')}`)).toThrow();});
+test('extracts JPEG SOF and WebP VP8X dimensions',()=>{const jpeg=Buffer.from([0xff,0xd8,0xff,0xc0,0,7,8,3,0,4,0]);expect(readDimensions(jpeg,'jpeg')).toEqual({width:1024,height:768});const webp=Buffer.alloc(30);webp.write('VP8X',12);webp.writeUIntLE(1023,24,3);webp.writeUIntLE(767,27,3);expect(readDimensions(webp,'webp')).toEqual({width:1024,height:768});expect(readDimensions(Buffer.alloc(0),'jpeg')).toBeUndefined();});

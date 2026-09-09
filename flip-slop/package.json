@@ -4,9 +4,23 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^7"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "gifenc": "^1.0.3"
+  },
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "NODE_ENV=production bun index.ts",
+    "build": "bun scripts/build.ts",
+    "test": "bun test tests",
+    "typecheck": "tsc --noEmit",
+    "test:browser": "bun scripts/browser-test.ts",
+    "test:live": "bun scripts/live-smoke.ts"
   }
 }

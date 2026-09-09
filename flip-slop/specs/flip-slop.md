@@ -1,12 +1,10 @@
-**Flip*-slop* works well as the name: short, slightly playful, and it refers both to transforming an image and flipping through animation frames.
-
-# Flip-slop
+# Flip-slop-slop
 
 ## Generative Canvas & Stop-Motion Studio
 
 ## 1. Product Definition
 
-**Flip-slop** is a local-first creative application for generating, editing and animating images with OpenAI image models.
+**Flip-slop-slop** is a local-first creative application for generating, editing and animating images with OpenAI image models.
 
 The application revolves around one persistent visual workspace rather than separate generation, editor and animation tools.
 
@@ -20,19 +18,19 @@ but these are not separate document types.
 
 An image created in **Create** can immediately be edited. Any edited image can become an animation frame. Any animation frame can be edited individually. An edited frame can become a new keyframe from which subsequent frames are regenerated.
 
-The central object is always the same **Flip-slop Project**.
+The central object is always the same **Flip-slop-slop Project**.
 
 The application should feel closer to a lightweight drawing and stop-motion studio than to a chat interface.
 
 The primary interaction surface is a single visible HTML Canvas. Conventional controls, inspectors and timelines use HTML/CSS around it.
 
-Flip uses OpenAI's current image models as its generative engine. GPT-Image-2.5 Flare is intended as the normal interactive model, while GPT-Image-2.5 Sunburst is available for edits and final frames that require greater precision. OpenAI specifically describes Images 2.5 as improving focused editing, preservation across successive edits, and multi-turn consistency — properties directly relevant to Flip's frame-by-frame workflow. ([OpenAI][1])
+Flip-slop uses OpenAI's current image models as its generative engine. GPT-Image-2.5 Flare is intended as the normal interactive model, while GPT-Image-2.5 Sunburst is available for edits and final frames that require greater precision. OpenAI specifically describes Images 2.5 as improving focused editing, preservation across successive edits, and multi-turn consistency — properties directly relevant to Flip-slop's frame-by-frame workflow. ([OpenAI][1])
 
 ---
 
 # 2. Product Principle
 
-Flip should not behave like:
+Flip-slop should not behave like:
 
 ```text
 prompt
@@ -70,7 +68,7 @@ AI generation is therefore an operation inside an editor, not the editor itself.
 
 # 3. Core Use Cases
 
-Flip must support four primary workflows.
+Flip-slop must support four primary workflows.
 
 ### Image creation
 
@@ -265,10 +263,10 @@ This allows API details to evolve without contaminating the project model or UI.
 
 # 8. Single-Canvas Principle
 
-Flip should have exactly one primary visible editing canvas.
+Flip-slop should have exactly one primary visible editing canvas.
 
 ```html
-<canvas id="flip-canvas"></canvas>
+<canvas id="Flip-slop-canvas"></canvas>
 ```
 
 The same canvas is used for:
@@ -335,7 +333,7 @@ Desktop layout:
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Flip       Project Name                          Undo Redo   Export │
+│ Flip-slop       Project Name                          Undo Redo   Export │
 ├───────────┬───────────────────────────────────────────────┬──────────┤
 │           │                                               │          │
 │ Select    │                                               │ Prompt   │
@@ -364,7 +362,7 @@ The prompt is an editing control, not the main application surface.
 
 # 11. Application Modes
 
-Flip has three top-level modes:
+Flip-slop has three top-level modes:
 
 ```text
 CREATE
@@ -915,7 +913,7 @@ Raise his right arm slightly.
 Everything else remains unchanged.
 ```
 
-Flip generates Frame 2 as an edit of Frame 1.
+Flip-slop generates Frame 2 as an edit of Frame 1.
 
 ---
 
@@ -996,7 +994,7 @@ F01     F12                F24
 sitting  standing           waving
 ```
 
-The user can manually create only these three images and ask Flip to generate intermediate frames.
+The user can manually create only these three images and ask Flip-slop to generate intermediate frames.
 
 ---
 
@@ -1018,7 +1016,7 @@ Frame 12
 Character standing.
 ```
 
-Flip generates Frames 2–11.
+Flip-slop generates Frames 2–11.
 
 This is not conventional pixel interpolation.
 
@@ -1071,7 +1069,7 @@ Do not permit arbitrary prose to control the batch-generation engine.
 
 # 36. Motion Brush
 
-Motion Brush is Flip's characteristic animation interaction.
+Motion Brush is Flip-slop's characteristic animation interaction.
 
 The user draws one or more arrows over a frame.
 
@@ -1094,7 +1092,7 @@ The user chooses:
 24 frames
 ```
 
-Flip interprets those arrows as desired temporal changes.
+Flip-slop interprets those arrows as desired temporal changes.
 
 ---
 
@@ -1161,7 +1159,7 @@ Each request also includes preservation constraints.
 
 Naively feeding every generated frame into the next generation creates cumulative drift.
 
-Flip must actively resist this.
+Flip-slop must actively resist this.
 
 Use three levels of reference.
 
@@ -1289,7 +1287,7 @@ Background window.
 
 The user should not have to manually author this in normal usage.
 
-Flip may derive an initial Scene Bible from the first frame and user instructions.
+Flip-slop may derive an initial Scene Bible from the first frame and user instructions.
 
 The user can inspect and correct it.
 
@@ -1297,7 +1295,7 @@ The user can inspect and correct it.
 
 # 44. Drift Detection
 
-After a generated frame returns, Flip may optionally evaluate it against:
+After a generated frame returns, Flip-slop may optionally evaluate it against:
 
 ```text
 canonical reference
@@ -1350,7 +1348,7 @@ the user can select:
 Repair
 ```
 
-Flip creates a new revision of Frame 9 using:
+Flip-slop creates a new revision of Frame 9 using:
 
 * canonical reference;
 * Frame 8;
@@ -1649,7 +1647,7 @@ Support drag-and-drop frame reordering.
 
 # 58. Manual Drawing
 
-Flip is AI-first but must remain useful without an API call.
+Flip-slop is AI-first but must remain useful without an API call.
 
 Brush operations are applied as editable overlay strokes.
 
@@ -1775,7 +1773,7 @@ Touch support is desirable but desktop is the primary target.
 # 62. Project Data Model
 
 ```ts
-interface FlipProject {
+interface Flip-slopProject {
   version: number;
 
   id: string;
@@ -1869,12 +1867,12 @@ A browser crash should not destroy a completed fifteen-frame generation batch.
 
 # 65. Project Save Format
 
-Support an explicit portable Flip project.
+Support an explicit portable Flip-slop project.
 
 Suggested extension:
 
 ```text
-.flip
+.Flip-slop
 ```
 
 Internally it may be a ZIP archive:
@@ -1896,7 +1894,7 @@ masks/
 manifest.json
 ```
 
-Do not make `.flip` dependent on the browser's IndexedDB implementation.
+Do not make `.Flip-slop` dependent on the browser's IndexedDB implementation.
 
 ---
 
@@ -1933,9 +1931,9 @@ Required:
 ### PNG sequence
 
 ```text
-flip-0001.png
-flip-0002.png
-flip-0003.png
+Flip-slop-0001.png
+Flip-slop-0002.png
+Flip-slop-0003.png
 ...
 ```
 
@@ -1993,7 +1991,7 @@ Keep generation metadata associated with every AI-generated asset.
 
 OpenAI states that Images 2.5 continues to use C2PA metadata and invisible watermarking. ([OpenAI][1])
 
-Flip should retain the untouched image binary returned by the API.
+Flip-slop should retain the untouched image binary returned by the API.
 
 Important limitation:
 
@@ -2219,7 +2217,7 @@ src/
       HandTool.ts
 
   project/
-    FlipProject.ts
+    Flip-slopProject.ts
     Asset.ts
     Revision.ts
     Frame.ts
@@ -2463,7 +2461,7 @@ Choose:
 8 frames
 ```
 
-Flip generates the sequence.
+Flip-slop generates the sequence.
 
 ---
 
@@ -2543,7 +2541,7 @@ robot-coffee.webm
 and:
 
 ```text
-robot-coffee.flip
+robot-coffee.Flip-slop
 ```
 
 The first is the finished animation.
@@ -2554,7 +2552,7 @@ The second is the complete editable project.
 
 # 85. Second Demo Scenario: Keyframe Animation
 
-This should demonstrate that Flip is more than sequential prompting.
+This should demonstrate that Flip-slop is more than sequential prompting.
 
 Create:
 
@@ -2586,7 +2584,7 @@ Generate Between
 15 frames
 ```
 
-Flip creates a motion plan and generates the intermediate stop-motion sequence.
+Flip-slop creates a motion plan and generates the intermediate stop-motion sequence.
 
 The keyframes remain untouched.
 
@@ -2594,7 +2592,7 @@ The keyframes remain untouched.
 
 # 86. Visual Design
 
-Flip should look like a creative tool, not an enterprise dashboard.
+Flip-slop should look like a creative tool, not an enterprise dashboard.
 
 Use:
 
@@ -2862,7 +2860,7 @@ regenerate forward
 
 SAVE
 IndexedDB persistence
-.flip project export/import
+.Flip-slop project export/import
 
 EXPORT
 PNG
@@ -2969,13 +2967,13 @@ preservation constraints
 next state
 ```
 
-This is the central technical idea behind Flip.
+This is the central technical idea behind Flip-slop.
 
 ---
 
 # 101. Definition of Done
 
-Flip is complete when a user can:
+Flip-slop is complete when a user can:
 
 1. launch it with Bun;
 2. create an image using an OpenAI image model;
@@ -3007,7 +3005,7 @@ The finished application should make the distinction between image generation an
 
 A user should be able to start with a sentence, alter the result with words and gestures, make it move, correct individual moments, and save the whole process as one editable artifact.
 
-**Flip is a canvas first, an AI interface second, and a stop-motion studio when time is added to the canvas.**
+**Flip-slop is a canvas first, an AI interface second, and a stop-motion studio when time is added to the canvas.**
 
 The specification deliberately makes animation a temporal extension of the image revision model, rather than bolting a video feature onto an image generator. That is the architectural property I would preserve even if individual UI features are cut from the first implementation.
 

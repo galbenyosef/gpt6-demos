@@ -1,0 +1,37 @@
+import {chromium,expect} from '@playwright/test';
+import {unzipSync,strFromU8} from 'fflate';
+const executablePath=process.env.CHROMIUM_PATH;
+const browser=await chromium.launch({executablePath,headless:true,env:Object.fromEntries(Object.entries(process.env).filter(([key,value])=>!key.startsWith('OPENAI_')&&value!==undefined)) as Record<string,string>});
+const page=await browser.newPage({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+const base=process.argv[2]||process.env.TEST_URL||'http://127.0.0.1:3000';
+try{
+ await page.goto(base);await expect(page.locator('#connection-label')).toHaveText('OpenAI connected');
+ await page.screenshot({path:'test-results/studio-empty.png'});
+ const fallback=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=1024;c.height=1024;const x=c.getContext('2d')!;x.fillStyle='#afba91';x.fillRect(0,0,1024,1024);x.fillStyle='#425539';x.fillRect(380,300,260,400);return c.toDataURL().split(',')[1]!;});
+ const source=await Bun.file('test-results/live-create.png').exists()?Buffer.from(await Bun.file('test-results/live-create.png').arrayBuffer()).toString('base64'):fallback;
+ const edit=await Bun.file('test-results/live-edit.png').exists()?Buffer.from(await Bun.file('test-results/live-edit.png').arrayBuffer()).toString('base64'):fallback;
+ let requestCount=0;const requests:any[]=[];
+ await page.route('**/api/images/*',async route=>{const body=route.request().postDataJSON();requests.push(body);requestCount++;await route.fulfill({json:{data:requestCount===1?source:edit,mimeType:'image/png',model:'browser-test',width:1024,height:1024,createdAt:Date.now()}});});
+ await page.locator('#project-name').fill('Robot coffee study');await page.locator('#prompt').fill('A tiny handmade clay robot at a wooden desk.');await page.locator('#generate').click();await expect(page.locator('.thumb')).toHaveCount(1);await expect(page.locator('#generate')).toBeEnabled();
+ await page.locator('[data-mode=EDIT]').click();await page.locator('[data-tool=lasso]').click();const box=(await page.locator('canvas').boundingBox())!;
+ await page.mouse.move(box.x+box.width*.3,box.y+box.height*.6);await page.mouse.down();await page.mouse.move(box.x+box.width*.7,box.y+box.height*.6,{steps:8});await page.mouse.move(box.x+box.width*.7,box.y+box.height*.8,{steps:5});await page.mouse.move(box.x+box.width*.3,box.y+box.height*.8,{steps:8});await page.mouse.up();
+ await page.locator('#prompt').fill('Add a small red ceramic coffee mug on the desk. Preserve everything else.');await page.locator('#generate').click();await expect(page.locator('.thumb')).toHaveCount(2);expect(requests[1].images.length).toBeGreaterThan(0);expect(requests[1].mask).toMatch(/^data:image\/png/);
+ await page.locator('#undo').click();await expect(page.locator('.thumb.active .thumb-label strong')).toHaveText('01');await page.locator('#redo').click();await expect(page.locator('.thumb.active .thumb-label strong')).toHaveText('02');
+ await page.locator('#undo').click();await page.locator('#prompt').fill('Make the robot wave.');await page.locator('#generate').click();await expect(page.locator('.thumb')).toHaveCount(3);
+ await page.locator('[data-mode=ANIMATE]').click();await expect(page.locator('.thumb')).toHaveCount(1);await page.locator('[data-tool=arrow]').click();await page.mouse.move(box.x+box.width*.52,box.y+box.height*.58);await page.mouse.down();await page.mouse.move(box.x+box.width*.52,box.y+box.height*.36,{steps:10});await page.mouse.up();
+ await page.locator('#prompt').fill('Lift the mug slowly toward the robot’s mouth.');await page.locator('#frame-count').fill('2');await page.locator('#generate').click();await page.locator('#accept').click();await expect(page.locator('.thumb')).toHaveCount(3);await expect(page.locator('#generate')).toBeEnabled();expect(requests.at(-1).images.length).toBeGreaterThanOrEqual(2);expect(requests.at(-1).prompt).toContain('Motion arrows');
+ await page.locator('.thumb').nth(1).click();await page.locator('#onion').selectOption('previous');await page.locator('#prompt').fill('Restore the original eyes. Preserve the current pose.');await page.locator('#repair').click();await expect(page.locator('.thumb.stale')).toHaveCount(1);expect(requests.at(-1).modelProfile).toBe('PRECISE');expect(requests.at(-1).prompt).toContain('preserving its current pose');
+ await page.locator('#regenerate').click();await page.locator('#accept').click();await expect(page.locator('.thumb.stale')).toHaveCount(0);await expect(page.locator('#generate')).toBeEnabled();
+ await page.locator('#keyframe').click();await page.locator('.thumb').first().click();await page.locator('#between').click();await page.locator('#accept').click();await expect(page.locator('#generate')).toBeEnabled();await expect(page.locator('.thumb')).toHaveCount(3);
+ await page.locator('#duplicate').click();await expect(page.locator('.thumb')).toHaveCount(4);await page.locator('#move-left').click();await page.locator('#delete-frame').click();await expect(page.locator('.thumb')).toHaveCount(3);
+ await page.locator('#play').click();await expect(page.locator('#play')).toHaveText('Ⅱ Pause');await page.waitForTimeout(450);await page.locator('#play').click();
+ await page.screenshot({path:'test-results/studio-animation.png'});
+ await page.locator('#export').click();const downloadPromise=page.waitForEvent('download');await page.locator('[data-export=project]').click();const download=await downloadPromise;await download.saveAs('test-results/roundtrip.Flip-slop');const zip=unzipSync(new Uint8Array(await Bun.file('test-results/roundtrip.Flip-slop').arrayBuffer()));const p=JSON.parse(strFromU8(zip['project.json']!));expect(p.frames.length).toBe(3);expect(p.revisions.length).toBeGreaterThan(5);expect(Object.keys(zip).some(k=>k.startsWith('assets/'))).toBe(true);
+ for(const format of ['png','sequence','gif','webm']){const promise=page.waitForEvent('download');await page.locator(`[data-export=${format}]`).click();const d=await promise;await d.saveAs(`test-results/export.${format==='sequence'?'zip':format}`);expect((await Bun.file(`test-results/export.${format==='sequence'?'zip':format}`).stat()).size).toBeGreaterThan(100);}
+ await page.locator('.close-dialog').click();await page.reload();await expect(page.locator('.thumb')).toHaveCount(3);await expect(page.locator('#project-name')).toHaveValue('Robot coffee study');
+ await page.locator('#projects').click();await page.locator('#new-project').click();await expect(page.locator('.thumb')).toHaveCount(0);await page.locator('#projects').click();await page.locator('#project-input').setInputFiles('test-results/roundtrip.Flip-slop');await expect(page.locator('.thumb')).toHaveCount(3);
+ await page.setViewportSize({width:1280,height:720});await page.screenshot({path:'test-results/studio-1280.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:'test-results/studio-mobile.png',fullPage:true});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ expect(errors).toEqual([]);console.log(`PASS: browser create/edit/branch/motion/repair/forward/between/playback/export/import/reload; ${requestCount} mock requests; no browser errors.`);
+}finally{await browser.close();}
