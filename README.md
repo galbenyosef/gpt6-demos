@@ -6,7 +6,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, and an orbital mechanics laboratory. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, and a digital logic laboratory. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
 
@@ -18,7 +18,7 @@ Install each demo’s dependencies with `bun install` in its directory, then run
 ./run-all.sh
 ```
 
-The launcher starts Edificio Europa on [port 3000](http://localhost:3000), InfiniCave on [port 3001](http://localhost:3001), Tonada on [port 3002](http://localhost:3002), Tarot Spread on [port 3003](http://localhost:3003), and Orbital on [port 3004](http://localhost:3004). Logs are labelled by demo. Press **Ctrl+C** to stop all five; if a demo exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3000](http://localhost:3000), InfiniCave on [port 3001](http://localhost:3001), Tonada on [port 3002](http://localhost:3002), Tarot Spread on [port 3003](http://localhost:3003), Orbital on [port 3004](http://localhost:3004), and Digital Logic Laboratory on [port 3005](http://localhost:3005). Logs are labelled by demo. Press **Ctrl+C** to stop all six; if a demo exits, the launcher stops the others too. The assigned ports must be free.
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 
@@ -73,6 +73,16 @@ An interactive spacecraft dynamics and mission-planning workspace built with Thr
 [Orbital — Mechanics laboratory demo](https://youtu.be/hqoUdaAgZiw)
 
 [Source and setup](./orbital-mechanics-laboratory/README.md) · [Demo specification](./orbital-mechanics-laboratory/specs/orbital-mechanics-laboratory.md)
+
+### Digital Logic Laboratory — The Machine
+
+An interactive digital circuit workbench and inspectable 16-bit H16 computer built with Three.js and a simulation worker. Connect NAND gates, build reusable circuits, test truth tables, and explore adders and clocked registers. Assemble programs and follow execution one CPU phase at a time, with plain-language explanations, active hardware highlights, breakpoints, and signal traces. Drill into the running ALU down to individual NAND gates, or run examples from addition to Pong, whose graphics and game logic execute on H16. Projects stay on your device, with local saves and JSON import/export.
+
+[![Digital Logic Laboratory — The Machine demo](https://i.ytimg.com/vi/BAAoFSgP6QM/hqdefault.jpg)](https://youtu.be/BAAoFSgP6QM)
+
+[Digital Logic Laboratory — The Machine demo](https://youtu.be/BAAoFSgP6QM)
+
+[Source and setup](./digital-logic-laboratory/README.md) · [User manual](./digital-logic-laboratory/docs/user-manual.md) · [H16 architecture](./digital-logic-laboratory/docs/H16.md)
 
 ---
 

@@ -6,8 +6,8 @@ set -m
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
-DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory)
-PORTS=(3000 3001 3002 3003 3004)
+DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory)
+PORTS=(3000 3001 3002 3003 3004 3005)
 for demo in "${DEMOS[@]}"; do
   if [[ ! -f "$ROOT_DIR/$demo/package.json" ]]; then
     echo "Missing project: $ROOT_DIR/$demo" >&2
