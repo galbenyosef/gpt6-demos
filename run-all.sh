@@ -7,10 +7,20 @@ set -m
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
 DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory)
-PORTS=(3000 3001 3002 3003 3004 3005)
+PORTS=(3001 3002 3003 3004 3005 3006)
+PORTAL_PORT=3000
+SERVICES=("${DEMOS[@]}" portal)
+SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT")
 for demo in "${DEMOS[@]}"; do
   if [[ ! -f "$ROOT_DIR/$demo/package.json" ]]; then
     echo "Missing project: $ROOT_DIR/$demo" >&2
+    exit 1
+  fi
+done
+
+for asset in index.html portal-server.ts; do
+  if [[ ! -f "$ROOT_DIR/$asset" ]]; then
+    echo "Missing portal file: $ROOT_DIR/$asset" >&2
     exit 1
   fi
 done
@@ -21,7 +31,7 @@ LOGGER_PIDS=()
 cleanup() {
   trap '' INT TERM
   echo
-  echo 'Stopping all demos…'
+  echo 'Stopping all demos and the portal…'
   for pid in "${SERVER_PIDS[@]}"; do
     kill -TERM -- "-$pid" 2>/dev/null || true
   done
@@ -35,9 +45,9 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-for i in "${!DEMOS[@]}"; do
-  demo="${DEMOS[$i]}"
-  port="${PORTS[$i]}"
+for i in "${!SERVICES[@]}"; do
+  demo="${SERVICES[$i]}"
+  port="${SERVICE_PORTS[$i]}"
   fifo="$LOG_DIR/$demo"
   mkfifo "$fifo"
   (
@@ -47,14 +57,19 @@ for i in "${!DEMOS[@]}"; do
   ) &
   LOGGER_PIDS+=("$!")
   (
-    cd -- "$ROOT_DIR/$demo"
     export PORT="$port"
-    exec bun run dev
+    if [[ "$demo" == portal ]]; then
+      cd -- "$ROOT_DIR"
+      exec bun run portal-server.ts
+    else
+      cd -- "$ROOT_DIR/$demo"
+      exec bun run dev
+    fi
   ) > "$fifo" 2>&1 &
   SERVER_PIDS+=("$!")
   printf '%-28s http://localhost:%s\n' "$demo" "$port"
 done
-printf '\nPress Ctrl+C to stop all %s demos.\n\n' "${#DEMOS[@]}"
+printf '\nPress Ctrl+C to stop all %s demos and the portal.\n\n' "${#DEMOS[@]}"
 
 # Bash 3.2 (included with macOS) has no wait -n.
 while true; do
@@ -62,7 +77,7 @@ while true; do
     if ! kill -0 "${SERVER_PIDS[$i]}" 2>/dev/null; then
       status=0
       wait "${SERVER_PIDS[$i]}" || status=$?
-      echo "${DEMOS[$i]} exited (status $status); stopping the other demos." >&2
+      echo "${SERVICES[$i]} exited (status $status); stopping all services." >&2
       exit "$status"
     fi
   done

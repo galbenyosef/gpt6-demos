@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore six local interactive demos: architecture, tarot, cave flight, music, orbital mechanics, and digital logic.">
+  <title>GPT6 Demos</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17191e; background: #fff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1600px; margin: 0 auto; padding: 56px 40px 40px; }
+    header { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid #e4e6eb; margin-bottom: 32px; }
+    h1 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); font-weight: 650; letter-spacing: -.045em; }
+    header p { margin: 0; font-size: 1rem; color: #626771; }
+    .demos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, auto); gap: 36px 24px; }
+    .demo { display: block; color: inherit; text-decoration: none; border-radius: 8px; }
+    .preview { aspect-ratio: 2 / 1; overflow: hidden; border: 1px solid #e4e6eb; border-radius: 8px; background: #f5f6f8; }
+    img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 16px; }
+    h2 { margin: 0; font-size: 1.125rem; line-height: 1.35; font-weight: 650; letter-spacing: -.02em; }
+    .arrow { font-size: 1.25rem; color: #6b707a; }
+    .demo p { font-size: 1rem; line-height: 1.55; color: #626771; margin: 8px 0 0; }
+    .demo:hover h2, .demo:hover .arrow { color: #2457d6; }
+    .demo:hover .preview { border-color: #2457d6; }
+    .demo:focus-visible { outline: 3px solid #2457d6; outline-offset: 7px; }
+    footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #e4e6eb; font-size: .875rem; color: #626771; line-height: 1.6; }
+    code { font-size: inherit; color: #17191e; }
+    @media (max-width: 1000px) { .demos { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; } main { padding: 36px 24px; } }
+    @media (max-width: 560px) { .demos { grid-template-columns: 1fr; gap: 28px; } header { display: block; } header p { margin-top: 12px; } main { padding: 28px 20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><h1>GPT6 Demos<span aria-hidden="true">.</span></h1><p>Six interactive experiments. Open one and explore.</p></header>
+    <nav class="demos" aria-label="Local demos">
+      <a class="demo" href="http://localhost:3001/">
+        <div class="preview"><img src="images/edificio-europa.png" alt="3D reconstruction of Edificio Europa" width="1870" height="929"></div>
+        <div class="title"><h2>Edificio Europa</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Explore a Valencia landmark in 3D. Orbit the building, change the light, and find your favorite view.</p>
+      </a>
+      <a class="demo" href="http://localhost:3002/">
+        <div class="preview"><img src="images/infinicave.png" alt="InfiniCave helicopter expedition" width="1870" height="929"></div>
+        <div class="title"><h2>InfiniCave</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Pilot a helicopter through underground caverns. Explore ruins, activate relays, and survive the journey.</p>
+      </a>
+      <a class="demo" href="http://localhost:3003/">
+        <div class="preview"><img src="images/tonada.png" alt="Tonada music composition workspace" width="1899" height="900"></div>
+        <div class="title"><h2>Tonada</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Make music with a piano roll, drum patterns, and synthesizers. Arrange a song and mix it in a 3D room.</p>
+      </a>
+      <a class="demo" href="http://localhost:3004/">
+        <div class="preview"><img src="images/tarot-spread.png" alt="Arcana tarot reading room" width="1870" height="929"></div>
+        <div class="title"><h2>Arcana</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Enter an Art Deco tarot room. Choose a deck and spread, turn the cards, and explore their meanings.</p>
+      </a>
+      <a class="demo" href="http://localhost:3005/">
+        <div class="preview"><img src="images/orbital-mechanics.png" alt="Orbital spacecraft trajectory workspace" width="3448" height="1802"></div>
+        <div class="title"><h2>Orbital</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Plan spacecraft maneuvers and watch trajectories evolve. Explore orbits, lunar transfers, and mission time.</p>
+      </a>
+      <a class="demo" href="http://localhost:3006/">
+        <div class="preview"><img src="images/digital-logic%20laboratory.png" alt="Digital Logic Laboratory circuit and computer workbench" width="3448" height="1740"></div>
+        <div class="title"><h2>Digital Logic Laboratory</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Build circuits from NAND gates. Follow a 16-bit computer through each instruction, from addition to Pong.</p>
+      </a>
+    </nav>
+    <footer>Start the demos with <code>./run-all.sh</code> from the repository root. Each link opens a local app.</footer>
+  </main>
+</body>
+</html>

@@ -18,7 +18,13 @@ Install each demo’s dependencies with `bun install` in its directory, then run
 ./run-all.sh
 ```
 
-The launcher starts Edificio Europa on [port 3000](http://localhost:3000), InfiniCave on [port 3001](http://localhost:3001), Tonada on [port 3002](http://localhost:3002), Tarot Spread on [port 3003](http://localhost:3003), Orbital on [port 3004](http://localhost:3004), and Digital Logic Laboratory on [port 3005](http://localhost:3005). Logs are labelled by demo. Press **Ctrl+C** to stop all six; if a demo exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), and Digital Logic Laboratory on [port 3006](http://localhost:3006). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all six demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
+
+### Demo portal
+
+Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the six demos in a four-column, two-row grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
+
+The page uses plain HTML, inline CSS, and relative image paths, so it needs no build, JavaScript, or external assets and works over HTTP or `file://`. The demo servers must still be running for the links to open. To serve only the portal, run `bun run portal-server.ts` from the repository root (default port 3000; override with `PORT`). If you change a demo port in `run-all.sh`, update its link in `index.html` too.
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 
