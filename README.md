@@ -12,11 +12,13 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 ## Run all demos
 
-Install each demo’s dependencies with `bun install` in its directory, then run from the repository root:
+With [Bun](https://bun.sh/) installed, run from the repository root:
 
 ```sh
 ./run-all.sh
 ```
+
+Before starting any servers, the launcher runs `bun install --frozen-lockfile` in each demo directory. Bun checks existing dependencies and installs missing packages using the checked-in versions; up-to-date installs need no changes. If an install fails, startup stops. If you intentionally change a demo’s `package.json`, run `bun install` in that directory to update its lockfile before launching again.
 
 The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), and Flip-slop on [port 3007](http://localhost:3007). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all seven demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
