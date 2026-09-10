@@ -18,15 +18,17 @@ Install each demo’s dependencies with `bun install` in its directory, then run
 ./run-all.sh
 ```
 
-The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), and Flip-slop on [port 3007](http://localhost:3007). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all seven demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), and Codex Canvas on [port 3008](http://localhost:3008). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all eight demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
 Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`. The launcher assigns port 3007, overriding the standalone default.
+
+For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). The launcher assigns port 3008, overriding the standalone default of 3030.
 
 ### Demo portal
 
 ![GPT6 Demos portal showing all seven interactive demos](./images/portal.png)
 
-Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the seven demos in a four-column, two-row grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
+Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the eight demos in a four-column, two-row grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
 
 The page uses plain HTML, inline CSS, and relative image paths, so it needs no build, JavaScript, or external assets and works over HTTP or `file://`. The demo servers must still be running for the links to open. To serve only the portal, run `bun run portal-server.ts` from the repository root (default port 3000; override with `PORT`). If you change a demo port in `run-all.sh`, update its link in `index.html` too.
 
@@ -103,6 +105,16 @@ A local-first creative studio built with Bun, TypeScript, and Canvas 2D. Generat
 [Flip-slop — Generative canvas and stop-motion studio demo](https://youtu.be/gxoiedhvGsc)
 
 [Source and setup](./flip-slop/README.md) · [Demo specification](./flip-slop/specs/flip-slop.md)
+
+### Codex Canvas — Spatial coding workspace
+
+A local graphical client for Codex built with Bun and TypeScript. Work with existing Codex sessions on a persistent canvas, with conversation, plans, file changes, and expandable activity grouped by turn. Keep selected results on the canvas, browse earlier turns, and maximize any card with adjustable text for easier reading. Stream responses, steer or stop active work, and review approval requests. Codex manages conversation history while SQLite preserves the canvas layout; the app uses your existing Codex authentication.
+
+[![Codex Canvas — Spatial coding workspace demo](https://i.ytimg.com/vi/WrBpo7HGLT0/hqdefault.jpg)](https://youtu.be/WrBpo7HGLT0)
+
+[Codex Canvas — Spatial coding workspace demo](https://youtu.be/WrBpo7HGLT0)
+
+[Source and setup](./codexcanvas/README.md) · [Demo specification](./codexcanvas/specs/codexcanvas.md)
 
 ---
 

@@ -6,8 +6,8 @@ set -m
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
-DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop)
-PORTS=(3001 3002 3003 3004 3005 3006 3007)
+DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas)
+PORTS=(3001 3002 3003 3004 3005 3006 3007 3008)
 PORTAL_PORT=3000
 SERVICES=("${DEMOS[@]}" portal)
 SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT")
