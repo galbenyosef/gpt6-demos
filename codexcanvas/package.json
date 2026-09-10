@@ -4,9 +4,26 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^7"
-  }
+  },
+  "dependencies": {
+    "dompurify": "^3.4.15",
+    "highlight.js": "^11.12.0",
+    "marked": "^18.0.12",
+    "parse-diff": "^0.12.0"
+  },
+  "scripts": {
+    "dev": "bun --watch src/server/index.ts",
+    "start": "NODE_ENV=production bun dist/index.js",
+    "build": "bun scripts/build.ts",
+    "test": "bun test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "description": "A local spatial client for Codex App Server",
+  "version": "0.1.0"
 }

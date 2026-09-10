@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Codex Canvas</title><link rel="stylesheet" href="./styles.css"></head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="Codex Canvas home"><span class="brand-mark">⌘</span><span>codex<span class="brand-sub">canvas</span></span><span class="local-tag">LOCAL</span></a>
+    <div class="section-label">WORKSPACES <button id="add-workspace" class="icon-button" title="Add workspace" aria-label="Add workspace">+</button></div>
+    <nav id="workspaces" aria-label="Workspaces"></nav>
+    <div class="sidebar-rule"></div>
+    <div class="section-label">SESSIONS <button id="refresh-sessions" class="icon-button" title="Refresh sessions" aria-label="Refresh sessions">↻</button></div>
+    <button id="new-session" class="new-session">＋ New session</button>
+    <input id="session-search" class="search" type="search" placeholder="Find a session…" aria-label="Find a session">
+    <nav id="sessions" aria-label="Sessions"></nav><button id="more-sessions" hidden>Load more</button>
+    <div class="sidebar-footer"><span class="account-icon">◎</span><div id="account-label">Codex account<span>Checking authentication…</span></div></div>
+  </aside>
+  <main>
+    <header class="topbar"><div class="workspace-heading"><span id="workspace-name">Your workspace</span><span id="workspace-path">A place for your work to take shape</span></div><div class="model-controls"><label>Model<select id="model" aria-label="Model"></select></label><label>Reasoning<select id="effort" aria-label="Reasoning effort"></select></label></div><span class="runtime"><i id="connection-dot"></i><span id="connection-label">Connecting</span></span></header>
+    <section class="canvas-shell">
+      <div class="canvas-heading"><div><div class="eyebrow">SESSION CANVAS</div><h1 id="session-title">Room to think. Space to build.</h1><div id="execution-context" class="context">Your conversation and the work around it, in one place.</div></div><button id="find-content" title="Search this session (⌘K)">⌕ <span>Search canvas</span><kbd>⌘ K</kbd></button></div>
+      <div id="viewport" tabindex="0" aria-label="Session canvas. Scroll to zoom. Space and drag to pan."><div id="world"><svg id="connectors" aria-hidden="true"></svg></div></div>
+      <div id="welcome" class="welcome"><div class="welcome-symbol">⌘</div><div class="eyebrow">CODEX, MADE SPATIAL</div><h2>Give your next idea<br>some room.</h2><p>Start with a conversation. Follow the plans,<br>commands, and changes as your canvas takes shape.</p><button id="welcome-start" class="primary">Add a workspace <span>↗</span></button><div class="welcome-note">Local workspaces · Your Codex account</div></div>
+      <div id="auth-banner" class="auth-banner" hidden><strong>Connect your Codex account</strong><p>Sign in with ChatGPT to start working.</p><button id="login" class="primary">Sign in with ChatGPT ↗</button><a id="login-link" target="_blank" rel="noopener noreferrer" hidden>Continue to ChatGPT ↗</a></div>
+      <div id="disconnect-banner" class="disconnect-banner" hidden><span id="disconnect-detail"></span><button id="restart">Restart Codex</button></div>
+      <div class="canvas-toolbar"><div class="toolbar-group"><button id="back" title="Previous focus" aria-label="Previous focus">←</button><button id="forward" title="Next focus" aria-label="Next focus">→</button></div><div class="toolbar-group"><button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-level" title="Reset view">100%</button><button id="zoom-in" aria-label="Zoom in">+</button></div><div class="toolbar-group"><button id="fit" title="Fit canvas (0)">⛶ <span>Fit</span></button><button id="focus-conversation" title="Focus conversation (1)">▣ <span>Conversation</span></button><button id="show-hidden" title="Restore hidden artifacts" aria-label="Restore hidden artifacts">◉</button></div></div>
+      <div id="minimap" aria-label="Canvas minimap"></div>
+    </section>
+    <footer class="statusbar"><span><i class="small-dot"></i><span id="status-text">Your canvas is saved locally</span></span><span id="object-count">0 objects</span><span>Scroll to zoom <b>·</b> Space + drag to pan <b>·</b> 0 to fit</span></footer>
+  </main>
+  <div id="toast" role="alert" hidden></div>
+  <dialog id="workspace-dialog"><form id="workspace-form"><div class="eyebrow">LOCAL WORKSPACE</div><h2>Where are we working?</h2><p>Choose an existing folder for Codex to work in.</p><label>Name<input name="name" placeholder="My project" required maxlength="120"></label><label>Absolute folder path<input name="path" placeholder="/Users/you/projects/my-project" required></label><div class="dialog-actions"><button type="button" id="cancel-workspace">Cancel</button><button class="primary" type="submit">Add workspace</button></div></form></dialog>
+  <dialog id="search-dialog"><div class="dialog-title"><h2>Search this canvas</h2><button id="close-search" aria-label="Close search">×</button></div><input id="content-search" type="search" class="search" placeholder="Messages, commands, files, and research…" aria-label="Search canvas content"><div id="search-results"></div></dialog>
+  <dialog id="approval-dialog" aria-label="Codex approval request"></dialog>
+  <script type="module" src="./main.ts"></script>
+</body></html>
