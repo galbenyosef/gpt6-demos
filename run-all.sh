@@ -25,6 +25,16 @@ for asset in index.html portal-server.ts; do
   fi
 done
 
+# Let Bun check the dependency tree, including partially installed node_modules.
+# Complete every install before starting any servers; keep checked-in versions.
+for demo in "${DEMOS[@]}"; do
+  printf '[%s] Checking/installing dependencies…\n' "$demo"
+  if ! (cd -- "$ROOT_DIR/$demo" && bun install --frozen-lockfile); then
+    printf '[%s] Dependency installation failed; no servers started.\n' "$demo" >&2
+    exit 1
+  fi
+done
+
 LOG_DIR="$(mktemp -d "${TMPDIR:-/tmp}/gpt6-demos.XXXXXX")"
 SERVER_PIDS=()
 LOGGER_PIDS=()

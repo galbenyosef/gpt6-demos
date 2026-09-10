@@ -12,7 +12,7 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 ## Run all demos
 
-Install each demo’s dependencies with `bun install` in its directory, then run from the repository root:
+With [Bun](https://bun.sh/) installed, run from the repository root:
 
 ```sh
 ./run-all.sh
