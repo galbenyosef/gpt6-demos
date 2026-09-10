@@ -1,6 +1,7 @@
 import { test, expect } from 'bun:test';
 import { applyEvent, activeTurn } from '../src/shared/state';
 import { normalizeEvent, normalizeItem } from '../src/server/codex/CodexProtocol';
+import { itemStatus, commandFailureHint } from '../src/shared/presentation';
 import { preferredModel, type Thread, type Model } from '../src/shared/types';
 const thread = (): Thread => ({ id: 'thread', cwd: '/tmp', name: 'Test', updatedAt: 0, turns: [] });
 test('streaming is replaced by authoritative completed items and never duplicates turns', () => {
@@ -26,4 +27,21 @@ test('normalization excludes raw reasoning and updates one plan/diff per turn', 
 test('Astra preference has a catalog-driven default fallback', () => {
   const models = [{ model: 'fallback', isDefault: true }, { model: 'gpt-6-astra' }] as Model[];
   expect(preferredModel(models)?.model).toBe('gpt-6-astra'); expect(preferredModel(models.slice(0, 1))?.model).toBe('fallback'); expect(preferredModel([])).toBeUndefined();
+});
+
+test('a terminal turn does not present unfinished commands as still running or invent their outcome', () => {
+  const turn = { id: 'turn', status: 'interrupted', items: [] };
+  const item = { id: 'git', type: 'commandExecution', command: 'git commit', status: 'inProgress', output: '' };
+  expect(itemStatus(item, turn)).toBe('Turn interrupted · outcome unconfirmed');
+  expect(item.status).toBe('inProgress');
+  expect(itemStatus(item, { ...turn, status: 'inProgress' })).toBe('inProgress');
+  expect(itemStatus({ ...item, status: 'completed', exitCode: 0 }, turn)).toBe('completed');
+  expect(itemStatus({ ...item, status: 'completed', exitCode: 128 }, turn)).toBe('failed');
+});
+
+test('Git metadata permission failures explain approval without claiming an existing stale lock', () => {
+  const item = { id: 'git', type: 'commandExecution', exitCode: 128, output: "fatal: Unable to create '/repo/.git/index.lock': Operation not permitted" };
+  expect(commandFailureHint(item)).toContain('parent .git directory');
+  expect(commandFailureHint(item)).toContain('require Codex approval');
+  expect(commandFailureHint({ ...item, output: 'index.lock: File exists' })).toBeUndefined();
 });

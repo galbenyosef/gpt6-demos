@@ -18,6 +18,7 @@ function item(thread: any, turn: any, value: any, completed = false) {
 function finish(thread: any, turn: any) {
   if (turn.status !== 'inProgress') return;
   item(thread, turn, { id: `${turn.id}-command`, type: 'commandExecution', command: 'bun test export', cwd: thread.cwd, status: 'completed', aggregatedOutput: '✓ 47 tests passed\n0 failures\n', exitCode: 0, durationMs: 1420 }, true);
+  if (turn.items.some((i:any) => i.type === 'userMessage' && i.content?.[0]?.text.includes('failure'))) item(thread, turn, { id: `${turn.id}-command`, type:'commandExecution', command:'bun test export', status:'completed', aggregatedOutput:'Tests failed', exitCode:1 }, true);
   const diff = 'diff --git a/export.ts b/export.ts\n--- a/export.ts\n+++ b/export.ts\n@@ -1 +1 @@\n-const timestamp = index / fps;\n+const timestamp = (index * 1000) / fps;\n';
   item(thread, turn, { id: `${turn.id}-change`, type: 'fileChange', status: 'completed', changes: [{ path: 'export.ts', kind: { type: 'update' }, diff }] }, true);
   emit('turn/diff/updated', { threadId: thread.id, turnId: turn.id, diff });
@@ -57,6 +58,7 @@ async function handle(msg: any) {
       item(thread, turn, { id: `${turn.id}-command`, type: 'commandExecution', command: 'bun test export', cwd: thread.cwd, status: 'inProgress', aggregatedOutput: '' });
       emit('item/commandExecution/outputDelta', { threadId: thread.id, turnId: turn.id, itemId: `${turn.id}-command`, delta: 'Running export tests…\n' });
       turn.items.find(i => i.id === `${turn.id}-command`).aggregatedOutput = 'Running export tests…\n';
+      if (p.input[0].text.includes('busy')) for (let n=0;n<80;n++) item(thread,turn,{id:`${turn.id}-busy-${n}`,type:'commandExecution',command:`inspect busy-${n}`,status:'completed',aggregatedOutput:'Inspection complete',exitCode:0},true);
       if (p.input[0].text.toLowerCase().includes('approval')) {
         const requestId = ++counter; pending.set(requestId, () => finish(thread, turn));
         setTimeout(() => console.log(JSON.stringify({ id: requestId, method: 'item/commandExecution/requestApproval', params: { threadId: thread.id, turnId: turn.id, itemId: `${turn.id}-command`, command: 'bun install', cwd: thread.cwd, networkApprovalContext: { host: 'registry.npmjs.org', protocol: 'https' }, reason: 'Install the project dependencies.' } })), 300);

@@ -1,4 +1,5 @@
-import type { Camera, CanvasObject } from '../../shared/types';
+import { isVisible } from '../../shared/presentation';
+import type { Camera, CanvasObject, ObjectType } from '../../shared/types';
 export const clampZoom = (zoom: number) => Math.max(.25, Math.min(2, zoom));
 export const screenToWorld = (x: number, y: number, c: Camera) => ({ x: (x - c.x) / c.zoom, y: (y - c.y) / c.zoom });
 export const worldToScreen = (x: number, y: number, c: Camera) => ({ x: x * c.zoom + c.x, y: y * c.zoom + c.y });
@@ -14,16 +15,15 @@ export function fit(objects: CanvasObject[], width: number, height: number): Cam
   const zoom = clampZoom(Math.min((width - 100) / w, (height - 150) / h, 1));
   return { x: (width - w * zoom) / 2 - left * zoom, y: (height - h * zoom) / 2 - top * zoom, zoom };
 }
-export function placeObject(objects: CanvasObject[], turnId: string) {
+export function placeObject(objects: CanvasObject[], turnId: string, type: ObjectType = 'activity', width = 480, height = 340) {
   const conversation = objects.find(o => o.type === 'conversation')!;
-  const siblings = objects.filter(o => o.turnId === turnId);
-  const others = objects.filter(o => o.type !== 'conversation');
-  const x = conversation.x + conversation.width + 80;
-  const groupTop = siblings.length ? Math.min(...siblings.map(o => o.y)) : Math.max(conversation.y, ...others.map(o => o.y + o.height + 80));
-  // Two columns, chronological turn groups. Existing positions are never rewritten.
-  const column = siblings.length % 2;
-  let y = groupTop;
-  const candidateX = x + column * 510;
-  for (const o of [...others].sort((a, b) => a.y - b.y)) if (candidateX < o.x + o.width + 24 && candidateX + 480 + 24 > o.x && y < o.y + o.height + 24 && y + 340 + 24 > o.y) y = o.y + o.height + 28;
-  return { x: candidateX, y };
+  // Reuse predictable slots for each turn. Historical and hidden cards reserve no space.
+  const x = conversation.x + conversation.width + 80 + (type === 'activity' ? 510 : 0);
+  let y = conversation.y + (type === 'diff' ? 328 : 0);
+  const obstacles = objects.filter(o => o.type !== 'conversation' && isVisible(o, turnId));
+  for (const o of obstacles.sort((a, b) => a.y - b.y)) {
+    const bottom = o.y + (o.collapsed ? 46 : o.height);
+    if (x < o.x + o.width + 24 && x + width + 24 > o.x && y < bottom + 24 && y + height + 24 > o.y) y = bottom + 28;
+  }
+  return { x, y };
 }

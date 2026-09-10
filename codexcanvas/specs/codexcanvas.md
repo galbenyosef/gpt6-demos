@@ -104,77 +104,20 @@ The product is a **Codex client**.
 
 # 3. The Canvas Principle
 
-The word **Canvas** is not decorative branding.
-
-It defines the interface.
-
-A conventional graphical Codex client would have:
+The conversation is one persistent object on a spatial working surface. The default canvas shows the selected turn's work, plus artifacts the user explicitly keeps.
 
 ```text
-sidebar
-+
-chat window
-+
-input box
+Turn navigation: Turn 14       Following latest turn
+
+Conversation       Plan          Activity
+                                 ▸ Command: bun test
+                   Changes       ▸ Web search
+                                 ▸ Tool result
 ```
 
-Codex Canvas instead has:
+The canvas is a working view of the session. Its visible card count must not grow automatically with every command or every completed turn. Historical work remains accessible through turn navigation and session search.
 
-```text
-workspace/session navigation
-+
-spatial working surface
-```
-
-The conversation exists on the spatial surface as one persistent graphical object.
-
-Other objects accumulate around it.
-
-Conceptually:
-
-```text
- ┌──────────────────┐
- │                  │
- │   Conversation   │
- │                  │
- │ User             │
- │ Analyse this...  │
- │                  │
- │ Codex            │
- │ I'll inspect...  │
- │                  │
- └────────┬─────────┘
-          │
-          │ Turn 14
-          │
-      ┌───┴──────────────────────┐
-      │                          │
-      ▼                          ▼
-
-┌───────────────┐         ┌──────────────────────┐
-│ PLAN          │         │ COMMAND              │
-│               │         │                      │
-│ ✓ inspect     │         │ bun test             │
-│ ✓ modify      │         │                      │
-│ ◉ test        │         │ 47 passed            │
-└───────────────┘         │ 1 failed             │
-                          └──────────┬───────────┘
-                                     │
-                                     ▼
-                          ┌──────────────────────┐
-                          │ DIFF                 │
-                          │                      │
-                          │ src/server.ts        │
-                          │ + ...                │
-                          │ - ...                │
-                          └──────────────────────┘
-```
-
-The user may move those objects.
-
-Their positions remain when the session is reopened.
-
-The canvas therefore becomes a visual representation of what happened during the session.
+Users may move, resize, collapse, maximize, or keep artifacts. Saved geometry remains attached to each artifact when it is shown again.
 
 ---
 
@@ -818,6 +761,8 @@ in world coordinates.
 
 # 21. Conversation Is a Canvas Object
 
+Every card, including Conversation and Activity, supports **Maximize**. Open a full-window reading dialog outside the scaled canvas with adjustable 16–32 px text (20 px default), keyboard focus handling, and remembered text-size preference. Escape or **Back to canvas** restores the same geometry, collapse state, camera, draft, and live content. Provide an explicit Maximize button plus keyboard access. Reading must not require zooming the entire canvas. Pending attention remains accessible from the reader toolbar.
+
 The Conversation card must use the same spatial system as other Canvas objects.
 
 It can:
@@ -848,6 +793,8 @@ This matters because the conceptual model remains:
 
 # 22. Conversation Rendering
 
+Each turn has at most one reference to each of its Plan, Changes, and Activity summaries. The Activity reference displays its action count and updates in place.
+
 The Conversation card groups events by turn.
 
 Example:
@@ -864,9 +811,9 @@ I'll inspect the export path and reproduce the failure.
 
   ▸ Plan
 
-  ▸ Read video-export.ts
+  ▸ Activity · 2 actions
 
-  ▸ Run bun test
+  ▸ Changes
 
 I found two problems...
 ```
@@ -907,7 +854,7 @@ Example:
 }
 ```
 
-The Conversation card creates a local provisional user message immediately.
+The Conversation card creates a local provisional user message immediately. Display Sending only until the host acknowledges it or Codex publishes the authoritative user item. An acknowledgement changes the provisional label to Sent. If acknowledgement is missing for 35 seconds, or the connection fails, show Delivery not confirmed and release the composer. Never automatically resend an uncertain message; the user must check the conversation before retrying.
 
 It is reconciled with the authoritative Codex turn when App Server responds.
 
@@ -991,164 +938,76 @@ This is a Codex capability, not custom agent behaviour.
 
 # 27. Canvas Artifact Model
 
-Each durable graphical artifact has:
+Each graphical object has stable identity and presentation metadata:
 
 ```ts
 interface CanvasObject {
   id: string;
-
   threadId: string;
-
   turnId?: string;
   itemId?: string;
-
   type: CanvasObjectType;
-
   x: number;
   y: number;
-
   width: number;
   height: number;
-
   collapsed: boolean;
-
+  hidden: boolean;
+  pinned: boolean; // “Keep on canvas” in the UI
+  manuallyPositioned: boolean;
   zIndex: number;
-
-  createdAt: number;
 }
-```
 
-Possible types:
-
-```ts
 type CanvasObjectType =
-  | "conversation"
-  | "plan"
-  | "command"
-  | "diff"
-  | "file"
-  | "web-search"
-  | "image"
-  | "tool"
-  | "review";
+  | "conversation" | "plan" | "diff" | "activity"
+  | "command" | "file" | "web-search" | "image" | "tool" | "review";
 ```
 
-These types reflect Codex outputs.
-
-They must not become new agent capabilities.
+The user-facing name for `diff` is **Changes**. Summary objects use a stable thread/turn/type identity. An individually kept artifact uses its original thread/turn/item identity. These are presentation objects, not new agent capabilities.
 
 ---
 
-# 28. Artifact Creation Principle
+# 28. Artifact Creation and Visibility
 
-Not every App Server event should create a new floating card.
+Every session starts with exactly one Conversation card. Each turn may create at most three automatic summary cards, only when corresponding content arrives:
 
-Otherwise one turn may create hundreds of objects.
+| Codex output | Presentation |
+| --- | --- |
+| Plan or plan revision | Create or update the turn's Plan card |
+| File change or aggregate turn diff | Create or update the turn's Changes card |
+| Command start, output, or completion | Entry in the turn's Activity card |
+| Web search, page open, or find | Entry in Activity |
+| Tool call, image, or review | Entry in Activity |
+| User/assistant messages and progress | Conversation |
+| Approval or failure | Needs attention indicator; no automatic modal or camera movement |
 
-Use this distinction:
+Activity entries show a readable label and status. Details expand on demand. Command output streams inside its entry; completion updates the same entry. The Activity header shows the total number of actions and its body summarizes categories. There is no output-length or inferred-importance threshold for creating an individual card.
 
-```text
-Transient activity
-→ remains inline in Conversation
+**Keep on canvas** explicitly creates a separate view of an Activity item. It does not remove that item from Activity. Plan, Changes, and Activity can also be kept using their headers. Opening a file from Changes is another explicit action and creates a kept File view. Repeated keeping reuses the same identity. **Unkeep from canvas** removes persistence across turns; an individual view disappears, while a summary remains visible if it belongs to the selected turn. Neither operation deletes Codex content or saved geometry.
 
-Durable/relevant result
-→ receives Canvas object
-```
+Default visibility is exactly: Conversation + non-hidden summaries for the viewed turn + non-hidden kept objects. Historical unkept objects are excluded from the visible canvas, minimap, connectors, and Fit bounds.
 
-Examples:
+A readable turn selector outside the scaled canvas provides access to earlier turns. By default it follows the latest turn. Selecting a turn, following a historical artifact link, or choosing a search result fixes the viewed turn until **Go to latest** is selected or the user explicitly starts a new turn. Background events must not switch a history view or pan the camera. If a new turn arrives while an artifact is maximized, retain the turn being read. Conversation reading may continue following latest.
 
-```text
-item started: shell
-→ inline status
-
-command completed with significant output
-→ Command card
-
-fileChange completed
-→ Diff card
-
-turn/diff/updated
-→ update existing turn Diff card
-
-web search
-→ Web Search card
-
-plan
-→ Plan card
-```
-
-The user can collapse or remove cards from the visual Canvas without deleting Codex history.
+The selector identifies the viewed turn, the UI distinguishes following latest from browsing history, and a visible latest-turn action supports return. Conversation retains the full chronological thread, with one reference per Plan, Changes, or Activity summary per turn.
 
 ---
 
-# 29. Turn Grouping
+# 29. Turn Grouping and Placement
 
-Artifacts created by the same turn should appear close together.
+Reuse predictable positions relative to Conversation: Plan beside it, Changes below Plan, and Activity in the next column. New turns reuse these positions instead of extending the canvas indefinitely.
 
-Automatic layout:
+Only visible kept objects and the new turn's summaries obstruct initial placement. Historical and hidden cards reserve no space. Collapsed cards reserve only their header height. Placement must avoid these visible obstacles without moving existing objects.
 
-```text
-Conversation
-     │
-     │ Turn N
-     │
-     ├──────── Plan
-     │
-     ├──────── Command
-     │
-     └──────── Diff
-```
-
-Initial placement can be calculated relative to the Conversation card.
-
-Example:
-
-```ts
-artifactX =
-  conversation.x +
-  conversation.width +
-  80;
-
-artifactY =
-  turnAnchorY +
-  artifactOffset;
-```
-
-The user can subsequently move any object freely.
-
-Once moved manually, automatic layout must not reposition it.
+Manual positions and dimensions remain intact when switching turns or restoring sessions. Moving or resizing a new card does not implicitly keep it; **Keep on canvas** is the explicit visibility choice. Legacy arranged cards are preserved by the migration in section 45.
 
 ---
 
 # 30. Provenance Connectors
 
-Use subtle visual lines between:
+Use subtle visual lines from Conversation to visible summary and kept cards. Each artifact retains its original turn link, including when kept across turns. Hidden and historical unkept cards have no connectors.
 
-```text
-Conversation turn
-       ↓
-Canvas artifact
-```
-
-These are provenance relationships, not arbitrary diagram connectors.
-
-For example:
-
-```text
-Turn 17
-   │
-   ├───── Plan
-   │
-   ├───── bun test
-   │
-   └───── Diff: src/export.ts
-```
-
-The links show:
-
-> This object came from this part of the Codex session.
-
-Do not attempt to implement a general diagramming package.
+Selecting an artifact reference reveals its turn and focuses its summary or kept view. Selecting an Activity search result also expands the matching entry. In maximized reading, these links open the relevant card in the same reading view. These relationships show provenance, not arbitrary diagram connections.
 
 ---
 
@@ -1187,70 +1046,23 @@ Do not create a new Plan card for every plan revision.
 
 ---
 
-# 32. Command Card
+# 32. Command Entries and Kept Cards
 
-App Server represents command execution with fields including:
+Commands appear as expandable Activity entries by default. Show the command, working directory, authoritative status, output, exit code, and duration when available. Long terminal output is scrollable.
 
-```text
-command
-cwd
-status
-aggregatedOutput
-exitCode
-duration
-```
-
-and streams output deltas separately.
-
-Render:
-
-```text
-┌────────────────────────────────────────────┐
-│ COMMAND                        ✓  1.42 s   │
-├────────────────────────────────────────────┤
-│ $ bun test                                 │
-│                                            │
-│ 47 pass                                    │
-│ 1 fail                                     │
-│                                            │
-│ src/export.test.ts                         │
-│ Expected duration 1000, received 999       │
-├────────────────────────────────────────────┤
-│ Exit 1                          [Collapse] │
-└────────────────────────────────────────────┘
-```
-
-Long terminal output must be scrollable.
+Expanding an entry does not create a floating card. **Keep on canvas** creates a standalone Command view using the same renderer and original item identity. Its output remains live. A nonzero exit code is a failure even if the item lifecycle is completed.
 
 ---
 
 # 33. Command Output Streaming
 
-Use:
+Use `item/commandExecution/outputDelta` to append output to the in-memory Codex projection. Update the affected expanded Activity entry and any kept Command view. Collapsed entries defer rendering their output until opened.
 
-```text
-item/commandExecution/outputDelta
-```
-
-to append stdout/stderr while commands run.
-
-A running command card might show:
-
-```text
-COMMAND                               RUNNING
-
-$ bun test
-
-✓ CanvasEngine
-✓ WorkspaceStore
-◉ ExportController...
-```
-
-On `item/completed`, replace temporary accumulated state with the authoritative item.
+Preserve entry expansion and the reader's scroll position during deltas; follow output only when already near its end. On `item/completed`, replace accumulated state with the authoritative item. Do not create another entry or card on completion.
 
 ---
 
-# 34. Diff Card
+# 34. Changes Card
 
 App Server sends the current aggregated unified diff through:
 
@@ -1260,7 +1072,7 @@ turn/diff/updated
 
 and file changes through `fileChange` items.
 
-Maintain one principal Diff card per turn unless the user explicitly extracts separate files.
+Maintain one Changes card per turn. File changes and aggregate diff updates share that identity; explicit file previews are separate kept views.
 
 Example:
 
@@ -1345,27 +1157,11 @@ Editing belongs to Codex or the user's normal IDE.
 
 ---
 
-# 37. Web Search Card
+# 37. Web Search Activity
 
-App Server emits `webSearch` items containing a query and action information. Supported actions include search, opening a page and finding content within a page.
+App Server `webSearch` items describe search, page opening, and finding content. Render each as an expandable entry in the turn's Activity card, including its query, action, and safe source link when available.
 
-Render them graphically:
-
-```text
-┌──────────────────────────────────────┐
-│ WEB SEARCH                           │
-├──────────────────────────────────────┤
-│ Three.js WebGPU timestamp queries    │
-│                                      │
-│ Search                               │
-│ Open documentation                   │
-│ Find "timestamp"                     │
-└──────────────────────────────────────┘
-```
-
-Do not implement an independent browser-search engine.
-
-This is a view of Codex's own web activity.
+**Keep on canvas** creates a standalone Web Search view only on explicit request. This is a view of Codex's own web activity; do not implement an independent search engine.
 
 ---
 
@@ -1392,6 +1188,15 @@ Do not represent these as a single ambiguous “Internet” permission internall
 
 By default, Codex Canvas should inherit the user's existing Codex configuration.
 
+Canvas adds a narrow session behavior rule through App Server's `developerInstructions` on both `thread/start` and `thread/resume`: do not execute Playwright via CLI, APIs, package scripts, or MCP; do not run browser/E2E suites, install browser binaries, search for Chromium, or repair browser-test dependencies. Earlier development context and repository testing guidance must not make an interactive task wait for these checks. Continue the task using relevant source inspection, type checking, or non-browser tests, and accurately report browser checks as not run.
+
+Append this rule to configured developer instructions without modifying the user's base instructions, global configuration, sandbox, or approval policy. Apply it again after an App Server restart and when reopening historical threads. Do not inject it as a fabricated user message or replay conversation content. This is agent guidance rather than an operating-system executable denylist.
+
+The rule applies to interactive sessions regardless of whether Bun serves the app in development or production mode. Playwright remains an explicit repository development test dependency; startup, session creation, and session restoration must not run it or require installed browser binaries. Restarting Canvas and reopening the session applies updated guidance; an already active turn can be stopped through the existing Stop control.
+
+App Server supports configuration overrides for new and resumed threads; the installed CLI's generated `ThreadStartParams` and `ThreadResumeParams` provide `developerInstructions`. See [official App Server documentation](https://learn.chatgpt.com/docs/app-server#start-or-resume-a-thread).
+
+
 Do not silently rewrite:
 
 ```text
@@ -1406,40 +1211,15 @@ For example App Server accepts workspace-write sandbox configuration with explic
 
 ---
 
-# 40. Approval UI
+# 40. Approval and Attention UI
 
-App Server can ask the client to approve:
+App Server can request command, file-change, network, permissions, and MCP approvals or structured user input. Keep all decisions authoritative to the original App Server request.
 
-```text
-command execution
-file changes
-network access
-permissions
-MCP operations
-```
+An attention button outside the scaled canvas distinguishes **Review approval** for pending requests from **Past failures** for recorded command failures in the latest or viewed turn. It is also available in maximized reading. A failure is an explicitly failed item/turn or a command with a nonzero exit code; do not treat ordinary success as failure.
 
-Approval is therefore a first-class graphical element.
+Incoming requests or failures must not automatically open a modal, maximize a card, switch the viewed turn, or pan the camera. Selecting the indicator opens a list. A pending request also displays “Codex is waiting for your approval” beside the composer with a Review approval action. Stop remains accessible outside the canvas and in maximized reading. Selecting a request opens its approval dialog with command/action details, working directory, reason, requested network destination, and the decisions App Server supports. Selecting a failure reveals its originating turn and matching Activity entry or artifact.
 
-Example:
-
-```text
-┌────────────────────────────────────────────────┐
-│ APPROVAL REQUIRED                              │
-├────────────────────────────────────────────────┤
-│ Codex wants to run:                            │
-│                                                │
-│ npm install marked                             │
-│                                                │
-│ /Users/iwan/projects/demo                      │
-│                                                │
-│ Reason                                         │
-│ Required to render Markdown output.            │
-│                                                │
-│ [Decline] [Allow] [Allow for Session]          │
-└────────────────────────────────────────────────┘
-```
-
-App Server defines `accept`, `acceptForSession`, `decline` and `cancel` decisions for command and file-change approvals.
+For command and file-change approvals, preserve the supported `accept`, `acceptForSession`, `decline`, and `cancel` decisions. **Review later** or Escape closes the dialog without answering or dropping the request. Pending requests survive browser reconnection while the host request is outstanding. After a response or server resolution, remove the indicator entry. This does not authorize automatic approval.
 
 ---
 
@@ -1553,6 +1333,8 @@ CREATE TABLE canvases (
     pan_x REAL NOT NULL DEFAULT 0,
     pan_y REAL NOT NULL DEFAULT 0,
     zoom REAL NOT NULL DEFAULT 1,
+    viewport_initialized INTEGER NOT NULL DEFAULT 0,
+    selected_turn_id TEXT,
     updated_at INTEGER NOT NULL
 );
 
@@ -1572,6 +1354,8 @@ CREATE TABLE canvas_objects (
     height REAL NOT NULL,
 
     collapsed INTEGER NOT NULL DEFAULT 0,
+    hidden INTEGER NOT NULL DEFAULT 0,
+    pinned INTEGER NOT NULL DEFAULT 0,
     z_index INTEGER NOT NULL DEFAULT 0,
 
     manually_positioned INTEGER NOT NULL DEFAULT 0,
@@ -1585,54 +1369,23 @@ Do not store complete Codex conversations in these tables.
 
 ---
 
-# 45. Canvas Object Reconciliation
+# 45. Canvas Object Reconciliation and Migration
 
-Suppose Codex reports:
+Codex provides content; SQLite provides presentation metadata. Reconcile Plan, Changes, and Activity by stable thread/turn/type identity. Revisions and item lifecycle updates reuse the same objects. Reconcile explicitly kept individual views by their original thread/turn/item identities.
 
-```text
-itemId = item_456
-type = commandExecution
-```
+Schema version 3 adds `canvas_objects.pinned` and `canvases.selected_turn_id`. A null selected turn means follow latest; a stored turn ID restores history browsing.
 
-and Canvas SQLite already contains:
+When migrating older layouts, keep legacy non-conversation cards that were manually positioned, resized from their original default dimensions, or explicitly opened File views. Preserve their coordinates, sizes, collapse, and hidden state. Unarranged legacy individual cards remain metadata but are excluded from default visibility; their content remains available through Activity. Unarranged Plan/Changes summaries may move into the compact reusable slots during this migration only.
 
-```text
-threadId = thr_123
-itemId   = item_456
-x        = 1240
-y        = 690
-```
-
-When the session is restored:
-
-```text
-Codex provides content
-Canvas DB provides position
-```
-
-The object is reconstructed from both.
-
-This is the fundamental persistence model.
+Do not delete legacy object records, Codex history, or duplicate transcripts into SQLite. If Codex no longer retains content for a saved object, retain its metadata and show an unavailable state.
 
 ---
 
 # 46. Missing Canvas State
 
-If a Codex thread exists but no Canvas record exists:
+When opening a Codex thread without local canvas metadata, create Conversation and reconcile summaries from its available history. Select latest by default. Show only that turn's summaries, with prior turns available in the selector and search.
 
-```text
-reconstruct Canvas automatically
-```
-
-using its thread history.
-
-Place the Conversation object first.
-
-Then generate positions for existing durable artifacts chronologically.
-
-This allows Codex Canvas to open sessions originally created by another Codex client.
-
-That is desirable.
+Do not create a standalone floating card for each historical command, search, tool, image, or review. This rule also applies to sessions originally created by another Codex client.
 
 ---
 
@@ -1802,31 +1555,13 @@ The state persists.
 
 ---
 
-# 53. Remove From Canvas
+# 53. Hide, Restore, and Keep
 
-The user may choose:
+**Hide from canvas** records `hidden = true` without deleting the object or Codex item. It is separate from keeping: a kept card may be hidden and later restored.
 
-```text
-Hide from Canvas
-```
+**Restore hidden artifacts** restores hidden summaries for the viewed turn and hidden kept cards. It must not reveal every unkept historical object. An explicit conversation/search link may reveal its targeted hidden object.
 
-This must not delete the underlying Codex item.
-
-It merely records:
-
-```text
-hidden = true
-```
-
-in Canvas metadata.
-
-Provide:
-
-```text
-Show hidden artifacts
-```
-
-for restoration.
+Keeping controls visibility across turns; hiding controls whether an otherwise eligible card is shown. Collapsing reduces a visible card to its header. All three states persist independently. Activity entry expansion is ephemeral.
 
 ---
 
@@ -1900,6 +1635,10 @@ interrupted
 
 # 57. Status Semantics
 
+A command's last item status must be interpreted alongside its turn lifecycle. If a completed, failed, or interrupted turn still contains an in-progress command without an authoritative outcome, display “Turn interrupted/failed/completed · outcome unconfirmed” rather than Running. Keep the original Codex item intact; do not infer that the command succeeded, failed, or was killed. A later authoritative item result replaces the unconfirmed display.
+
+A Git `index.lock` error with “Operation not permitted” or “Permission denied” must explain that repository metadata can be outside the selected workspace, particularly for a project within a parent Git repository. It does not establish a stale lock. Do not remove lock files or broaden permissions automatically. Retry through Codex's ordinary approval flow when supported; if permission cannot be requested, explain the blocker.
+
 Never derive success from visual assumptions.
 
 Use App Server item and turn status.
@@ -1918,79 +1657,21 @@ Completed events replace it.
 
 ---
 
-# 58. Tool Cards
+# 58. Tool Activity
 
-Codex may expose MCP or other tool calls.
-
-App Server defines `mcpToolCall` items containing server, tool, status, arguments, result and error information.
-
-Render generically:
-
-```text
-┌───────────────────────────────────────┐
-│ TOOL · GitHub                        │
-├───────────────────────────────────────┤
-│ search_code                          │
-│                                      │
-│ Query                                │
-│ CanvasEngine                         │
-│                                      │
-│ ✓ completed                          │
-└───────────────────────────────────────┘
-```
-
-Do not build plugin-specific custom UIs during the MVP.
+Render Codex MCP and other tool calls as expandable Activity entries, including available name, status, arguments, result, and error details. Explicit keeping creates a generic Tool card. Do not create automatic per-tool cards or plugin-specific custom UIs for the MVP.
 
 ---
 
-# 59. Image Cards
+# 59. Image Activity
 
-App Server can emit an `imageView` item when Codex inspects an image.
-
-Render:
-
-```text
-┌────────────────────────────┐
-│ IMAGE                      │
-├────────────────────────────┤
-│                            │
-│       image preview        │
-│                            │
-├────────────────────────────┤
-│ mockup.png                 │
-└────────────────────────────┘
-```
-
-Images may be expanded significantly on the Canvas.
+Codex image inspection and generation items appear in Activity. Expanding an entry shows its supported image preview and path, with an unavailable state if the file cannot be loaded safely. **Keep on canvas** creates an Image card. Activity and kept Image cards can be maximized for reading.
 
 ---
 
 # 60. Reviews
 
-Codex exposes its review workflow through App Server.
-
-A review result can become:
-
-```text
-REVIEW
-```
-
-card.
-
-Example:
-
-```text
-┌────────────────────────────────────┐
-│ CODE REVIEW                        │
-├────────────────────────────────────┤
-│ 2 critical                         │
-│ 3 warnings                         │
-│                                    │
-│ ...                                │
-└────────────────────────────────────┘
-```
-
-This remains an ordinary representation of Codex output.
+Review items appear as expandable Activity entries. Render the available Codex review text and status without inventing severity counts. Explicit keeping creates a Review view. This remains an ordinary representation of Codex output.
 
 ---
 
@@ -2011,7 +1692,7 @@ diff text
 web search query text
 ```
 
-Selecting a result focuses the corresponding Canvas object.
+Selecting a result reveals its original turn, focuses its summary or kept card, and expands the matching Activity entry. Conversation matches navigate to their original turn. Preserve maximized reading when following results.
 
 Do not create embeddings for this.
 
@@ -2224,6 +1905,8 @@ A browser reload must not create a new session.
 
 # 70. RPC Bridge
 
+Keep ordinary browser requests ordered, but dispatch `approval.respond` and `turn.stop` independently of that queue. They must not wait behind a request whose completion needs an approval or interruption. The host still validates the opened thread and workspace for these controls. Return request errors with their original client ID so the composer can recover, and keep later requests usable after a failure.
+
 Create a dedicated App Server RPC client.
 
 Example:
@@ -2298,8 +1981,9 @@ type ClientMessage =
   | { type: "turn.steer"; text: string }
   | { type: "turn.stop" }
   | { type: "approval.respond"; requestId: number; decision: string }
-  | { type: "canvas.move"; objectId: string; x: number; y: number }
-  | { type: "canvas.resize"; objectId: string; width: number; height: number };
+  | { type: "canvas.keep"; threadId: string; turnId: string; itemId: string }
+  | { type: "canvas.turn"; threadId: string; turnId: string | null }
+  | { type: "canvas.update"; threadId: string; objectId: string; patch: ObjectPatch };
 ```
 
 Bun → Browser:
@@ -2313,6 +1997,8 @@ type ServerMessage =
   | { type: "approval.request"; ... }
   | { type: "connection.state"; ... };
 ```
+
+Validate kept item and selected turn IDs against the opened session and workspace. These are local metadata operations and must not invoke agent tools.
 
 This isolates App Server protocol evolution from the visual application.
 
@@ -2354,6 +2040,8 @@ sizes
 viewport
 collapsed states
 hidden states
+kept states
+selected turn (null means follow latest)
 ```
 
 ### UiState
@@ -2374,45 +2062,19 @@ Never persist UiState unless necessary.
 
 # 74. Rendering Strategy
 
-Do not rerender the complete Canvas for every token delta.
+Update affected DOM nodes instead of rebuilding the complete canvas for every token delta. Assistant deltas update the current message. Command deltas update the corresponding expanded Activity entry and any kept Command view.
 
-Update only affected DOM nodes.
-
-Example:
-
-```text
-item/agentMessage/delta
-```
-
-should mutate the current Agent Message element.
-
-Likewise:
-
-```text
-item/commandExecution/outputDelta
-```
-
-updates only the active Command card.
-
-This is easy to implement without a frontend framework if each object has a controller.
+Maintain stable Activity entry nodes keyed by item ID so streaming and lifecycle updates preserve expansion. Render detail content on demand. Keep existing card DOM when maximizing so drafts, live output, and reading state survive. Conversation references are keyed by summary identity to avoid one reference per command.
 
 ---
 
-# 75. Canvas Spatial Index
+# 75. Canvas Performance
 
-For the MVP, ordinary DOM positioning is enough.
+Ordinary DOM positioning is sufficient for the MVP. Automatic visible objects are bounded by Conversation plus up to three turn summaries; additional visible objects require explicit keeping.
 
-Do not implement a quadtree immediately.
+A turn with at least 80 commands must stay inside a single Activity card. Collapsed entries defer heavy detail rendering. Historical cards are hidden from layout, connectors, minimap, and Fit bounds. Do not reserve space based on the total historical object count.
 
-If sessions eventually contain hundreds of cards, introduce viewport culling later.
-
-Initial performance target:
-
-```text
-100 Canvas objects
-```
-
-without meaningful UI slowdown.
+Retain the target of handling 100 explicitly kept objects without meaningful slowdown. More advanced viewport culling may be introduced when needed.
 
 ---
 
@@ -2825,6 +2487,10 @@ codex-canvas/
 
 # 93. Automated Tests
 
+Regression coverage must include an approval and Stop arriving while another browser request remains unresolved; interrupted turns containing unfinished command items; acknowledgement timeout and late acknowledgement; and Git metadata permission errors. These tests must not require a browser or real Git writes.
+
+Verify that new sessions, restored sessions, and restoration after process restart all receive the no-Playwright session rule while preserving configured developer instructions and the original user input. Check that repeated composition does not duplicate the rule. Browser regression tests are an explicit development workflow and must not be a runtime prerequisite.
+
 Use:
 
 ```bash
@@ -2911,6 +2577,8 @@ resolved request disappears
 ---
 
 # 98. Canvas Tests
+
+Verify that 80 commands remain one Activity card, summary references are deduplicated, kept results remain visible across turns, unkeeping preserves Activity content, and prior turns reuse placement slots. Test history selection across reload and background updates; hidden/history/collapsed layout footprints; legacy migration; and workspace-scoped keep/turn operations. Verify that failures and approvals signal attention without interrupting maximized reading.
 
 Verify:
 
@@ -3009,6 +2677,18 @@ resize cards
 
 collapse cards
 
+bounded automatic Plan/Changes/Activity creation
+
+expandable Activity entries
+
+explicit Keep on canvas
+
+readable turn navigation and history restoration
+
+non-interrupting attention indicator
+
+maximized reading with adjustable text
+
 automatic artifact placement
 
 provenance links
@@ -3082,167 +2762,17 @@ These features would obscure the actual point of the application.
 
 # 102. Demonstration Scenario
 
-The application should support the following demonstration convincingly.
+Start `bun run dev`, open `http://127.0.0.1:3030`, choose a workspace, and create a session. The canvas contains only Conversation.
 
-Start:
+Ask Codex to inspect and fix an animation export bug and run tests. A Plan appears when planning content arrives. Shell commands collect inside Activity, with expandable streaming output. File changes produce one Changes card. Web research adds Activity entries.
 
-```bash
-bun run dev
-```
+A network approval displays **Review approval** while the user's current reading view stays in place. The user opens the indicator, reviews the request, and allows it. Tests finish and Conversation explains the result.
 
-Open:
+The default final canvas is Conversation, Plan, Changes, and Activity. Running dozens more commands does not add floating cards. The user expands the test command and chooses **Keep on canvas**, producing one additional Command view. They maximize it and adjust text size, then return to the original layout.
 
-```text
-http://127.0.0.1:3030
-```
+The user starts a follow-up turn. Its summaries occupy the reusable area while the kept test result remains visible. The previous turn can be selected from the readable navigator; new events do not pull the user out of that historical view. **Go to latest** returns to the newest work.
 
-The sidebar displays:
-
-```text
-WORKSPACES
-
-GPT-6 Demos
-Flip
-Loom
-```
-
-Select:
-
-```text
-Flip
-```
-
-Existing Codex sessions appear.
-
-Create:
-
-```text
-+ New Session
-```
-
-The Canvas initially contains only:
-
-```text
-Conversation
-```
-
-Prompt:
-
-```text
-Inspect this application and explain why animation export
-occasionally produces a corrupted final frame. Fix it and run
-the relevant tests.
-```
-
-Codex begins.
-
-The Conversation streams:
-
-```text
-I'll inspect the animation export pipeline first.
-```
-
-A Plan card appears to the right.
-
-```text
-PLAN
-
-◉ Inspect export pipeline
-○ Reproduce bug
-○ Implement fix
-○ Run tests
-```
-
-A Command card appears:
-
-```text
-rg "export" src/
-```
-
-Another appears:
-
-```text
-bun test export
-```
-
-Output streams live.
-
-Codex changes files.
-
-A Diff card appears:
-
-```text
-3 files changed
-```
-
-The user moves the Diff card upward and enlarges it.
-
-Codex performs a web search.
-
-A Web Search card appears below the plan.
-
-An operation requires network approval.
-
-The graphical approval dialog appears.
-
-The user selects:
-
-```text
-Allow
-```
-
-Codex continues.
-
-Tests pass.
-
-Conversation ends with its explanation.
-
-The final Canvas now visually shows:
-
-```text
-                 Plan
-
-Conversation     Commands
-
-                 Diff
-
-                 Web research
-```
-
-The user rearranges these cards.
-
-Then closes the browser.
-
-Later the user reopens Codex Canvas.
-
-Selects:
-
-```text
-Flip
-→ Fix animation export
-```
-
-Codex Canvas:
-
-```text
-resumes the original Codex thread
-restores conversation history
-restores card positions
-restores zoom
-restores collapsed states
-```
-
-The user asks:
-
-```text
-Now simplify the implementation you added.
-```
-
-Codex continues with the existing session context.
-
-Nothing was manually reconstructed.
-
-This is the product demonstration.
+After browser reload, Codex supplies the original conversation and artifacts. SQLite restores geometry, hidden/collapsed/kept states, camera, and selected turn. No new conversational memory mechanism is introduced.
 
 ---
 
@@ -3309,6 +2839,12 @@ The implementation should treat the following rules as non-negotiable.
 
 **GPT-6 Astra is preferred when App Server advertises it, but models are discovered dynamically.**
 
+**Automatic canvas growth is bounded to the viewed turn's Plan, Changes, and Activity summaries. Individual floating artifacts require explicit keeping.**
+
+**New work must not interrupt history browsing or maximized artifact reading.**
+
+**Keeping, hiding, or unkeeping never changes Codex history or model context.**
+
 These invariants are more important than individual UI details.
 
 ---
@@ -3347,7 +2883,12 @@ Codex Canvas is complete when a user can:
 28. reopen the same Codex session;
 29. recover the conversation from Codex;
 30. recover the Canvas layout from local persistence;
-31. continue working without creating a new memory/context mechanism.
+31. continue working without creating a new memory/context mechanism;
+32. inspect a busy turn without accumulating per-command floating cards;
+33. keep selected results across turns and unkeep them without losing history;
+34. browse prior turns and restore that selection after reload;
+35. maximize any card and adjust text size without changing its canvas geometry;
+36. review pending approvals and failures on demand without automatic focus or camera changes.
 
 At that point the application has achieved its purpose.
 

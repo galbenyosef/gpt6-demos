@@ -7,6 +7,7 @@ import { Store } from './persistence/Store';
 import type { Rpc } from './codex/CodexRpcClient';
 import { normalizeContext, normalizeEvent, normalizeItem, normalizeThread } from './codex/CodexProtocol';
 import { Approvals } from './codex/Approvals';
+import { sessionInstructions } from './codex/SessionInstructions';
 export interface Peer { send: (message: ServerMessage) => void; workspaceId?: string; threadId?: string }
 interface Loaded { thread: Thread; workspaceId: string; context: Context }
 export class Host {
@@ -94,7 +95,7 @@ export class Host {
       } else rawHistory = (await this.rpc().request('thread/read', { threadId, includeTurns: true })).thread;
       const config = await this.rpc().request('config/read', { cwd: workspace.path, includeLayers: false }).catch(() => ({ config: {} }));
       this.store.attach(threadId, workspaceId);
-      const resumed = await this.rpc().request('thread/resume', { threadId });
+      const resumed = await this.rpc().request('thread/resume', { threadId, developerInstructions: sessionInstructions(config.config) });
       // Metadata was canonicalized before resume. No async gap between snapshot and live subscription.
       if (resumed.thread.cwd !== metadata.thread.cwd) throw new Error('Codex changed the thread workspace while resuming');
       const raw = { ...resumed.thread, turns: rawHistory.turns ?? [] };
@@ -151,9 +152,9 @@ export class Host {
         const workspace = this.store.workspace(message.workspaceId);
         const model = message.model ? this.models.find(m => m.model === message.model) : preferredModel(this.models);
         if (!model) throw new Error('No supported model available. Check Codex authentication.');
-        const response = await this.rpc().request('thread/start', { cwd: workspace.path, model: model.model });
-        await this.checkCwd(response.thread.cwd, workspace.id);
         const config = await this.rpc().request('config/read', { cwd: workspace.path, includeLayers: false }).catch(() => ({ config: {} }));
+        const response = await this.rpc().request('thread/start', { cwd: workspace.path, model: model.model, developerInstructions: sessionInstructions(config.config) });
+        await this.checkCwd(response.thread.cwd, workspace.id);
         const loaded = { thread: normalizeThread(response.thread), workspaceId: workspace.id, context: normalizeContext(response, config.config) };
         this.sessions.set(loaded.thread.id, loaded); this.store.attach(loaded.thread.id, workspace.id);
         peer.workspaceId = workspace.id; peer.threadId = loaded.thread.id; this.sendSession(peer, loaded); break;
@@ -190,6 +191,18 @@ export class Host {
         if (turn) await this.rpc().request('turn/interrupt', { threadId: message.threadId, turnId: turn.id }); break;
       }
       case 'approval.respond': this.requireSession(peer, message.threadId); this.approvals.respond(message.requestId, message.threadId, message.decision, message.answers, message.content); break;
+      case 'canvas.keep': {
+        const loaded = this.requireSession(peer, message.threadId);
+        const item = loaded.thread.turns.find(t => t.id === message.turnId)?.items.find(i => i.id === message.itemId);
+        if (!item) throw new Error('Item not found in this turn');
+        const object = this.store.keep(message.threadId, message.turnId, item);
+        this.broadcast({ type: 'canvas.object', object }, message.threadId); break;
+      }
+      case 'canvas.turn': {
+        const loaded = this.requireSession(peer, message.threadId);
+        if (message.turnId !== null && !loaded.thread.turns.some(t => t.id === message.turnId)) throw new Error('Turn not found in this session');
+        this.store.selectTurn(message.threadId, message.turnId); break;
+      }
       case 'canvas.update': {
         this.requireSession(peer, message.threadId); const object = this.store.update(message.threadId, message.objectId, message.patch);
         this.broadcast({ type: 'canvas.object', object }, message.threadId); break;
@@ -207,7 +220,10 @@ export class Host {
         if (!turn?.items.some(i => i.changes?.some(c => c.path === message.path))) throw new Error('This file is not part of the selected turn');
         const path = await this.safePath(loaded, message.path);
         const file = Bun.file(path); if (file.size > 2 * 1024 * 1024) throw new Error('File preview is limited to 2 MB');
-        this.event({ kind: 'item', threadId: message.threadId, turnId: message.turnId, item: { id: `file:${message.path}`, type: 'file', path: message.path, text: await file.text() } }); break;
+        const item = { id: `file:${message.path}`, type: 'file', path: message.path, text: await file.text() };
+        this.event({ kind: 'item', threadId: message.threadId, turnId: message.turnId, item });
+        // Reopening a previously hidden or unkept file is an explicit visibility request.
+        this.broadcast({ type: 'canvas.object', object: this.store.keep(message.threadId, message.turnId, item) }, message.threadId); break;
       }
     }
   }

@@ -1,13 +1,13 @@
 /** Browser-facing projections. Protocol-specific normalization lives on the host. */
-export type ObjectType = 'conversation' | 'plan' | 'command' | 'diff' | 'file' | 'web-search' | 'image' | 'tool' | 'review';
+export type ObjectType = 'conversation' | 'activity' | 'plan' | 'command' | 'diff' | 'file' | 'web-search' | 'image' | 'tool' | 'review';
 export interface Workspace { id: string; name: string; path: string }
 export interface Camera { x: number; y: number; zoom: number }
 export interface CanvasObject {
   id: string; threadId: string; turnId?: string; itemId?: string; type: ObjectType;
   x: number; y: number; width: number; height: number; collapsed: boolean; hidden: boolean;
-  manuallyPositioned: boolean; zIndex: number;
+  manuallyPositioned: boolean; pinned: boolean; zIndex: number;
 }
-export interface Canvas { threadId: string; viewportInitialized: boolean; camera: Camera; objects: CanvasObject[] }
+export interface Canvas { threadId: string; selectedTurnId: string | null; viewportInitialized: boolean; camera: Camera; objects: CanvasObject[] }
 export interface Model { id: string; model: string; displayName: string; isDefault: boolean;
   supportedReasoningEfforts: { reasoningEffort: string; description: string }[]; defaultReasoningEffort: string }
 export interface Item {
@@ -31,7 +31,7 @@ export type SessionEvent =
   | { kind: 'item'; threadId: string; turnId: string; item: Item }
   | { kind: 'delta'; threadId: string; turnId: string; itemId: string; field: 'text' | 'output'; delta: string; itemType: string }
   | { kind: 'name'; threadId: string; name: string };
-export type ObjectPatch = Partial<Pick<CanvasObject, 'x' | 'y' | 'width' | 'height' | 'collapsed' | 'hidden' | 'manuallyPositioned' | 'zIndex'>>;
+export type ObjectPatch = Partial<Pick<CanvasObject, 'x' | 'y' | 'width' | 'height' | 'collapsed' | 'hidden' | 'manuallyPositioned' | 'pinned' | 'zIndex'>>;
 export type ClientMessage =
   | { type: 'app.init' | 'codex.restart' | 'auth.login' }
   | { type: 'workspace.add'; name: string; path: string }
@@ -41,6 +41,8 @@ export type ClientMessage =
   | { type: 'turn.start' | 'turn.steer'; threadId: string; text: string; model?: string; effort?: string; clientId: string }
   | { type: 'turn.stop'; threadId: string }
   | { type: 'approval.respond'; threadId: string; requestId: string; decision: string; answers?: Record<string, string>; content?: unknown }
+  | { type: 'canvas.keep'; threadId: string; turnId: string; itemId: string }
+  | { type: 'canvas.turn'; threadId: string; turnId: string | null }
   | { type: 'canvas.update'; threadId: string; objectId: string; patch: ObjectPatch }
   | { type: 'canvas.viewport'; threadId: string; camera: Camera }
   | { type: 'canvas.remove'; workspaceId: string; threadId: string }

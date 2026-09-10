@@ -9,16 +9,17 @@ export function parseClientMessage(input: string): ClientMessage {
     'workspace.open': ['workspaceId'], 'session.open': ['workspaceId', 'threadId'], 'session.create': ['workspaceId'],
     'turn.start': ['threadId', 'text', 'clientId'], 'turn.steer': ['threadId', 'text', 'clientId'], 'turn.stop': ['threadId'],
     'approval.respond': ['threadId', 'requestId', 'decision'], 'canvas.update': ['threadId', 'objectId'],
-    'canvas.viewport': ['threadId'], 'canvas.remove': ['workspaceId', 'threadId'], 'file.open': ['threadId', 'turnId', 'path'],
+    'canvas.keep': ['threadId', 'turnId', 'itemId'], 'canvas.turn': ['threadId'], 'canvas.viewport': ['threadId'], 'canvas.remove': ['workspaceId', 'threadId'], 'file.open': ['threadId', 'turnId', 'path'],
   };
   if (!Object.hasOwn(required, m.type)) throw new Error('Unknown browser operation');
   for (const key of required[m.type]!) if (typeof m[key] !== 'string') throw new Error(`Invalid ${key}`);
   for (const key of ['search', 'cursor', 'model', 'effort']) if (m[key] !== undefined && typeof m[key] !== 'string') throw new Error(`Invalid ${key}`);
   if (m.type === 'canvas.update') {
     if (!m.patch || typeof m.patch !== 'object') throw new Error('Invalid canvas patch');
-    const keys = ['x', 'y', 'width', 'height', 'collapsed', 'hidden', 'manuallyPositioned', 'zIndex'];
+    const keys = ['x', 'y', 'width', 'height', 'collapsed', 'hidden', 'manuallyPositioned', 'pinned', 'zIndex'];
     if (Object.keys(m.patch).some(k => !keys.includes(k))) throw new Error('Unsupported canvas field');
   }
+  if (m.type === 'canvas.turn' && m.turnId !== null && typeof m.turnId !== 'string') throw new Error('Invalid selected turn');
   if (m.type === 'canvas.viewport' && (!m.camera || typeof m.camera !== 'object')) throw new Error('Invalid camera');
   return m;
 }
