@@ -5,14 +5,19 @@ A Bun + Three.js interactive reconstruction of Edificio Europa in Valencia, base
 ## Run
 
 ```sh
+cd ../cross-talk
+bun install
+# Configure OPENAI_API_KEY in cross-talk/.env for voice.
+cd ../edificio-europa
 bun install
 bun run dev
 ```
 
-Open http://localhost:3000.
+Open http://localhost:3000. The startup command loads the server key and model configuration from `../cross-talk/.env`.
 
 ## Features
 
+- Crosstalk voice control: ask about the current view, change lighting, explore viewpoints, zoom, rotate, or save a view.
 - Three smoothly animated camera presets: urban perspective, street level, and skyline.
 - Free orbit, pan, zoom, auto-rotation, reset, and fullscreen.
 - Daylight, golden-hour, and blue-hour lighting with refreshed environment reflections.
@@ -33,10 +38,12 @@ bun run typecheck
 bun run build
 ```
 
-The static output is written to `dist/`. The development server uses Bun HTML imports directly, without Vite.
+The static output is written to `dist/`. Voice requires the Bun server (or a reverse proxy forwarding `/crosstalk/*` to it); a standalone static host only serves the explorer. The development server uses Bun HTML imports directly, without Vite.
 
 ## Accuracy and verification
 
 This is an interpretive photo-based model, not photogrammetry or a measured survey. Dimensions, unseen surfaces, landscaping, and neighboring buildings are approximations. Reference images are supplied by the user.
 
-Geometry validation (finite vertex data, compatible material batches, and building bounds), TypeScript validation, production bundling, and an HTTP response check were completed. Browser rendering and interaction testing were unavailable because no browser was connected. The optional WebMCP configuration tool is feature-detected; its browser registration was not verified in this environment.
+The Crosstalk adapter in `crosstalk/` exposes six semantic tools through a shared `EuropaController`. Manual controls and voice actions update the same scene, UI and state. Camera transitions support cancellation and report completion only after settling. When users freely orbit or rotate, semantic state marks the view as adjusted and does not claim an exact set of visible features.
+
+See [Crosstalk's README](../cross-talk/README.md) for protocol details, configuration, offline/browser tests, and opt-in live API checks. The previous one-off WebMCP bridge has been replaced by this application contract.

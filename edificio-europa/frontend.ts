@@ -1,4 +1,7 @@
 import { createExplorer, type ViewMode, type LightMode } from './scene';
+import { CrosstalkClient } from '@crosstalk/client';
+import { EuropaController } from './crosstalk/EuropaController';
+import { createEuropaCrosstalkAdapter } from './crosstalk/adapter';
 
 const icons: Record<string,string> = {
  arrow:'<path d="M7 17 17 7M7 7h10v10"/>', pin:'<path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -26,36 +29,25 @@ for(const [id,dialogId] of [['about','about-dialog'],['info','help-dialog']]) bi
 document.querySelectorAll('dialog').forEach(d=>{d.querySelector('button')!.addEventListener('click',()=>d.close());d.addEventListener('click',e=>{if(e.target===d)d.close()})});
 try {
  const explorer=createExplorer(document.querySelector('#canvas-host')!);
- let view:ViewMode='urban'; let rotating=false;
  const titles={urban:['The urban perspective.','Glass, stone, and a Mediterranean skyline.'],street:['A closer kind of wonder.','Follow the reflections from the street to the sky.'],aerial:['Above the everyday.','Discover Europa’s place in the fabric of Valencia.']};
- document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>{view=button.dataset.view as ViewMode;explorer.setView(view);document.querySelectorAll('[data-view]').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));b.querySelector('.selected-indicator')!.innerHTML=active?icon('chevron'):''});document.querySelector('#view-title')!.textContent=titles[view][0]!;document.querySelector('#view-description')!.textContent=titles[view][1]!;document.querySelector('#scene-label')!.textContent=views.find(v=>v.id===view)!.label;document.querySelector('#scene-number')!.textContent=`0${views.findIndex(v=>v.id===view)+1} / 03`;}));
- document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(button=>button.addEventListener('click',()=>{explorer.setLight(button.dataset.light as LightMode);document.querySelectorAll('[data-light]').forEach(b=>{b.classList.toggle('active',b===button);b.setAttribute('aria-pressed',String(b===button))})}));
- bind('rotate',()=>{rotating=!rotating;explorer.setRotate(rotating);document.querySelector('#rotate')!.innerHTML=icon(rotating?'pause':'play');document.querySelector('#rotate')!.setAttribute('aria-pressed',String(rotating))});
- bind('reset',()=>{explorer.setView(view);toast('Perspective reset')});bind('zoom-in',()=>explorer.zoom(.82));bind('zoom-out',()=>explorer.zoom(1.22));
- bind('capture',()=>{try{explorer.capture();toast('Your 4K perspective is ready')}catch{toast('Image export was unavailable. Please try again.')}});
+ const controller=new EuropaController(explorer,state=>{
+  document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(b=>{const active=b.dataset.view===state.perspective;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));b.querySelector('.selected-indicator')!.innerHTML=active?icon('chevron'):''});
+  document.querySelector('#view-title')!.textContent=titles[state.perspective][0]!;document.querySelector('#view-description')!.textContent=titles[state.perspective][1]!;
+  document.querySelector('#scene-label')!.textContent=views.find(v=>v.id===state.perspective)!.label;document.querySelector('#scene-number')!.textContent=`0${views.findIndex(v=>v.id===state.perspective)+1} / 03`;
+  document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(b=>{const active=b.dataset.light===state.lighting;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+  document.querySelector('#rotate')!.innerHTML=icon(state.autoRotate?'pause':'play');document.querySelector('#rotate')!.setAttribute('aria-pressed',String(state.autoRotate));
+ });
+ const navigate=(action:Promise<void>)=>{void action.catch(error=>{if(!(error instanceof Error)||error.name!=='AbortError')toast('This perspective is unavailable. Please try again.');});};
+ document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>navigate(controller.setPerspective(button.dataset.view as ViewMode))));
+ document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(button=>button.addEventListener('click',()=>controller.setLighting(button.dataset.light as LightMode)));
+ bind('rotate',()=>controller.setAutoRotate(!controller.getState().autoRotate));
+ bind('reset',()=>navigate(controller.resetPerspective()));bind('zoom-in',()=>controller.adjustZoom('closer'));bind('zoom-out',()=>controller.adjustZoom('farther'));
+ bind('capture',()=>{try{controller.capture();toast('Your 4K perspective is ready')}catch{toast('Image export was unavailable. Please try again.')}});
+ const crosstalk=new CrosstalkClient({endpoint:'/crosstalk'});
+ crosstalk.mountButton({position:'bottom-right'});
+ void crosstalk.register(createEuropaCrosstalkAdapter(controller)).catch(()=>toast('Voice is reconnecting. The explorer is ready to use.'));
+ window.addEventListener('pagehide',()=>crosstalk.dispose(),{once:true});
  bind('fullscreen',()=>{const v=document.querySelector('.viewer')!;if(document.fullscreenElement)document.exitFullscreen();else v.requestFullscreen().catch(()=>toast('Fullscreen is unavailable in this browser'))});
- document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]'))return;if(e.key==='+'||e.key==='=')explorer.zoom(.85);if(e.key==='-')explorer.zoom(1.18);if(e.key.toLowerCase()==='r')explorer.setView(view)});
- requestAnimationFrame(()=>document.querySelector('#loading')!.classList.add('loaded'));
+ document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||e.composedPath().some(el=>el instanceof HTMLElement&&(el.isContentEditable||['INPUT','TEXTAREA'].includes(el.tagName))))return;if(e.key==='+'||e.key==='=')controller.adjustZoom('closer','small');if(e.key==='-')controller.adjustZoom('farther','small');if(e.key.toLowerCase()==='r')navigate(controller.resetPerspective())});
+ requestAnimationFrame(()=>{controller.setReady(true);document.querySelector('#loading')!.classList.add('loaded');});
 } catch(error){console.error(error);document.querySelector('#loading')!.innerHTML='<strong>Your browser could not start the 3D view.</strong><span>Enable hardware acceleration or try a WebGL-capable browser.</span>';}
-
-// Optional WebMCP bridge uses exactly the same actions as the visible controls.
-type ExplorerTool = {name:string;description:string;inputSchema:object;annotations:{readOnlyHint:boolean;untrustedContentHint:boolean};execute:(input:unknown)=>unknown};
-const modelContext=(document as Document & {modelContext?:{registerTool:(tool:ExplorerTool,options:{signal:AbortSignal})=>void|Promise<void>}}).modelContext;
-if(modelContext?.registerTool){
- const lifecycle=new AbortController();
- window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
- try{void Promise.resolve(modelContext.registerTool({
-  name:'configure_architectural_view',description:'Choose one of the three building perspectives and an optional lighting preset in the visible 3D explorer.',
-  inputSchema:{type:'object',properties:{perspective:{type:'string',enum:['urban','street','aerial']},light:{type:'string',enum:['day','golden','blue']}},required:['perspective'],additionalProperties:false},
-  annotations:{readOnlyHint:false,untrustedContentHint:false},
-  execute(input:unknown){
-   if(typeof input!=='object'||input===null)throw new Error('Expected a perspective configuration.');
-   const value=input as Record<string,unknown>;
-   if(Object.keys(value).some(k=>!['perspective','light'].includes(k))||!['urban','street','aerial'].includes(value.perspective as string)||(value.light!==undefined&&!['day','golden','blue'].includes(value.light as string)))throw new Error('Unknown perspective or lighting preset.');
-   if(!document.querySelector('#loading.loaded'))throw new Error('The 3D explorer is not available.');
-   document.querySelector<HTMLButtonElement>(`[data-view="${value.perspective}"]`)!.click();
-   if(value.light)document.querySelector<HTMLButtonElement>(`[data-light="${value.light}"]`)!.click();
-   return {perspective:value.perspective,light:document.querySelector<HTMLButtonElement>('[data-light].active')!.dataset.light};
-  }
- },{signal:lifecycle.signal})).catch(error=>console.warn('Optional model context is unavailable',error));}catch(error){console.warn('Optional model context is unavailable',error);}
-}

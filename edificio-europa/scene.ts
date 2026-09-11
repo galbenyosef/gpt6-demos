@@ -227,7 +227,9 @@ export function createExplorer(host: HTMLElement) {
     aerial:{position:[-79,105,103],target:[0,17,0]},
   };
   let currentView:ViewMode='urban';
-  let transition:{from:THREE.Vector3,to:THREE.Vector3,fromTarget:THREE.Vector3,toTarget:THREE.Vector3,start:number}|null=null;
+  let transition:{from:THREE.Vector3,to:THREE.Vector3,fromTarget:THREE.Vector3,toTarget:THREE.Vector3,start:number;finish(error?:Error):void}|null=null;
+  const navigationListeners=new Set<(kind:"manual"|"zoom")=>void>();
+  const cancelTransition=()=>{const old=transition;transition=null;old?.finish(new DOMException("Camera movement was interrupted", "AbortError"));};
   const mobile=()=>host.clientWidth<700;
   function destination(view:ViewMode){
     const p=preset[view];const position=new THREE.Vector3(...p.position as [number,number,number]);const target=new THREE.Vector3(...p.target as [number,number,number]);
@@ -241,21 +243,34 @@ export function createExplorer(host: HTMLElement) {
     camera.setViewOffset(w,h,w*(mobile()?0:.12),mobile()?-h*.055:0,w,h);camera.updateProjectionMatrix();
   };
   new ResizeObserver(resize).observe(host);resize();
-  controls.addEventListener('start',()=>{transition=null;});
+  controls.addEventListener('start',()=>{cancelTransition();navigationListeners.forEach(fn=>fn('manual'));});
+  renderer.domElement.addEventListener('keydown',event=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.key)){cancelTransition();navigationListeners.forEach(fn=>fn('manual'));}});
+  const zoomLevel=()=>{const p=destination(currentView);const ratio=camera.position.distanceTo(controls.target)/p.position.distanceTo(p.target);return ratio<.85?'close' as const:ratio>1.15?'wide' as const:'normal' as const;};
+  let lastZoomLevel=zoomLevel();
+  controls.addEventListener('change',()=>{const next=zoomLevel();if(next!==lastZoomLevel){lastZoomLevel=next;navigationListeners.forEach(fn=>fn('zoom'));}});
   let last=performance.now();
   renderer.setAnimationLoop(()=>{
     const now=performance.now();const delta=Math.min((now-last)/1000,.1);last=now;
     if(transition){
       const t=Math.min(1,(now-transition.start)/1400),s=t*t*(3-2*t);
-      camera.position.lerpVectors(transition.from,transition.to,s);controls.target.lerpVectors(transition.fromTarget,transition.toTarget,s);if(t>=1)transition=null;
+      camera.position.lerpVectors(transition.from,transition.to,s);controls.target.lerpVectors(transition.fromTarget,transition.toTarget,s);if(t>=1){const done=transition;transition=null;done.finish();}
     }
     controls.update(delta);renderer.render(scene,camera);
   });
   return {
-    setView(view:ViewMode){currentView=view;const next=destination(view);transition={from:camera.position.clone(),to:next.position,fromTarget:controls.target.clone(),toTarget:next.target,start:performance.now()};},
-    setRotate(value:boolean){controls.autoRotate=value;},
-    zoom(factor:number){transition=null;const distance=camera.position.distanceTo(controls.target);const clamped=THREE.MathUtils.clamp(distance*factor,controls.minDistance,controls.maxDistance);camera.position.sub(controls.target).multiplyScalar(clamped/distance).add(controls.target);controls.update();},
-    setLight(mode:LightMode){
+    setPerspective(view:ViewMode,signal?:AbortSignal):Promise<void>{
+      signal?.throwIfAborted();cancelTransition();currentView=view;const next=destination(view);
+      return new Promise((resolve,reject)=>{
+        const abort=()=>{if(transition===movement){transition=null;movement.finish(new DOMException('Camera movement was interrupted','AbortError'));}};
+        const movement={from:camera.position.clone(),to:next.position,fromTarget:controls.target.clone(),toTarget:next.target,start:performance.now(),finish(error?:Error){signal?.removeEventListener('abort',abort);if(error)reject(error);else resolve();}};
+        transition=movement;signal?.addEventListener('abort',abort,{once:true});
+      });
+    },
+    setAutoRotate(value:boolean){controls.autoRotate=value;},
+    getZoomLevel:zoomLevel,
+    onNavigationChange(listener:(kind:'manual'|'zoom')=>void){navigationListeners.add(listener);return ()=>{navigationListeners.delete(listener);};},
+    adjustZoom(factor:number){cancelTransition();const distance=camera.position.distanceTo(controls.target);const clamped=THREE.MathUtils.clamp(distance*factor,controls.minDistance,controls.maxDistance);camera.position.sub(controls.target).multiplyScalar(clamped/distance).add(controls.target);controls.update();},
+    setLighting(mode:LightMode){
       const themes={day:{top:'#75a6d3',bottom:'#e8ece4',sun:'#fff1d3',sky:'#c4e1ff',ground:'#b6b393',fog:'#dce5de',power:3.3,ambient:2.1,exposure:1.12,pos:[-65,100,65],glow:.08},golden:{top:'#89acc7',bottom:'#f9d0a0',sun:'#ffbe72',sky:'#d5d1d7',ground:'#b6986b',fog:'#e5cbb2',power:3.5,ambient:1.65,exposure:1.05,pos:[-95,24,48],glow:.7},blue:{top:'#1c365e',bottom:'#8a9dab',sun:'#b1c5f8',sky:'#7797ce',ground:'#4c5c68',fog:'#758a9c',power:.7,ambient:1.25,exposure:1.03,pos:[-45,60,-50],glow:3}};
       const t=themes[mode];skyUniforms.top.value.set(t.top);skyUniforms.bottom.value.set(t.bottom);sun.color.set(t.sun);sun.intensity=t.power;sun.position.set(...t.pos as [number,number,number]);ambient.color.set(t.sky);ambient.groundColor.set(t.ground);ambient.intensity=t.ambient;(scene.fog as THREE.Fog).color.set(t.fog);renderer.toneMappingExposure=t.exposure;glow.emissiveIntensity=t.glow;lampGlow.emissiveIntensity=t.glow;glassMaterials.forEach((m,i)=>{m.emissive.set(mode==='blue'&&i%3===0?'#b79755':'#000000');m.emissiveIntensity=mode==='blue'?.18:0});updateEnvironment();
     },

@@ -11,11 +11,14 @@
     "typescript": "^7"
   },
   "dependencies": {
+    "@crosstalk/client": "file:../cross-talk/packages/client",
+    "@crosstalk/server": "file:../cross-talk/packages/server",
     "three": "^0.185.1"
   },
   "scripts": {
-    "dev": "bun --hot index.ts",
+    "dev": "bun --env-file=../cross-talk/.env --hot index.ts",
     "build": "bun build.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "bun --env-file=../cross-talk/.env index.ts"
   }
 }
