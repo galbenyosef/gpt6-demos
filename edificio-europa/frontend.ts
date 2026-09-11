@@ -1,6 +1,7 @@
 import { createExplorer, type ViewMode, type LightMode } from './scene';
 import { CrosstalkClient } from '@crosstalk/client';
 import { EuropaController } from './crosstalk/EuropaController';
+import { EuropaFullscreen } from './crosstalk/EuropaFullscreen';
 import { createEuropaCrosstalkAdapter } from './crosstalk/adapter';
 
 const icons: Record<string,string> = {
@@ -36,7 +37,8 @@ try {
   document.querySelector('#scene-label')!.textContent=views.find(v=>v.id===state.perspective)!.label;document.querySelector('#scene-number')!.textContent=`0${views.findIndex(v=>v.id===state.perspective)+1} / 03`;
   document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(b=>{const active=b.dataset.light===state.lighting;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
   document.querySelector('#rotate')!.innerHTML=icon(state.autoRotate?'pause':'play');document.querySelector('#rotate')!.setAttribute('aria-pressed',String(state.autoRotate));
- });
+  const fullscreen=document.querySelector<HTMLButtonElement>('#fullscreen')!;fullscreen.setAttribute('aria-pressed',String(state.fullscreen));fullscreen.setAttribute('aria-label',state.fullscreen?'Exit fullscreen':'Enter fullscreen');fullscreen.title=state.fullscreen?'Exit fullscreen':'Enter fullscreen';
+ },new EuropaFullscreen(document.querySelector<HTMLElement>('.viewer')!,toast));
  const navigate=(action:Promise<void>)=>{void action.catch(error=>{if(!(error instanceof Error)||error.name!=='AbortError')toast('This perspective is unavailable. Please try again.');});};
  document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>navigate(controller.setPerspective(button.dataset.view as ViewMode))));
  document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(button=>button.addEventListener('click',()=>controller.setLighting(button.dataset.light as LightMode)));
@@ -47,7 +49,7 @@ try {
  crosstalk.mountButton({position:'bottom-right'});
  void crosstalk.register(createEuropaCrosstalkAdapter(controller)).catch(()=>toast('Voice is reconnecting. The explorer is ready to use.'));
  window.addEventListener('pagehide',()=>crosstalk.dispose(),{once:true});
- bind('fullscreen',()=>{const v=document.querySelector('.viewer')!;if(document.fullscreenElement)document.exitFullscreen();else v.requestFullscreen().catch(()=>toast('Fullscreen is unavailable in this browser'))});
+ bind('fullscreen',()=>{void controller.setFullscreen(!controller.getState().fullscreen).catch(()=>{/* The display reports browser failures via toast. */});});
  document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||e.composedPath().some(el=>el instanceof HTMLElement&&(el.isContentEditable||['INPUT','TEXTAREA'].includes(el.tagName))))return;if(e.key==='+'||e.key==='=')controller.adjustZoom('closer','small');if(e.key==='-')controller.adjustZoom('farther','small');if(e.key.toLowerCase()==='r')navigate(controller.resetPerspective())});
  requestAnimationFrame(()=>{controller.setReady(true);document.querySelector('#loading')!.classList.add('loaded');});
 } catch(error){console.error(error);document.querySelector('#loading')!.innerHTML='<strong>Your browser could not start the 3D view.</strong><span>Enable hardware acceleration or try a WebGL-capable browser.</span>';}

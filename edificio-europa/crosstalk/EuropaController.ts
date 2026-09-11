@@ -1,4 +1,5 @@
 import type { CrosstalkApplicationEvent } from '../../cross-talk/src/protocol';
+import { CrosstalkError } from '../../cross-talk/src/protocol';
 import { perspectives, type EuropaState, type ViewMode, type LightMode } from './manifest';
 export interface EuropaExplorer {
   setPerspective(view: ViewMode, signal?: AbortSignal): Promise<void>;
@@ -8,6 +9,11 @@ export interface EuropaExplorer {
   capture(): void;
   getZoomLevel(): EuropaState['zoomLevel'];
   onNavigationChange?(listener: (kind: 'manual' | 'zoom') => void): () => void;
+}
+export interface EuropaDisplay {
+  isFullscreen(): boolean;
+  setFullscreen(enabled: boolean): Promise<void>;
+  onFullscreenChange(listener: () => void): () => void;
 }
 /** Shared by the human controls and the Crosstalk adapter. */
 export class EuropaController {
@@ -19,10 +25,11 @@ export class EuropaController {
   private transitioning = false;
   private revision = 0;
   private listeners = new Set<(event: CrosstalkApplicationEvent) => void>();
-  constructor(private explorer: EuropaExplorer, private render: (state: EuropaState) => void = () => {}) {
+  constructor(private explorer: EuropaExplorer, private render: (state: EuropaState) => void = () => {}, private display?: EuropaDisplay) {
     explorer.onNavigationChange?.(kind => { if (kind === 'manual') this.adjusted = true; this.changed('navigation.changed'); });
+    display?.onFullscreenChange(() => this.changed('fullscreen.changed'));
   }
-  getState = (): EuropaState => ({ ready: this.ready, perspective: this.perspective, lighting: this.lighting, autoRotate: this.autoRotate,
+  getState = (): EuropaState => ({ ready: this.ready, perspective: this.perspective, lighting: this.lighting, autoRotate: this.autoRotate, fullscreen: this.display?.isFullscreen() ?? false,
     zoomLevel: this.explorer.getZoomLevel(), visibleFeatures: this.adjusted || this.transitioning || this.autoRotate ? [] : [...perspectives[this.perspective].visibleFeatures], viewAdjusted: this.adjusted, transitioning: this.transitioning });
   subscribe = (listener: (event: CrosstalkApplicationEvent) => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   private changed(type: string) { this.render(this.getState()); const event = { type, timestamp: Date.now() }; this.listeners.forEach(listener => listener(event)); }
@@ -41,5 +48,11 @@ export class EuropaController {
     this.explorer.adjustZoom(factors[direction][amount]); this.changed('zoom.changed');
   }
   resetPerspective(signal?: AbortSignal) { return this.setPerspective(this.perspective, signal); }
+  async setFullscreen(enabled: boolean) {
+    if (this.getState().fullscreen === enabled) return;
+    if (!this.display) throw new CrosstalkError('FULLSCREEN_UNAVAILABLE', 'Fullscreen is unavailable in this environment.', false);
+    await this.display.setFullscreen(enabled);
+    this.changed('fullscreen.changed');
+  }
   capture() { this.explorer.capture(); return { width: 3840, height: 2160, format: 'png', downloaded: true }; }
 }

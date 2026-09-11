@@ -1,6 +1,57 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('fullscreen tools respect browser activation and stay synchronized with native controls', async ({ page, request }) => {
+  await page.addInitScript(() => {
+    // Headless Chromium may allow entry without activation. Exercise the
+    // browser-refusal path once, then use the real native API throughout.
+    const nativeRequest = Element.prototype.requestFullscreen;
+    Object.defineProperty(navigator, 'userActivation', { configurable: true, value: { isActive: false } });
+    Element.prototype.requestFullscreen = function(options) {
+      Element.prototype.requestFullscreen = nativeRequest;
+      return Promise.reject(new TypeError('Fullscreen requires user activation'));
+    };
+  });
+  await page.goto('/'); await expect(page.locator('#loading')).toHaveClass('loaded', { timeout: 20_000 });
+  let instanceId = '';
+  await expect.poll(async () => { instanceId = (await (await request.get('/test/instances')).json())[0] ?? ''; return instanceId; }).not.toBe('');
+  const state = async () => (await request.get('/test/state?id=' + instanceId)).json();
+  const invoke = async (enabled: boolean) => (await request.post('/test/invoke', { data: { instanceId, tool: 'set_fullscreen', args: { enabled }, explicit: true } })).json();
+  const fullscreen = page.locator('#fullscreen');
+  expect((await state()).fullscreen).toBe(false);
+  const blocked = await invoke(true);
+  expect(blocked.result.ok).toBe(false);
+  expect(blocked.result.error.code).toBe('USER_ACTIVATION_REQUIRED');
+  expect(blocked.state.fullscreen).toBe(false);
+  await expect(page.locator('#toast')).toContainText('Click the fullscreen button');
+  await page.evaluate(() => { delete (navigator as any).userActivation; });
+  await fullscreen.click();
+  await expect(fullscreen).toHaveAttribute('aria-label', 'Exit fullscreen');
+  expect((await state()).fullscreen).toBe(true);
+  const voice = page.getByRole('button', { name: 'Start Crosstalk conversation' });
+  await expect(voice).toBeVisible();
+  // Trial clicks verify fullscreen top-layer hit testing, without starting voice.
+  await voice.click({ trial: true });
+  expect(await page.evaluate(() => document.fullscreenElement?.contains(document.querySelector('.viewer')!))).toBe(true);
+  expect((await invoke(false)).result.ok).toBe(true);
+  await expect(fullscreen).toHaveAttribute('aria-label', 'Enter fullscreen');
+  expect((await state()).fullscreen).toBe(false);
+  await voice.click({ trial: true });
+  // A real click supplies the transient activation needed for tool-driven entry.
+  await page.locator('[data-light="day"]').click();
+  const entered = await invoke(true); expect(entered.result.ok).toBe(true); expect(entered.state.fullscreen).toBe(true);
+  expect((await invoke(true)).result.ok).toBe(true);
+  await fullscreen.click();
+  await expect(fullscreen).toHaveAttribute('aria-pressed', 'false');
+  expect((await state()).fullscreen).toBe(false);
+  await fullscreen.click();
+  await expect(fullscreen).toHaveAttribute('aria-pressed', 'true');
+  // A browser-originated exit has no controller call (the same event as Escape).
+  await page.evaluate(() => document.exitFullscreen());
+  await expect(fullscreen).toHaveAttribute('aria-pressed', 'false');
+  expect((await state()).fullscreen).toBe(false);
+});
+
 test('voice tools and manual controls stay synchronized, interrupt navigation, and confirm downloads', async ({ page, request }) => {
   const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
   await page.goto('/'); await expect(page.locator('#loading')).toHaveClass('loaded', { timeout: 20_000 });

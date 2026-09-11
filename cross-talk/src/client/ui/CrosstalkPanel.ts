@@ -8,6 +8,11 @@ export class CrosstalkPanel {
   private toggle: HTMLButtonElement;
   private panel: HTMLElement;
   private confirmation?: { id: string; finish(value: boolean): void };
+  private syncFullscreen = () => {
+    const parent = document.fullscreenElement ?? document.body;
+    if (this.host.parentElement !== parent) parent.append(this.host);
+    this.host.style.bottom = document.fullscreenElement ? '84px' : '22px';
+  };
   constructor(onToggle: () => void, position: 'bottom-right' | 'bottom-left' = 'bottom-right') {
     this.host.style.cssText = `position:fixed;bottom:22px;${position === 'bottom-right' ? 'right' : 'left'}:22px;z-index:10000;pointer-events:none`;
     this.root.innerHTML = `<style>
@@ -17,7 +22,8 @@ export class CrosstalkPanel {
     </style><section class="panel" hidden aria-label="Crosstalk conversation"><div class="heading">CROSSTALK</div><div class="status" role="status" aria-live="polite">Ready to talk</div><p class="hint">Try “Show me around”</p><div class="caption" aria-label="Conversation captions"></div><div class="confirm" hidden></div></section><button class="toggle" aria-label="Start Crosstalk conversation" aria-expanded="false" aria-pressed="false"><span class="dot"></span><span class="label">CROSSTALK</span></button>`;
     this.status = this.root.querySelector('.status')!; this.caption = this.root.querySelector('.caption')!; this.toggle = this.root.querySelector('.toggle')!; this.panel = this.root.querySelector('.panel')!;
     this.toggle.onclick = onToggle; this.audio.autoplay = true; this.audio.controls = true; this.audio.hidden = true; this.panel.append(this.audio);
-    document.body.append(this.host);
+    this.syncFullscreen();
+    document.addEventListener('fullscreenchange', this.syncFullscreen);
   }
   setStatus(status: Status, message?: string) {
     const active = status !== 'idle' && status !== 'error';
@@ -45,5 +51,5 @@ export class CrosstalkPanel {
     });
   }
   cancelConfirmation(id?: string) { if (!id || this.confirmation?.id === id) this.confirmation?.finish(false); }
-  dispose() { this.cancelConfirmation(); this.host.remove(); }
+  dispose() { this.cancelConfirmation(); document.removeEventListener('fullscreenchange', this.syncFullscreen); this.host.remove(); }
 }

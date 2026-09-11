@@ -44,6 +44,8 @@ The static output is written to `dist/`. Voice requires the Bun server (or a rev
 
 This is an interpretive photo-based model, not photogrammetry or a measured survey. Dimensions, unseen surfaces, landscaping, and neighboring buildings are approximations. Reference images are supplied by the user.
 
-The Crosstalk adapter in `crosstalk/` exposes six semantic tools through a shared `EuropaController`. Manual controls and voice actions update the same scene, UI and state. Camera transitions support cancellation and report completion only after settling. When users freely orbit or rotate, semantic state marks the view as adjusted and does not claim an exact set of visible features.
+The Crosstalk adapter in `crosstalk/` exposes seven semantic tools through a shared `EuropaController`. Manual controls and voice actions update the same scene, UI and state. Camera transitions support cancellation and report completion only after settling. When users freely orbit or rotate, semantic state marks the view as adjusted and does not claim an exact set of visible features.
+
+`set_fullscreen({ enabled: true | false })` enters fullscreen or returns to normal view. Native fullscreen changes (including the button and Escape) update the AI's `fullscreen` state, and Crosstalk remains accessible inside fullscreen. Browsers may require a recent click to enter fullscreen; when blocked, the tool returns `USER_ACTIVATION_REQUIRED` and a toast directs the user to the fullscreen button. Exiting fullscreen needs no click.
 
 See [Crosstalk's README](../cross-talk/README.md) for protocol details, configuration, offline/browser tests, and opt-in live API checks. The previous one-off WebMCP bridge has been replaced by this application contract.

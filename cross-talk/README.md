@@ -2,7 +2,7 @@
 
 Reusable conversational control for Bun web applications. GPT-Live-1 owns speech and turn-taking; GPT-6 Astra reasons over an application's manifest, fresh semantic state and registered tools. Browser audio travels directly to OpenAI over WebRTC. A server sideband receives Live transcripts and delegations; the application WebSocket carries validated state and tool messages.
 
-The first integration is [Edificio Europa](../edificio-europa/README.md). Its six tools use the same controller as the visible buttons and keyboard controls.
+The first integration is [Edificio Europa](../edificio-europa/README.md). Its seven tools use the same controller as the visible buttons and keyboard controls, including fullscreen. The conversation panel remains accessible in fullscreen.
 
 ## Run Europa with voice
 

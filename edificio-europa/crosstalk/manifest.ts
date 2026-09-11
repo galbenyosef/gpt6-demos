@@ -2,7 +2,7 @@ import type { CrosstalkApplicationManifest } from '../../cross-talk/src/protocol
 export type ViewMode = 'urban' | 'street' | 'aerial';
 export type LightMode = 'day' | 'golden' | 'blue';
 export interface EuropaState {
-  ready: boolean; perspective: ViewMode; lighting: LightMode; autoRotate: boolean;
+  ready: boolean; perspective: ViewMode; lighting: LightMode; autoRotate: boolean; fullscreen: boolean;
   zoomLevel: 'close' | 'normal' | 'wide'; visibleFeatures: string[];
   viewAdjusted: boolean; transitioning: boolean;
 }
@@ -30,13 +30,14 @@ export const europaManifest: CrosstalkApplicationManifest = {
     limitations: [
       'The reconstruction is interpretive and derived from photographs, not a measured architectural survey. Unseen dimensions and surfaces are approximated.',
       'Only exterior viewpoints are available; there are no explorable office interiors.',
+      'Entering fullscreen may require a recent user click. If set_fullscreen returns USER_ACTIVATION_REQUIRED, ask the user to click the fullscreen button; do not claim fullscreen was entered. Exiting fullscreen does not require a click.',
       'Crosstalk receives semantic state, not a live canvas or video feed. Do not infer arbitrary pixels or what is on the left.',
       'perspective is the last selected preset. When viewAdjusted, transitioning, or autoRotate is true, exact visible features are unknown and visibleFeatures is empty.',
     ],
   },
   interaction: { conversationalGuidance: ['Speak in the user’s language.', 'Use semantic tools for exploration. Explain limitations when a requested view is unavailable.', 'For a tour, use a short sequence of perspectives with commentary after each has settled.'] },
   stateSchema: { type: 'object', properties: {
-    ready: { type: 'boolean' }, perspective: { enum: ['urban', 'street', 'aerial'] }, lighting: { enum: ['day', 'golden', 'blue'] }, autoRotate: { type: 'boolean' },
+    ready: { type: 'boolean' }, perspective: { enum: ['urban', 'street', 'aerial'] }, lighting: { enum: ['day', 'golden', 'blue'] }, autoRotate: { type: 'boolean' }, fullscreen: { type: 'boolean' },
     zoomLevel: { enum: ['close', 'normal', 'wide'] }, visibleFeatures: { type: 'array', items: { type: 'string' } }, viewAdjusted: { type: 'boolean' }, transitioning: { type: 'boolean' },
-  }, required: ['ready', 'perspective', 'lighting', 'autoRotate', 'zoomLevel', 'visibleFeatures', 'viewAdjusted', 'transitioning'], additionalProperties: false },
+  }, required: ['ready', 'perspective', 'lighting', 'autoRotate', 'fullscreen', 'zoomLevel', 'visibleFeatures', 'viewAdjusted', 'transitioning'], additionalProperties: false },
 };
