@@ -2,7 +2,13 @@
 
 Reusable conversational control for Bun web applications. GPT-Live-1 owns speech and turn-taking; GPT-6 Astra reasons over an application's manifest, fresh semantic state and registered tools. Browser audio travels directly to OpenAI over WebRTC. A server sideband receives Live transcripts and delegations; the application WebSocket carries validated state and tool messages.
 
-The first integration is [Edificio Europa](../edificio-europa/README.md). Its seven tools use the same controller as the visible buttons and keyboard controls, including fullscreen. The conversation panel remains accessible in fullscreen.
+The first integration is [Edificio Europa](../edificio-europa/README.md). Its seven tools use the same controller as the visible buttons and keyboard controls. The fullscreen tool is retained as an example of browser restrictions on tool execution, rather than a dependable way to enter fullscreen by voice.
+
+## Browser capabilities limit tools
+
+Exposing an application action as an AI tool does not bypass browser permissions, supported APIs, or user activation requirements. Europa's `set_fullscreen` demonstrates this boundary: native fullscreen entry requires user activation, such as a recent click, which a voice request alone does not provide. A valid tool call can therefore be refused by the browser.
+
+The integration is deliberately kept as a working example of handling that refusal. When entry is blocked for lack of activation, it returns `USER_ACTIVATION_REQUIRED`, shows a message pointing to the fullscreen button, and leaves the reported state consistent with the actual display. The AI must explain the limitation instead of claiming success. Exiting fullscreen does not require a click, and Crosstalk remains accessible while the viewer is fullscreen.
 
 ## Run Europa with voice
 

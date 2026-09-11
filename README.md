@@ -8,6 +8,8 @@
 
 A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, and a generative canvas and stop-motion studio. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
+The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration.
+
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
 
 ## Run all demos
@@ -24,6 +26,8 @@ Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#
 
 For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). The launcher assigns port 3008, overriding the standalone default of 3030.
 
+For Crosstalk voice control in Europa, first run `bun install` in `cross-talk/` and configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
+
 ### Demo portal
 
 ![GPT6 Demos portal showing all seven interactive demos](./images/portal.png)
@@ -34,11 +38,25 @@ The page uses plain HTML, inline CSS, and relative image paths, so it needs no b
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 
+## Crosstalk — Conversational application control
+
+Crosstalk adds a spoken interface to Bun web applications. GPT-Live-1 handles speech and conversation, while GPT-6 Astra uses the application's description, current state, and registered tools to answer questions and carry out requests. Each application supplies its own knowledge and actions through an adapter. The service works with those explicit capabilities and state updates; it does not inspect the screen.
+
+In Edificio Europa, press **Crosstalk**, allow microphone access, and try “What am I looking at?”, “Show it at sunset”, “Show me around”, or “Save this view”. Tools control camera perspectives, lighting, automatic rotation, zoom, view reset, and 4K image downloads. Voice actions and manual controls share the same controller, keeping the scene, buttons, and AI state synchronized.
+
+**Fullscreen illustrates the limits of tool access.** A seventh tool, `set_fullscreen`, is retained as an example of a browser restriction: exposing a web application action to an AI does not give it capabilities beyond those the browser permits. Fullscreen entry requires user activation, such as a recent click, which a voice request alone does not provide. As a result, entering fullscreen by voice is not reliable. The tool reports the restriction and directs the user to the fullscreen button. Exiting fullscreen can still work by voice, and the conversation panel remains accessible in fullscreen.
+
+The service includes validated tool arguments, interruption of camera navigation, and confirmation for downloads that were not directly requested. The OpenAI API key stays on the server, and browser audio connects to OpenAI over WebRTC. Use **End conversation** to stop the microphone and voice session.
+
+[Source, setup, and integration guide](./cross-talk/README.md) · [Service specification](./cross-talk/specs/cross-talk.md)
+
 ## Current demos
 
 ### Edificio Europa — Architectural explorer
 
 An interactive, photo-based reconstruction of Edificio Europa in Valencia. Explore the building with free orbit, pan, and zoom, or use three animated camera presets. Switch between daylight, golden-hour, and blue-hour lighting, and export the current view as a 4K PNG. The model is an interpretive reconstruction rather than a measured architectural survey.
+
+Its integrated [Crosstalk voice controls](#crosstalk--conversational-application-control) let you ask about the building, request a guided tour, and operate the explorer conversationally.
 
 [![Edificio Europa — 3D demo](https://i.ytimg.com/vi/YwKfrL4P3N4/hqdefault.jpg)](https://youtu.be/YwKfrL4P3N4)
 
