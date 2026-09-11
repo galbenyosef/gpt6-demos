@@ -20,6 +20,7 @@ Open http://localhost:3000. The startup command loads the server key and model c
 - Crosstalk voice control: ask about the current view, change lighting, explore viewpoints, zoom, rotate, or save a view.
 - Three smoothly animated camera presets: urban perspective, street level, and skyline.
 - Free orbit, pan, zoom, auto-rotation, reset, and fullscreen.
+- Building-side and compass navigation, with a live orientation indicator shared with the AI.
 - Daylight, golden-hour, and blue-hour lighting with refreshed environment reflections.
 - 3840 × 2160 PNG export of the current viewpoint.
 - Responsive mouse, touch, and keyboard controls.
@@ -44,7 +45,13 @@ The static output is written to `dist/`. Voice requires the Bun server (or a rev
 
 This is an interpretive photo-based model, not photogrammetry or a measured survey. Dimensions, unseen surfaces, landscaping, and neighboring buildings are approximations. Reference images are supplied by the user.
 
-The Crosstalk adapter in `crosstalk/` exposes seven semantic tools through a shared `EuropaController`. Manual controls and voice actions update the same scene, UI and state. Camera transitions support cancellation and report completion only after settling. When users freely orbit or rotate, semantic state marks the view as adjusted and does not claim an exact set of visible features.
+The Crosstalk adapter in `crosstalk/` exposes nine semantic tools through a shared `EuropaController`. Manual controls and voice actions update the same scene, UI and state. Camera transitions support cancellation and report completion only after settling. When users freely orbit or rotate, semantic state marks the view as adjusted and does not claim an exact set of visible features.
+
+The geographic reference supplied for the model is **39°28′18.4″N 0°21′25.5″W** (39.471778, −0.357083). The entrance is the **front**, facing **010°**; the opposite end is the **back**, facing **190°**. Left and right are defined as seen standing outside facing the entrance: **left 100°**, **right 280°**. These are fixed building sides, independent of the camera.
+
+Use the Front / Left / Back / Right buttons, or ask “Show me the back”, “Show the north side”, or “Move around to my right 30 degrees”. `show_side` accepts building sides and eight compass directions; `orbit_view` moves the camera left/right relative to its current position. Both stop auto-rotation, recenter on the building, and follow an exterior arc. The compass dot marks where the camera is around a north-up outline of the building; the dark end marks the entrance. Reset returns to the last selected camera preset.
+
+The AI's `spatial` state is computed from the actual camera, including after orbiting, panning and auto-rotation. Camera location bearing and looking direction are separate: a view **from north** looks roughly **south**. State describes geometry, not guaranteed feature visibility. Coordinates and orientation are user-supplied; distances remain approximate model units, and lighting presets are artistic rather than a geographic sun simulation. See the [spatial navigation specification](../cross-talk/specs/europa-spatial-navigation.md).
 
 **Fullscreen is retained as an example of browser limits on AI tools.** `set_fullscreen({ enabled: true | false })` requests fullscreen or a return to normal view, but entering fullscreen by voice is not reliable: the browser requires user activation, such as a recent click, which a voice request alone does not provide. Exposing the action as a tool cannot bypass that requirement. When blocked for lack of activation, the tool returns `USER_ACTIVATION_REQUIRED` and a toast directs the user to the fullscreen button. Exiting fullscreen needs no click. Native fullscreen changes (including the button and Escape) update the AI's `fullscreen` state, and Crosstalk remains accessible inside fullscreen.
 

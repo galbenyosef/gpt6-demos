@@ -2,7 +2,9 @@
 
 Reusable conversational control for Bun web applications. GPT-Live-1 owns speech and turn-taking; GPT-6 Astra reasons over an application's manifest, fresh semantic state and registered tools. Browser audio travels directly to OpenAI over WebRTC. A server sideband receives Live transcripts and delegations; the application WebSocket carries validated state and tool messages.
 
-The first integration is [Edificio Europa](../edificio-europa/README.md). Its seven tools use the same controller as the visible buttons and keyboard controls. The fullscreen tool is retained as an example of browser restrictions on tool execution, rather than a dependable way to enter fullscreen by voice.
+The first integration is [Edificio Europa](../edificio-europa/README.md). Its nine tools use the same controller as the visible buttons and keyboard controls. The fullscreen tool is retained as an example of browser restrictions on tool execution, rather than a dependable way to enter fullscreen by voice.
+
+Europa's adapter also exposes live spatial state and `show_side` / `orbit_view` tools. Its user-supplied geographic reference defines the entrance as front, facing 010°. The AI receives camera side, compass position, looking direction, elevation, distance and focus offset, including after mouse navigation and during auto-rotation. This is an application-specific extension of the existing state/tool contract; other apps can supply their own spatial model. See the [spatial navigation specification](./specs/europa-spatial-navigation.md).
 
 ## Browser capabilities limit tools
 
@@ -115,7 +117,7 @@ bun run typecheck
 bun run build
 ```
 
-Install Playwright Chromium with `bunx playwright install chromium`, or set `CHROMIUM_PATH` to an installed Chromium executable. Browser tests use a localhost-only test host and the real WebSocket/router/browser execution path with no model calls. They cover synchronized controls, settled camera transitions, cancellation, confirmation, 4K download and microphone cleanup.
+Install Playwright Chromium with `bunx playwright install chromium`, or set `CHROMIUM_PATH` to an installed Chromium executable. Browser tests use a localhost-only test host and the real WebSocket/router/browser execution path with no model calls. They cover synchronized controls, building/compass sides, relative orbit, live orientation after manual movement and auto-rotation, settled camera transitions, cancellation, confirmation, fullscreen, 4K download and microphone cleanup.
 
 Explicit, billable API checks use the key in `.env`:
 

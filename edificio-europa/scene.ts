@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { buildEuropa } from './architecture';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { buildingCenter, destinationBearing, orbitPosition, shortestTurn, spatialState, worldBearing, type SpatialDestination } from './spatial';
 
 export type ViewMode = 'urban' | 'street' | 'aerial';
 export type LightMode = 'day' | 'golden' | 'blue';
@@ -227,8 +228,8 @@ export function createExplorer(host: HTMLElement) {
     aerial:{position:[-79,105,103],target:[0,17,0]},
   };
   let currentView:ViewMode='urban';
-  let transition:{from:THREE.Vector3,to:THREE.Vector3,fromTarget:THREE.Vector3,toTarget:THREE.Vector3,start:number;finish(error?:Error):void}|null=null;
-  const navigationListeners=new Set<(kind:"manual"|"zoom")=>void>();
+  let transition:{from:THREE.Vector3,to:THREE.Vector3,fromTarget:THREE.Vector3,toTarget:THREE.Vector3,start:number;sample?:(progress:number)=>void;finish(error?:Error):void}|null=null;
+  const navigationListeners=new Set<(kind:'manual'|'zoom'|'spatial')=>void>();
   const cancelTransition=()=>{const old=transition;transition=null;old?.finish(new DOMException("Camera movement was interrupted", "AbortError"));};
   const mobile=()=>host.clientWidth<700;
   function destination(view:ViewMode){
@@ -248,27 +249,48 @@ export function createExplorer(host: HTMLElement) {
   const zoomLevel=()=>{const p=destination(currentView);const ratio=camera.position.distanceTo(controls.target)/p.position.distanceTo(p.target);return ratio<.85?'close' as const:ratio>1.15?'wide' as const:'normal' as const;};
   let lastZoomLevel=zoomLevel();
   controls.addEventListener('change',()=>{const next=zoomLevel();if(next!==lastZoomLevel){lastZoomLevel=next;navigationListeners.forEach(fn=>fn('zoom'));}});
-  let last=performance.now();
+  let last=performance.now(), lastSpatialAt=0, lastSpatial='';
   renderer.setAnimationLoop(()=>{
     const now=performance.now();const delta=Math.min((now-last)/1000,.1);last=now;
     if(transition){
       const t=Math.min(1,(now-transition.start)/1400),s=t*t*(3-2*t);
-      camera.position.lerpVectors(transition.from,transition.to,s);controls.target.lerpVectors(transition.fromTarget,transition.toTarget,s);if(t>=1){const done=transition;transition=null;done.finish();}
+      if(transition.sample)transition.sample(s);else camera.position.lerpVectors(transition.from,transition.to,s);controls.target.lerpVectors(transition.fromTarget,transition.toTarget,s);if(t>=1){const done=transition;transition=null;done.finish();}
     }
     controls.update(delta);renderer.render(scene,camera);
+    if(now-lastSpatialAt>=160){
+      lastSpatialAt=now;const next=JSON.stringify(spatialState(camera.position,controls.target));
+      if(next!==lastSpatial){lastSpatial=next;navigationListeners.forEach(fn=>fn('spatial'));}
+    }
   });
+  function move(to:THREE.Vector3,target:THREE.Vector3,signal?:AbortSignal,sample?:(progress:number)=>void):Promise<void>{
+    signal?.throwIfAborted();cancelTransition();
+    return new Promise((resolve,reject)=>{
+      const abort=()=>{if(transition===movement){transition=null;movement.finish(new DOMException('Camera movement was interrupted','AbortError'));}};
+      const movement={from:camera.position.clone(),to,fromTarget:controls.target.clone(),toTarget:target,start:performance.now(),sample,finish(error?:Error){signal?.removeEventListener('abort',abort);if(error)reject(error);else resolve();}};
+      transition=movement;signal?.addEventListener('abort',abort,{once:true});
+    });
+  }
+  function prepareNavigation(){
+    cancelTransition();controls.autoRotate=false;
+    // Consume pending orbit/pan damping before capturing the movement origin.
+    controls.enableDamping=false;controls.update();controls.enableDamping=true;
+  }
+  function orbit(turn:number,signal?:AbortSignal){
+    const start=camera.position.clone(),end=orbitPosition(start,turn,1);
+    return move(new THREE.Vector3(end.x,end.y,end.z),new THREE.Vector3(buildingCenter.x,buildingCenter.y,buildingCenter.z),signal,
+      progress=>{const point=orbitPosition(start,turn,progress);camera.position.set(point.x,point.y,point.z);});
+  }
   return {
     setPerspective(view:ViewMode,signal?:AbortSignal):Promise<void>{
-      signal?.throwIfAborted();cancelTransition();currentView=view;const next=destination(view);
-      return new Promise((resolve,reject)=>{
-        const abort=()=>{if(transition===movement){transition=null;movement.finish(new DOMException('Camera movement was interrupted','AbortError'));}};
-        const movement={from:camera.position.clone(),to:next.position,fromTarget:controls.target.clone(),toTarget:next.target,start:performance.now(),finish(error?:Error){signal?.removeEventListener('abort',abort);if(error)reject(error);else resolve();}};
-        transition=movement;signal?.addEventListener('abort',abort,{once:true});
-      });
+      signal?.throwIfAborted();prepareNavigation();currentView=view;const next=destination(view);
+      return move(next.position,next.target,signal);
     },
+    showSide(side:SpatialDestination,signal?:AbortSignal){signal?.throwIfAborted();prepareNavigation();return orbit(shortestTurn(worldBearing(camera.position.x,camera.position.z),destinationBearing(side)),signal);},
+    orbitView(direction:'left'|'right',degrees:number,signal?:AbortSignal){signal?.throwIfAborted();prepareNavigation();return orbit((direction==='left'?1:-1)*degrees,signal);},
+    getSpatialState:()=>spatialState(camera.position,controls.target),
     setAutoRotate(value:boolean){controls.autoRotate=value;},
     getZoomLevel:zoomLevel,
-    onNavigationChange(listener:(kind:'manual'|'zoom')=>void){navigationListeners.add(listener);return ()=>{navigationListeners.delete(listener);};},
+    onNavigationChange(listener:(kind:'manual'|'zoom'|'spatial')=>void){navigationListeners.add(listener);return ()=>{navigationListeners.delete(listener);};},
     adjustZoom(factor:number){cancelTransition();const distance=camera.position.distanceTo(controls.target);const clamped=THREE.MathUtils.clamp(distance*factor,controls.minDistance,controls.maxDistance);camera.position.sub(controls.target).multiplyScalar(clamped/distance).add(controls.target);controls.update();},
     setLighting(mode:LightMode){
       const themes={day:{top:'#75a6d3',bottom:'#e8ece4',sun:'#fff1d3',sky:'#c4e1ff',ground:'#b6b393',fog:'#dce5de',power:3.3,ambient:2.1,exposure:1.12,pos:[-65,100,65],glow:.08},golden:{top:'#89acc7',bottom:'#f9d0a0',sun:'#ffbe72',sky:'#d5d1d7',ground:'#b6986b',fog:'#e5cbb2',power:3.5,ambient:1.65,exposure:1.05,pos:[-95,24,48],glow:.7},blue:{top:'#1c365e',bottom:'#8a9dab',sun:'#b1c5f8',sky:'#7797ce',ground:'#4c5c68',fog:'#758a9c',power:.7,ambient:1.25,exposure:1.03,pos:[-45,60,-50],glow:3}};

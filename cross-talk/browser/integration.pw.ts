@@ -1,6 +1,52 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
+test('spatial navigation uses the entrance bearing and tracks manual movement and rotation', async ({ page, request }) => {
+  const errors: string[] = [];page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');await expect(page.locator('#loading')).toHaveClass('loaded', { timeout: 20_000 });
+  let instanceId = '';
+  await expect.poll(async () => { instanceId = (await (await request.get('/test/instances')).json())[0] ?? ''; return instanceId; }).not.toBe('');
+  const state = async () => (await request.get('/test/state?id=' + instanceId)).json();
+  const invoke = async (tool: string, args: object) => (await request.post('/test/invoke', { data: { instanceId, tool, args, explicit: true } })).json();
+  for (const [side, bearing] of [['front', 10], ['back', 190], ['left', 100], ['right', 280]] as const) {
+    const result = await invoke('show_side', { side });
+    expect(result.result.ok).toBe(true);
+    expect(result.state).toMatchObject({ transitioning: false, viewAdjusted: true, spatial: { cameraSide: side, cameraBearingDegrees: bearing, focusOffset: 0 } });
+    await expect(page.locator(`[data-side="${side}"]`)).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#orientation-label')).toContainText(`${bearing}°`);
+  }
+  const north = await invoke('show_side', { side: 'north' });
+  expect(north.state.spatial).toMatchObject({ cameraBearingDegrees: 0, lookBearingDegrees: 180 });
+  await page.locator('[data-side="front"]').click();
+  await expect.poll(async () => (await state()).transitioning).toBe(false);
+  expect((await state()).spatial.cameraBearingDegrees).toBe(10);
+  expect((await invoke('orbit_view', { direction: 'right', degrees: 90 })).state.spatial.cameraSide).toBe('right');
+  expect((await invoke('orbit_view', { direction: 'left', degrees: 90 })).state.spatial.cameraSide).toBe('front');
+  // Drag the actual canvas, then verify the state is live rather than preset-derived.
+  const canvas = page.locator('#canvas-host canvas');const box = (await canvas.boundingBox())!;
+  await page.mouse.move(box.x + box.width * .45, box.y + box.height * .45);
+  await page.mouse.down();await page.mouse.move(box.x + box.width * .60, box.y + box.height * .45, { steps: 12 });await page.mouse.up();
+  await expect.poll(async () => (await state()).spatial.cameraBearingDegrees).not.toBe(10);
+  await page.locator('#rotate').click();
+  const before = (await state()).spatial.cameraBearingDegrees;
+  await expect.poll(async () => (await state()).spatial.cameraBearingDegrees).not.toBe(before);
+  const stopped = await invoke('show_side', { side: 'back' });
+  expect(stopped.state).toMatchObject({ autoRotate: false, transitioning: false, spatial: { cameraSide: 'back', cameraBearingDegrees: 190 } });
+  const old = invoke('orbit_view', { direction: 'left', degrees: 180 });
+  await expect.poll(async () => (await state()).transitioning).toBe(true);
+  const replacement = await invoke('show_side', { side: 'front' });
+  expect((await old).result.ok).toBe(false);expect(replacement.result.ok).toBe(true);
+  expect(replacement.state.spatial.cameraBearingDegrees).toBe(10);
+  await page.screenshot({ path: 'browser/artifacts/europa-orientation-desktop.png', fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('#orientation-label')).toBeVisible();
+  await page.locator('[data-side="back"]').click();
+  await expect.poll(async () => (await state()).transitioning).toBe(false);
+  expect((await state()).spatial.cameraBearingDegrees).toBe(190);
+  await page.screenshot({ path: 'browser/artifacts/europa-orientation-mobile.png', fullPage: true });
+  expect(errors).toEqual([]);
+});
+
 test('fullscreen tools respect browser activation and stay synchronized with native controls', async ({ page, request }) => {
   await page.addInitScript(() => {
     // Headless Chromium may allow entry without activation. Exercise the

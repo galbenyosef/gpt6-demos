@@ -1,6 +1,7 @@
 import type { CrosstalkApplicationEvent } from '../../cross-talk/src/protocol';
 import { CrosstalkError } from '../../cross-talk/src/protocol';
 import { perspectives, type EuropaState, type ViewMode, type LightMode } from './manifest';
+import type { SpatialState, SpatialDestination } from '../spatial';
 export interface EuropaExplorer {
   setPerspective(view: ViewMode, signal?: AbortSignal): Promise<void>;
   setLighting(mode: LightMode): void;
@@ -8,7 +9,10 @@ export interface EuropaExplorer {
   adjustZoom(factor: number): void;
   capture(): void;
   getZoomLevel(): EuropaState['zoomLevel'];
-  onNavigationChange?(listener: (kind: 'manual' | 'zoom') => void): () => void;
+  getSpatialState?(): SpatialState;
+  showSide?(side: SpatialDestination, signal?: AbortSignal): Promise<void>;
+  orbitView?(direction: 'left' | 'right', degrees: number, signal?: AbortSignal): Promise<void>;
+  onNavigationChange?(listener: (kind: 'manual' | 'zoom' | 'spatial') => void): () => void;
 }
 export interface EuropaDisplay {
   isFullscreen(): boolean;
@@ -30,16 +34,31 @@ export class EuropaController {
     display?.onFullscreenChange(() => this.changed('fullscreen.changed'));
   }
   getState = (): EuropaState => ({ ready: this.ready, perspective: this.perspective, lighting: this.lighting, autoRotate: this.autoRotate, fullscreen: this.display?.isFullscreen() ?? false,
-    zoomLevel: this.explorer.getZoomLevel(), visibleFeatures: this.adjusted || this.transitioning || this.autoRotate ? [] : [...perspectives[this.perspective].visibleFeatures], viewAdjusted: this.adjusted, transitioning: this.transitioning });
+    zoomLevel: this.explorer.getZoomLevel(), visibleFeatures: this.adjusted || this.transitioning || this.autoRotate ? [] : [...perspectives[this.perspective].visibleFeatures], viewAdjusted: this.adjusted, transitioning: this.transitioning, spatial: this.explorer.getSpatialState?.() ?? null });
   subscribe = (listener: (event: CrosstalkApplicationEvent) => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   private changed(type: string) { this.render(this.getState()); const event = { type, timestamp: Date.now() }; this.listeners.forEach(listener => listener(event)); }
   setReady(ready: boolean) { this.ready = ready; this.changed('readiness.changed'); }
   async setPerspective(view: ViewMode, signal?: AbortSignal) {
-    signal?.throwIfAborted(); const revision = ++this.revision;
-    this.perspective = view; this.adjusted = false; this.transitioning = true; this.changed('perspective.changed');
-    try { await this.explorer.setPerspective(view, signal); }
+    signal?.throwIfAborted();this.perspective = view;
+    return this.navigate(() => this.explorer.setPerspective(view, signal), false);
+  }
+  private async navigate(action: () => Promise<void>, adjusted: boolean) {
+    const revision = ++this.revision;
+    this.explorer.setAutoRotate(false);this.autoRotate = false;
+    this.adjusted = adjusted; this.transitioning = true; this.changed('perspective.changed');
+    try { await action(); }
     catch (error) { if (this.revision === revision) this.adjusted = true; throw error; }
     finally { if (this.revision === revision) { this.transitioning = false; this.changed('perspective.settled'); } }
+  }
+  showSide(side: SpatialDestination, signal?: AbortSignal) {
+    signal?.throwIfAborted();
+    if (!this.explorer.showSide) throw new CrosstalkError('SPATIAL_UNAVAILABLE', 'Spatial navigation is unavailable.', false);
+    return this.navigate(() => this.explorer.showSide!(side, signal), true);
+  }
+  orbitView(direction: 'left' | 'right', degrees = 30, signal?: AbortSignal) {
+    signal?.throwIfAborted();
+    if (!this.explorer.orbitView) throw new CrosstalkError('SPATIAL_UNAVAILABLE', 'Spatial navigation is unavailable.', false);
+    return this.navigate(() => this.explorer.orbitView!(direction, degrees, signal), true);
   }
   setLighting(mode: LightMode) { this.explorer.setLighting(mode); this.lighting = mode; this.changed('lighting.changed'); }
   setAutoRotate(enabled: boolean) { this.explorer.setAutoRotate(enabled); if (this.autoRotate && !enabled) this.adjusted = true; this.autoRotate = enabled; this.changed('rotation.changed'); }

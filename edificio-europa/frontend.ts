@@ -3,6 +3,7 @@ import { CrosstalkClient } from '@crosstalk/client';
 import { EuropaController } from './crosstalk/EuropaController';
 import { EuropaFullscreen } from './crosstalk/EuropaFullscreen';
 import { createEuropaCrosstalkAdapter } from './crosstalk/adapter';
+import { buildingReference, sideBearings, type BuildingSide } from './spatial';
 
 const icons: Record<string,string> = {
  arrow:'<path d="M7 17 17 7M7 7h10v10"/>', pin:'<path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -12,10 +13,11 @@ const icon=(name:string)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 const photos=['1_287_122485_l_gal.jpg','frontview.webp','Edificio-europa-atardecer1.jpg'];
 const views=[{id:'urban',label:'Urban perspective',sub:'The building in its element',tag:'01',photo:photos[0]},{id:'street',label:'Street level',sub:'Look up. Take it all in.',tag:'02',photo:photos[1]},{id:'aerial',label:'Skyline view',sub:'A different point of view',tag:'03',photo:photos[2]}];
 document.querySelector('#app')!.innerHTML=`
-<header><a class="brand" href="/" aria-label="Europa home"><span class="brand-mark">${icon('cube')}</span>EUROPA<span class="brand-sub">ARCHITECTURAL EXPLORER</span></a><nav><span class="location">${icon('pin')} Valencia, Spain <span class="nav-divider"></span>39.4720° N · 0.3570° W</span><button class="about-button" id="about">About the building ${icon('arrow')}</button></nav></header>
+<header><a class="brand" href="/" aria-label="Europa home"><span class="brand-mark">${icon('cube')}</span>EUROPA<span class="brand-sub">ARCHITECTURAL EXPLORER</span></a><nav><span class="location">${icon('pin')} Valencia, Spain <span class="nav-divider"></span>${buildingReference.latitude.toFixed(6)}° N · ${Math.abs(buildingReference.longitude).toFixed(6)}° W</span><button class="about-button" id="about">About the building ${icon('arrow')}</button></nav></header>
 <main><section class="intro"><div><div class="eyebrow"><span class="tiny-line"></span> VALENCIA, FROM A NEW PERSPECTIVE</div><h1>Edificio Europa<span>.</span></h1></div><p>A city landmark. Every angle.<br>Explore the architecture in three dimensions.</p></section>
 <section class="viewer" aria-label="Interactive 3D architectural explorer"><div id="canvas-host"></div><div class="viewer-vignette"></div>
 <div class="scene-label"><span class="live-dot"></span> INTERACTIVE 3D <span class="label-divider"></span><span id="scene-label">Urban perspective</span></div>
+<section class="orientation" aria-label="Building orientation"><div class="orientation-current"><svg class="spatial-compass" viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="20" fill="none" stroke="currentColor" opacity=".25"/><text x="30" y="8" text-anchor="middle">N</text><text x="55" y="33" text-anchor="middle">E</text><text x="30" y="59" text-anchor="middle">S</text><text x="5" y="33" text-anchor="middle">W</text><g transform="rotate(10 30 30)"><rect x="25" y="20" width="10" height="20" rx="2" fill="currentColor" opacity=".25"/><path d="M25 20h10" stroke="currentColor" stroke-width="3"/></g><g id="camera-bearing"><circle cx="30" cy="12" r="3.5" fill="currentColor"/></g></svg><div><small>VIEWING FROM</small><strong id="orientation-label">Locating camera…</strong><span>Entrance faces N 10° E</span></div></div><div class="side-controls" aria-label="View a building side">${Object.keys(sideBearings).map(side=>`<button data-side="${side}" aria-label="Show ${side} of building" aria-pressed="false">${side[0]!.toUpperCase()+side.slice(1)}</button>`).join('')}</div><p>Left / right as you face the entrance</p></section>
 <div class="viewer-top-right"><span class="quality">HIGH RESOLUTION</span><button class="round light-button" id="info" aria-label="Navigation help">${icon('info')}</button></div>
 <div class="scene-title"><span id="scene-number">01 / 03</span><h2 id="view-title">The urban perspective.</h2><p id="view-description">Glass, stone, and a Mediterranean skyline.</p></div>
 <aside class="perspectives"><div class="panel-heading"><span>CHOOSE YOUR PERSPECTIVE</span>${icon('layers')}</div>${views.map(v=>`<button class="view-card ${v.id==='urban'?'active':''}" data-view="${v.id}" aria-pressed="${v.id==='urban'}"><div class="view-photo"><img src="/stock-images/${v.photo}" alt="${v.label} reference photograph"><span>${v.tag}</span></div><div class="view-card-text"><strong>${v.label}</strong><small>${v.sub}</small></div><span class="selected-indicator">${v.id==='urban'?icon('chevron'):''}</span></button>`).join('')}<div class="panel-note">Three viewpoints. Infinite ways to explore.</div></aside>
@@ -32,16 +34,26 @@ try {
  const explorer=createExplorer(document.querySelector('#canvas-host')!);
  const titles={urban:['The urban perspective.','Glass, stone, and a Mediterranean skyline.'],street:['A closer kind of wonder.','Follow the reflections from the street to the sky.'],aerial:['Above the everyday.','Discover Europa’s place in the fabric of Valencia.']};
  const controller=new EuropaController(explorer,state=>{
-  document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(b=>{const active=b.dataset.view===state.perspective;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));b.querySelector('.selected-indicator')!.innerHTML=active?icon('chevron'):''});
+  document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(b=>{const active=b.dataset.view===state.perspective&&!state.viewAdjusted&&!state.autoRotate;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));b.querySelector('.selected-indicator')!.innerHTML=active?icon('chevron'):''});
   document.querySelector('#view-title')!.textContent=titles[state.perspective][0]!;document.querySelector('#view-description')!.textContent=titles[state.perspective][1]!;
   document.querySelector('#scene-label')!.textContent=views.find(v=>v.id===state.perspective)!.label;document.querySelector('#scene-number')!.textContent=`0${views.findIndex(v=>v.id===state.perspective)+1} / 03`;
   document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(b=>{const active=b.dataset.light===state.lighting;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
   document.querySelector('#rotate')!.innerHTML=icon(state.autoRotate?'pause':'play');document.querySelector('#rotate')!.setAttribute('aria-pressed',String(state.autoRotate));
+  const spatial=state.spatial;
+  if(spatial){
+   const side=spatial.cameraSide.replaceAll('-',' ');const label=side[0]!.toUpperCase()+side.slice(1);
+   document.querySelector('#orientation-label')!.textContent=`${label}${spatial.cameraCompass?` · ${spatial.cameraCompass} ${Math.round(spatial.cameraBearingDegrees!)%360}°`:''}`;
+   document.querySelector('#camera-bearing')!.setAttribute('transform',`rotate(${spatial.cameraBearingDegrees??0} 30 30)`);
+   document.querySelector('#camera-bearing')!.setAttribute('visibility',spatial.cameraBearingDegrees===null?'hidden':'visible');
+   if(state.viewAdjusted||state.autoRotate){document.querySelector('#view-title')!.textContent=`${label} view.`;document.querySelector('#view-description')!.textContent=state.transitioning?'Moving around the building…':'The entrance is the front. Explore every side.';document.querySelector('#scene-label')!.textContent=state.autoRotate?'Orbiting':`${label} view`;document.querySelector('#scene-number')!.textContent='EXPLORE / EUROPA';}
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-side]').forEach(b=>b.setAttribute('aria-pressed',String(!state.transitioning&&spatial?.cameraSide===b.dataset.side)));
   const fullscreen=document.querySelector<HTMLButtonElement>('#fullscreen')!;fullscreen.setAttribute('aria-pressed',String(state.fullscreen));fullscreen.setAttribute('aria-label',state.fullscreen?'Exit fullscreen':'Enter fullscreen');fullscreen.title=state.fullscreen?'Exit fullscreen':'Enter fullscreen';
  },new EuropaFullscreen(document.querySelector<HTMLElement>('.viewer')!,toast));
  const navigate=(action:Promise<void>)=>{void action.catch(error=>{if(!(error instanceof Error)||error.name!=='AbortError')toast('This perspective is unavailable. Please try again.');});};
  document.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button=>button.addEventListener('click',()=>navigate(controller.setPerspective(button.dataset.view as ViewMode))));
  document.querySelectorAll<HTMLButtonElement>('[data-light]').forEach(button=>button.addEventListener('click',()=>controller.setLighting(button.dataset.light as LightMode)));
+ document.querySelectorAll<HTMLButtonElement>('[data-side]').forEach(button=>button.addEventListener('click',()=>navigate(controller.showSide(button.dataset.side as BuildingSide))));
  bind('rotate',()=>controller.setAutoRotate(!controller.getState().autoRotate));
  bind('reset',()=>navigate(controller.resetPerspective()));bind('zoom-in',()=>controller.adjustZoom('closer'));bind('zoom-out',()=>controller.adjustZoom('farther'));
  bind('capture',()=>{try{controller.capture();toast('Your 4K perspective is ready')}catch{toast('Image export was unavailable. Please try again.')}});

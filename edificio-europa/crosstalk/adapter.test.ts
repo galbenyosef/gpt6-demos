@@ -4,12 +4,17 @@ import { createEuropaCrosstalkAdapter } from './adapter';
 import { validateRegistration } from '../../cross-talk/src/protocol/validation';
 import { ToolExecutor } from '../../cross-talk/src/client/ToolExecutor';
 import type { EuropaState } from './manifest';
+import { bearingPosition, buildingCenter, destinationBearing, orbitPosition, spatialState } from '../spatial';
 
-test('all seven Europa tools share state, rendering and semantic events with manual operations', async () => {
+test('all nine Europa tools share state, rendering and semantic events with manual operations', async () => {
   let zoom: EuropaState['zoomLevel'] = 'normal', downloads = 0, renders: EuropaState[] = [], events = 0, manual: ((kind: 'manual' | 'zoom') => void) | undefined;
+  let camera = { x: -100, y: 50, z: 0 };
   const explorer: EuropaExplorer = {
     async setPerspective() { zoom = 'normal'; }, setLighting() {}, setAutoRotate() {}, adjustZoom(factor) { zoom = factor < 1 ? 'close' : 'wide'; }, capture() { downloads++; }, getZoomLevel: () => zoom,
     onNavigationChange(fn) { manual = fn; return () => {}; },
+    getSpatialState: () => spatialState(camera, buildingCenter),
+    async showSide(side) { camera = bearingPosition(destinationBearing(side), 100, 50); },
+    async orbitView(direction, degrees) { camera = orbitPosition(camera, (direction === 'left' ? 1 : -1) * degrees, 1); },
   };
   let fullscreen = false, displayChanges = 0, fullscreenChanged = () => {};
   const controller = new EuropaController(explorer, state => renders.push(state), {
@@ -19,7 +24,7 @@ test('all seven Europa tools share state, rendering and semantic events with man
   }); controller.subscribe(() => events++);
   const application = createEuropaCrosstalkAdapter(controller); controller.setReady(true);
   validateRegistration({ manifest: application.manifest, tools: application.tools.map(t => t.definition), state: controller.getState() });
-  expect(application.tools).toHaveLength(7);
+  expect(application.tools).toHaveLength(9);
   const executor = new ToolExecutor(application, 'session');
   const run = (tool: string, args: unknown, explicit = true) => executor.execute({ type: 'tool.invoke', invocationId: crypto.randomUUID(), delegationId: 'goal', sessionId: 'session', tool, arguments: args, explicitUserRequest: explicit, confirmed: false, expiresAt: Date.now() + 5000 });
   expect((await run('set_fullscreen', { enabled: 'true' })).ok).toBe(false);
@@ -39,6 +44,17 @@ test('all seven Europa tools share state, rendering and semantic events with man
   await run('adjust_zoom', { direction: 'closer' }); expect(controller.getState().zoomLevel).toBe('close');
   await run('adjust_zoom', { direction: 'farther', amount: 'large' }); expect(controller.getState().zoomLevel).toBe('wide');
   await run('reset_view', {}); expect(controller.getState().zoomLevel).toBe('normal');
+  expect((await run('show_side', { side: 'rear' })).ok).toBe(false);
+  expect((await run('orbit_view', { direction: 'right', degrees: 360 })).ok).toBe(false);
+  controller.setAutoRotate(true);
+  expect((await run('show_side', { side: 'back' })).ok).toBe(true);
+  expect(controller.getState()).toMatchObject({ autoRotate: false, viewAdjusted: true, transitioning: false, visibleFeatures: [], spatial: { cameraSide: 'back', cameraBearingDegrees: 190 } });
+  expect((await run('orbit_view', { direction: 'right', degrees: 180 })).ok).toBe(true);
+  expect(controller.getState().spatial?.cameraSide).toBe('front');
+  expect((await run('orbit_view', { direction: 'left' })).ok).toBe(true);
+  expect(controller.getState().spatial?.cameraBearingDegrees).toBe(40);
+  camera = { x: 0, y: 24, z: 100 }; manual?.('manual');
+  expect(application.getState()).toMatchObject({ spatial: { cameraSide: 'right', cameraBearingDegrees: 280 } });
   expect((await run('capture_view', {}, false)).ok).toBe(false); expect(downloads).toBe(0);
   expect((await run('capture_view', {})).ok).toBe(true); expect(downloads).toBe(1);
   controller.setLighting('golden'); expect(application.getState()).toMatchObject({ lighting: 'golden' });
