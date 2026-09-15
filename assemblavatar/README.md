@@ -21,7 +21,7 @@ AI requests have a configurable ten-minute deadline (`AI_REQUEST_TIMEOUT_MS=6000
 1. Create an assemblage, or open a clearly labelled handwritten example.
 2. Describe a model in the **AI** panel. Choose an object, architecture, stylised-avatar or realistic-avatar profile.
 3. Optionally add photographs in **References**. Choose the view and distinguish reference photos from model textures.
-4. Generate. The job validates the source, builds in isolation, renders seven viewpoints, requests Astra's evaluation and optionally refines within the selected pass limit. Cancel is available during generation.
+4. Generate. The job validates the source, builds in isolation, renders seven viewpoints, requests Astra's evaluation and optionally refines within the selected pass limit. Each rendered pass appears immediately in the interactive viewport, before evaluation. **Results** retains every pass; drafts remain visible during later steps, after refresh, cancellation or errors. Quality shortfalls end as **Needs review**, with feedback and an editable/exportable draft. Cancel is available during generation.
 5. Select objects in the viewport or hierarchy. Edit transforms/materials, hide/remove objects, or group/ungroup. **Save object edits** rebuilds and records the override layer as a revision.
 6. Inspect or edit **Source**, then **Validate & build**. The example programs work without an OpenAI key.
 7. Use **History** to compare previews or restore a prior revision. The next build branches from that revision; revision numbers remain unique.

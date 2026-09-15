@@ -1,4 +1,4 @@
-import type { BuildResult, GeneratedProgram, GenerationJob, Override, Revision } from "../../shared/domain";
+import type { BuildAttempt, BuildResult, GeneratedProgram, GenerationJob, Override, Revision } from "../../shared/domain";
 import { config } from "../config";
 import { id, now } from "../persistence/store";
 import { AstraClient, type AIContext, type ModellingAI } from "../ai/AstraClient";
@@ -35,7 +35,7 @@ export class GenerationService {
         if (input.code !== undefined) throw Error("Cannot combine manual source and recovery");
         const attempt = await store.attempts.require(input.resumeAttemptId);
         const previousJob = await store.jobs.require(attempt.jobId);
-        if (previousJob.assemblageId !== a.id || !["failed", "cancelled"].includes(previousJob.status)) throw Error("Recovery requires a stopped job from this assemblage");
+        if (previousJob.assemblageId !== a.id || !["failed", "cancelled", "review", "completed"].includes(previousJob.status)) throw Error("Recovery requires a stopped job from this assemblage");
         if (attempt.status !== "rendered") throw Error("Recovery requires a successfully built attempt");
         recovered = { code: attempt.sourceProgram, summary: "Recovered generated model", assumptions: [], expectedLimitations: ["Recovered attempt is re-evaluated before acceptance."], objectStructure: [] };
       }
@@ -52,37 +52,40 @@ export class GenerationService {
       let evaluation: Revision["evaluation"];
       for (let iteration = 1; iteration <= job.maxIterations; iteration++) {
         signal.throwIfAborted(); job.iteration = iteration; source = generated.code;
-        let build: BuildResult | undefined;
+        let build: BuildResult | undefined, builtAttempt: BuildAttempt | undefined;
         for (let repair = 0; repair <= (input.code === undefined ? config.maxRepairs : 0); repair++) {
           await this.update(job, repair ? "repairing" : "validating", .2);
           const attempt = { id: id("attempt"), jobId: job.id, iteration, sourceProgram: source, status: "build-failed" as const };
-          try { build = await this.sandbox.build(source, { parameters, metadata: { assemblageId: a.id, revision: a.currentRevision + 1 } }, Object.keys(textureUrls), signal); await store.attempts.put({ ...attempt, status: "rendered", diagnostics: build.diagnostics }); break; }
+          try { build = await this.sandbox.build(source, { parameters, metadata: { assemblageId: a.id, revision: a.currentRevision + 1 } }, Object.keys(textureUrls), signal); builtAttempt = { ...attempt, status: "rendered", diagnostics: build.diagnostics }; await store.attempts.put(builtAttempt); break; }
           catch (error) { signal.throwIfAborted(); const diagnostics = error instanceof Error ? error.message : "Build failed"; await store.attempts.put({ ...attempt, error: diagnostics }); if (input.code !== undefined || repair === config.maxRepairs) throw error; await this.update(job, "repairing", .2); generated = await this.ai.repair({ ...context(), source, diagnostics }, signal); source = generated.code; }
         }
-        if (!build) throw Error("No valid build produced");
+        if (!build || !builtAttempt) throw Error("No valid build produced");
         if (input.incorporateOverrides) overrides = [];
         build.metadata = { ...build.metadata, assumptions: generated.assumptions, expectedLimitations: generated.expectedLimitations, objectStructure: generated.objectStructure };
         await this.update(job, "rendering", .5); const rendered = await this.renderer.render(build, overrides, textureUrls, signal);
+        const artifact = await this.workspaces.saveDraft(a, builtAttempt, build, rendered, overrides, parameters, generated.summary);
+        job.latestAttemptId = builtAttempt.id; job.evaluation = undefined;
+        await this.update(job, "preview-ready", .6);
         renders = rendered.previews.map(p => ({ label: `Generated model render: ${p.view}`, url: `data:image/png;base64,${p.data}` }));
-        if (input.code === undefined) { await this.update(job, "evaluating", .7); evaluation = await this.ai.evaluate({ ...context(), source }, signal); }
+        if (input.code === undefined) { await this.update(job, "evaluating", .7); evaluation = await this.ai.evaluate({ ...context(), source }, signal); builtAttempt.evaluation = evaluation; await store.attempts.put(builtAttempt); job.evaluation = evaluation; }
         const catastrophic = evaluation?.issues.some(i => i.severity === "major") ?? false;
         if (!catastrophic) {
           signal.throwIfAborted(); await this.update(job, "exporting", .85);
-          latest = await this.workspaces.commit(a, { code: source, build, render: rendered, prompt: input.prompt, summary: generated.summary, model: input.code !== undefined ? "manual" : config.model, overrides, parameters, parent: latest?.id ?? input.parentRevisionId ?? prior?.id, evaluation });
+          latest = await this.workspaces.commit(a, { code: source, build, render: rendered, artifact, prompt: input.prompt, summary: generated.summary, model: input.code !== undefined ? "manual" : config.model, overrides, parameters, parent: latest?.id ?? input.parentRevisionId ?? prior?.id, evaluation });
           job.currentSourceProgramId = latest.sourceProgramId; job.currentModelArtifactId = latest.modelArtifactId;
         }
         if (input.code !== undefined || evaluation?.recommendation === "accept" && !catastrophic) { job.status = "completed"; break; }
-        if (!input.automaticRefinement || iteration === job.maxIterations || evaluation?.recommendation === "requires-user-review") { if (catastrophic && !latest) throw Error(`Model requires correction: ${evaluation?.overallAssessment}`); job.status = "review"; break; }
+        if (!input.automaticRefinement || iteration === job.maxIterations || evaluation?.recommendation === "requires-user-review") { job.status = "review"; break; }
         await this.update(job, "refining", .9); generated = await this.ai.refine({ ...context(), source, evaluation }, signal);
-        if (generated.code.trim() === source.trim()) { if (!latest) throw Error("Refinement made no source change and geometry still requires correction"); job.status = "review"; break; }
+        if (generated.code.trim() === source.trim()) { job.status = "review"; break; }
       }
-      await store.messages.put({ id: id("msg"), assemblageId: a.id, role: "assistant", content: `${latest?.aiSummary ?? "Generation finished."}${evaluation ? `\n${evaluation.overallAssessment}` : ""}`, createdAt: now(), jobId: job.id });
+      await store.messages.put({ id: id("msg"), assemblageId: a.id, role: "assistant", content: `${latest?.aiSummary ?? "Draft saved for review."}${evaluation ? `\n${evaluation.overallAssessment}` : ""}`, createdAt: now(), jobId: job.id });
       await this.update(job, job.status === "review" ? "review" : "completed", 1);
     } catch (error) {
       job.status = signal.aborted ? "cancelled" : "failed"; job.error = signal.aborted ? "Generation cancelled" : error instanceof Error ? error.message : "Generation failed";
       await this.update(job, job.status, 1); await store.messages.put({ id: id("msg"), assemblageId: job.assemblageId, role: "assistant", content: job.error, createdAt: now(), jobId: job.id });
     } finally {
-      const a = await store.assemblages.get(job.assemblageId); if (a) { a.status = a.currentModelId ? "ready" : job.status === "failed" ? "failed" : "draft"; a.updatedAt = now(); await store.assemblages.put(a); }
+      const a = await store.assemblages.get(job.assemblageId); if (a) { a.status = a.currentModelId ? "ready" : job.latestAttemptId ? "draft" : job.status === "failed" ? "failed" : "draft"; a.updatedAt = now(); await store.assemblages.put(a); }
       this.workspaces.busy.delete(job.assemblageId); this.controllers.delete(job.id); this.reservedSlots--;
       this.events.dispatchEvent(new CustomEvent(job.id, { detail: { ...job } }));
     }

@@ -14,6 +14,57 @@ const generated = (source = code): GeneratedProgram => ({ code: source, summary:
 async function setup(ai: ModellingAI) { const dir = await mkdtemp(join(tmpdir(), "assemblavatar-generation-")); const store = new Store(dir), workspace = new WorkspaceService(store); const a = await workspace.create("Test", "object"); const renderer = { render: async (build: any) => ({ previews: [{ view: "front", data: "aW1hZ2U=" }], glb: "Z2xURg==", gltf: "{}", diagnostics: build.diagnostics }) } as unknown as RenderService; const generation = new GenerationService(workspace, renderer, new SandboxRunner(), ai); return { dir, store, workspace, a, generation }; }
 async function wait(env: Awaited<ReturnType<typeof setup>>, jobId: string) { for (let i = 0; i < 200; i++) { const job = await env.store.jobs.require(jobId); if (!["queued", "running"].includes(job.status) && !env.workspace.busy.has(job.assemblageId)) return job; await Bun.sleep(20); } throw Error("Job did not finish"); }
 const accept: RenderEvaluation = { recommendation: "accept", overallAssessment: "Geometry matches the request", issues: [] };
+test("publishes a persistent interactive draft before slow evaluation, retaining it on failure", async () => {
+  let entered!: () => void, rejectReview!: (error: Error) => void;
+  const evaluating = new Promise<void>(resolve => { entered = resolve; });
+  const pending = new Promise<RenderEvaluation>((_, reject) => { rejectReview = reject; });
+  const env = await setup({ generate: async () => generated(), repair: async () => generated(), refine: async () => generated(), evaluate: async () => { entered(); return pending; } });
+  const notifications: string[] = [];
+  try {
+    const job = await env.generation.start(env.a.id, { prompt: "A box", profile: "generic-object", maxIterations: 1, automaticRefinement: false });
+    env.generation.events.addEventListener(job.id, event => { const j = (event as CustomEvent).detail; if (j.latestAttemptId) notifications.push(j.phase); });
+    await evaluating;
+    const reopened = await new WorkspaceService(new Store(env.dir)).detail(env.a.id);
+    expect(reopened.latestJob?.status).toBe("running");
+    expect(notifications).toContain("preview-ready");
+    expect(reopened.currentRevision).toBe(0);
+    expect(reopened.draft?.sourceProgram).toBe(code);
+    const artifact = await env.store.models.require(reopened.draft!.modelArtifactId!);
+    expect(await env.store.assets.exists(artifact.assetId)).toBe(true);
+    expect(await env.store.assets.exists(artifact.glbAssetId)).toBe(true);
+    expect(await env.store.assets.exists(artifact.previewAssetIds[0]!)).toBe(true);
+    rejectReview(new Error("Provider unavailable"));
+    expect((await wait(env, job.id)).status).toBe("failed");
+    expect((await env.workspace.detail(env.a.id)).draft?.modelArtifactId).toBe(artifact.id);
+  } finally { rejectReview(new Error("Test finished")); await rm(env.dir, { recursive: true, force: true }); }
+}, 15000);
+
+test("retains every rendered pass when refinement ends in review", async () => {
+  const feedback: RenderEvaluation = { recommendation: "refine", overallAssessment: "Improve shape", issues: [{ area: "geometry", severity: "major", description: "Needs work", suggestedChange: "Widen" }] };
+  const env = await setup({ generate: async () => generated(), repair: async () => generated(), refine: async () => generated(code.replace("width:1", "width:2")), evaluate: async () => feedback });
+  try {
+    const job = await env.generation.start(env.a.id, { prompt: "A box", profile: "generic-object", maxIterations: 2, automaticRefinement: true });
+    const result = await wait(env, job.id), detail = await env.workspace.detail(env.a.id);
+    expect(result.status).toBe("review"); expect(result.error).toBeUndefined();
+    expect(detail.drafts.map(d => d.iteration)).toEqual([2, 1]);
+    expect(detail.draft?.id).toBe(result.latestAttemptId);
+    expect(detail.drafts.every(d => d.evaluation?.overallAssessment === "Improve shape")).toBe(true);
+    expect(detail.currentRevision).toBe(0);
+  } finally { await rm(env.dir, { recursive: true, force: true }); }
+}, 15000);
+
+test("cancelling evaluation preserves the visible draft across restart", async () => {
+  let entered!: () => void;
+  const evaluating = new Promise<void>(resolve => { entered = resolve; });
+  const env = await setup({ generate: async () => generated(), repair: async () => generated(), refine: async () => generated(), evaluate: async (_context, signal) => { entered(); return new Promise((_, reject) => signal!.addEventListener("abort", () => reject(signal!.reason), { once: true })); } });
+  try {
+    const job = await env.generation.start(env.a.id, { prompt: "A box", profile: "generic-object", maxIterations: 1, automaticRefinement: false });
+    await evaluating; await env.generation.cancel(job.id);
+    expect((await wait(env, job.id)).status).toBe("cancelled");
+    const store = new Store(env.dir); await store.recover();
+    expect((await new WorkspaceService(store).detail(env.a.id)).draft?.modelArtifactId).toBeTruthy();
+  } finally { await rm(env.dir, { recursive: true, force: true }); }
+}, 15000);
 test("recovery reuses failed-job source but still evaluates before committing", async () => {
   let evaluations = 0;
   const env = await setup({ generate: async () => { throw Error("Must reuse saved source"); }, repair: async () => generated(), refine: async () => generated(), evaluate: async () => { evaluations++; return accept; } });
@@ -32,4 +83,4 @@ test("recovery reuses failed-job source but still evaluates before committing", 
 }, 15000);
 test("repairs invalid generated source and commits source, artifact and provenance", async () => { let repairs = 0; const env = await setup({ generate: async () => generated("invalid source"), repair: async context => { expect(context.diagnostics).toBeTruthy(); repairs++; return generated(); }, refine: async () => generated(), evaluate: async context => { expect(context.images.some(i => i.label.includes("Generated model render"))).toBe(true); return accept; } }); try { const job = await env.generation.start(env.a.id, { prompt: "A box", profile: "generic-object", maxIterations: 1, automaticRefinement: false }); expect((await wait(env, job.id)).status).toBe("completed"); expect(repairs).toBe(1); const a = await env.workspace.detail(env.a.id); expect(a.source?.code).toBe(code); expect(a.revision?.provenance.model).toBe("gpt-6-astra"); expect(await env.store.assets.exists(a.model!.glbAssetId)).toBe(true); expect((await env.store.attempts.list()).some(a => a.error)).toBe(true); } finally { await rm(env.dir, { recursive: true, force: true }); } }, 15000);
 test("review feeds renders, source and feedback into bounded refinement", async () => { let reviews = 0, refinement: AIContext | undefined; const env = await setup({ generate: async () => generated(), repair: async () => generated(), refine: async context => { refinement = context; return generated(code.replace("width:1", "width:2")); }, evaluate: async () => ++reviews === 1 ? { recommendation: "refine", overallAssessment: "Widen the box", issues: [{ area: "width", severity: "moderate", description: "Too narrow", suggestedChange: "Double width" }] } : accept }); try { const job = await env.generation.start(env.a.id, { prompt: "A wide box", profile: "generic-object", maxIterations: 2, automaticRefinement: true }); const complete = await wait(env, job.id); expect(complete.status).toBe("completed"); expect(complete.iteration).toBe(2); expect(refinement?.evaluation?.overallAssessment).toBe("Widen the box"); expect(refinement?.source).toBe(code); const revisions = await env.store.revisions.list(); expect(revisions.length).toBe(2); expect(revisions.find(r => r.revisionNumber === 2)?.parentRevisionId).toBe(revisions.find(r => r.revisionNumber === 1)?.id); } finally { await rm(env.dir, { recursive: true, force: true }); } }, 15000);
-test("major geometry problems do not replace canonical head", async () => { const env = await setup({ generate: async () => generated(), repair: async () => generated(), refine: async () => generated(), evaluate: async () => ({ recommendation: "accept", overallAssessment: "Catastrophic mismatch", issues: [{ area: "geometry", severity: "major", description: "Wrong shape", suggestedChange: "Rebuild" }] }) }); try { const job = await env.generation.start(env.a.id, { prompt: "A box", profile: "generic-object", maxIterations: 1, automaticRefinement: true }); expect((await wait(env, job.id)).status).toBe("failed"); expect((await env.workspace.detail(env.a.id)).currentRevision).toBe(0); expect(await env.store.revisions.list()).toHaveLength(0); } finally { await rm(env.dir, { recursive: true, force: true }); } }, 15000);
+test("major geometry problems do not replace canonical head", async () => { const env = await setup({ generate: async () => generated(), repair: async () => generated(), refine: async () => generated(), evaluate: async () => ({ recommendation: "accept", overallAssessment: "Catastrophic mismatch", issues: [{ area: "geometry", severity: "major", description: "Wrong shape", suggestedChange: "Rebuild" }] }) }); try { const job = await env.generation.start(env.a.id, { prompt: "A box", profile: "generic-object", maxIterations: 1, automaticRefinement: true }); expect((await wait(env, job.id)).status).toBe("review"); expect((await env.workspace.detail(env.a.id)).draft?.evaluation?.issues[0]?.severity).toBe("major"); expect((await env.workspace.detail(env.a.id)).currentRevision).toBe(0); expect(await env.store.revisions.list()).toHaveLength(0); } finally { await rm(env.dir, { recursive: true, force: true }); } }, 15000);

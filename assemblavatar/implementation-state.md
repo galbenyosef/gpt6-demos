@@ -75,3 +75,11 @@ Continue maintaining this implementation-state file alongside the existing speci
 - Refined geometry built and rendered: 125 meshes, 75,744 vertices, 143,344 triangles. Saved attempt: `attempt_26571853-d913-422e-b4eb-fcbe171ba0ce`.
 - Final evaluation rejected realistic anatomy and recognisable likeness (eye rims, pointed nose, thin mouth, blocky lower face, rigid hair). The two-pass limit was respected; no approved revision was committed and no further paid retries were started. The remaining problem is model quality, not credits or request handling.
 - Preserved refined source and diagnostic previews under `data/diagnostics/martest-refined/`, explicitly unapproved. Recovery can use the refined attempt ID on a future run.
+
+## Visible intermediate results — 2026-09-15
+
+- Updated the specification per user instruction: every rendered intermediate result must be visible before evaluation; quality rejection is a review outcome, not a processing error.
+- Persist draft scenes, GLB/GLTF exports, PNGs, source, overrides, parameters and evaluation on build attempts before broadcasting preview-ready events. Accepted revisions reuse the already-saved artifact. Canonical accepted models are preserved.
+- The viewport loads new drafts live, keeps them visible while later AI work runs, and restores them on refresh. Added elapsed phase/pass feedback, Results thumbnails for earlier passes, explicit draft export and draft-source refinement.
+- Both existing Martest passes were recovered into Results using local rendering only. The latest job now reports Needs review and displays its existing quality feedback; no additional AI requests were made.
+- Integration coverage verifies publication before a held evaluation, preservation on provider failure/cancellation/restart, all-pass history and review without acceptance. Real Chromium coverage verifies live viewport updates, refresh recovery, Results history and a subsequent provider failure; the export/import/restore/duplicate workflow also passes.

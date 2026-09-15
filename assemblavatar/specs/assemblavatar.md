@@ -3687,7 +3687,11 @@ from:
 AssemblageRevision
 ```
 
-Failed compiler repairs and intermediate automatic iterations can remain internal build attempts.
+Failed compiler repairs can remain internal build attempts. Every successfully rendered intermediate result SHALL be persisted and shown immediately, before AI evaluation or the next refinement begins. Draft visibility SHALL NOT depend on quality acceptance.
+
+The viewport SHALL retain the latest rendered result while later steps run, with a clear draft label, current phase, elapsed time and pass count. Users SHALL be able to inspect earlier rendered passes in a Results history. Draft geometry, source, previews and evaluation feedback SHALL survive refresh, cancellation, provider failures and server restarts.
+
+Insufficient model quality at the pass limit SHALL end as **Needs review**, with the draft visible and available for refinement, manual editing and export. Processing failures SHALL explain the error while preserving the last available draft. Only accepted states advance the canonical revision.
 
 Successful meaningful states become revisions.
 
