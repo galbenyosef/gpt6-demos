@@ -8,7 +8,7 @@
 
 A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, and an AI-assisted procedural 3D modelling studio. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
-The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration.
+The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration and is available both in the browser and as a Linux native desktop executable with Crosstalk included.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
 
@@ -20,6 +20,8 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 ./run-all.sh
 ```
 
+Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. If an installation fails, no servers are started.
+
 The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), and Assemblavatar on [port 3009](http://localhost:3009). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all nine demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
 Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`. The launcher assigns port 3007, overriding the standalone default.
@@ -28,7 +30,7 @@ For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). 
 
 For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run), including the Chromium installation and server-side `.env` configuration. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
 
-For Crosstalk voice control in Europa, first run `bun install` in `cross-talk/` and configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
+For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). The launcher installs Crosstalk's dependencies automatically. Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
 ### Demo portal
 
@@ -40,6 +42,14 @@ The page uses plain HTML, inline CSS, and relative image paths, so it needs no b
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 
+## Native desktop: Edificio Europa
+
+Europa can also run in a native window as one executable containing the Three.js explorer, Bun runtime, and Crosstalk service. It renders the building procedurally and omits reference photographs and remote fonts. Desktop voice uses WebSocket audio, fullscreen operates on the native window, and 4K PNG export opens a system save dialog.
+
+Follow Europa's [compile, configure, and run instructions](./edificio-europa/README.md#native-executable-linux). Desktop settings can be shared through `$HOME/.conf/crosstalk/crosstalk.cfg` in dotenv format, or loaded from the launch directory's `.env`. The shared file must be created explicitly; launching from `edificio-europa/` does not automatically load `cross-talk/.env`.
+
+The current target is Linux x64 with native Wayland and compatible GTK3/WebKitGTK 4.1 and audio libraries. Bun and a separate Crosstalk process are unnecessary on the runtime machine. Voice still needs an API key and network access. This is a Linux release candidate; broader platform and manual acceptance remain documented in the [native build guide](./edificio-europa/docs/native-desktop.md). `run-all.sh` continues to launch the browser demos; it does not build or launch native windows.
+
 ## Crosstalk — Conversational application control
 
 Crosstalk adds a spoken interface to Bun web applications. [GPT-Live-1](https://openai.com/index/introducing-gpt-live/) handles speech and conversation, while GPT-6 Astra uses the application's description, current state, and registered tools to answer questions and carry out requests. Each application supplies its own knowledge and actions through an adapter. The service works with those explicit capabilities and state updates; it does not inspect the screen.
@@ -48,9 +58,9 @@ In Edificio Europa, press **Crosstalk**, allow microphone access, and try “Wha
 
 Europa also shares live camera orientation with the AI. Its entrance is the front, facing 010° using the supplied geographic reference. Try “Show me the back”, “View it from the east”, or “Move around to my right a little”. An orientation indicator tracks the camera after voice and mouse navigation.
 
-**Fullscreen illustrates the limits of tool access.** The `set_fullscreen` tool is retained as an example of a browser restriction: exposing a web application action to an AI does not give it capabilities beyond those the browser permits. Fullscreen entry requires user activation, such as a recent click, which a voice request alone does not provide. As a result, entering fullscreen by voice is not reliable. The tool reports the restriction and directs the user to the fullscreen button. Exiting fullscreen can still work by voice, and the conversation panel remains accessible in fullscreen.
+**In browser mode, fullscreen illustrates the limits of tool access.** Fullscreen entry requires user activation, such as a recent click, which a voice request alone does not provide. When blocked, the tool reports the restriction and directs the user to the fullscreen button. Exiting fullscreen can still work by voice. The desktop executable uses native window operations for voice-controlled fullscreen. Both modes keep the conversation panel accessible in fullscreen.
 
-The service includes validated tool arguments, interruption of camera navigation, and confirmation for downloads that were not directly requested. The OpenAI API key stays on the server, and browser audio connects to OpenAI over WebRTC. Use **End conversation** to stop the microphone and voice session.
+The service includes validated tool arguments, interruption of camera navigation, and confirmation for image exports that were not directly requested. The OpenAI API key stays in the server or desktop host. Browser audio connects to OpenAI over WebRTC; desktop audio passes through the embedded Crosstalk host over WebSockets. Use **End conversation** to stop the microphone and voice session.
 
 [How Crosstalk works: diagram and walkthrough](./cross-talk/README.md#from-natural-conversation-to-application-action) · [Integration guide](./cross-talk/INTEGRATION.md) · [Source and setup](./cross-talk/README.md) · [Service specification](./cross-talk/specs/cross-talk.md)
 
@@ -62,9 +72,9 @@ An interactive, photo-based reconstruction of Edificio Europa in Valencia. Explo
 
 Its integrated [Crosstalk voice controls](#crosstalk--conversational-application-control) let you ask about the building, request a guided tour, and operate the explorer conversationally.
 
-[![Edificio Europa — 3D demo](https://i.ytimg.com/vi/YwKfrL4P3N4/hqdefault.jpg)](https://youtu.be/YwKfrL4P3N4)
+[![Edificio Europa — 3D demo](https://i.ytimg.com/vi/Jj22gWplYZY/hqdefault.jpg)](https://youtu.be/Jj22gWplYZY)
 
-[Edificio Europa — 3D demo](https://youtu.be/YwKfrL4P3N4)
+[Edificio Europa — 3D demo](https://youtu.be/Jj22gWplYZY)
 
 [Source and setup](./edificio-europa/README.md)
 
