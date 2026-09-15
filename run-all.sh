@@ -6,8 +6,8 @@ set -m
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
-DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas)
-PORTS=(3001 3002 3003 3004 3005 3006 3007 3008)
+DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas assemblavatar)
+PORTS=(3001 3002 3003 3004 3005 3006 3007 3008 3009)
 PORTAL_PORT=3000
 SERVICES=("${DEMOS[@]}" portal)
 SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT")
@@ -73,6 +73,9 @@ for i in "${!SERVICES[@]}"; do
       exec bun run portal-server.ts
     else
       cd -- "$ROOT_DIR/$demo"
+      if [[ "$demo" == assemblavatar ]]; then
+        export ASSEMBLAVATAR_PORT="$port"
+      fi
       exec bun run dev
     fi
   ) > "$fifo" 2>&1 &

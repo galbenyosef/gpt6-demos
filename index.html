@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore eight local interactive demos: architecture, tarot, cave flight, music, orbital mechanics, digital logic, generative stop-motion, and a spatial Codex workspace.">
+  <meta name="description" content="Explore nine local interactive demos: architecture, tarot, cave flight, music, orbital mechanics, digital logic, generative stop-motion, a spatial Codex workspace, and procedural 3D modelling.">
   <title>GPT6 Demos</title>
   <style>
     :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17191e; background: #fff; }
@@ -13,7 +13,7 @@
     header { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid #e4e6eb; margin-bottom: 32px; }
     h1 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); font-weight: 650; letter-spacing: -.045em; }
     header p { margin: 0; font-size: 1rem; color: #626771; }
-    .demos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, auto); gap: 36px 24px; }
+    .demos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 24px; }
     .demo { display: block; color: inherit; text-decoration: none; border-radius: 8px; }
     .preview { aspect-ratio: 2 / 1; overflow: hidden; border: 1px solid #e4e6eb; border-radius: 8px; background: #f5f6f8; }
     img { display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -32,7 +32,7 @@
 </head>
 <body>
   <main>
-    <header><h1>GPT6 Demos<span aria-hidden="true">.</span></h1><p>Eight interactive experiments. Open one and explore.</p></header>
+    <header><h1>GPT6 Demos<span aria-hidden="true">.</span></h1><p>Nine interactive experiments. Open one and explore.</p></header>
     <nav class="demos" aria-label="Local demos">
       <a class="demo" href="http://localhost:3001/">
         <div class="preview"><img src="images/edificio-europa.png" alt="3D reconstruction of Edificio Europa" width="1870" height="929"></div>
@@ -73,6 +73,11 @@
         <div class="preview"><img src="images/codexcanvas.png" alt="Codex Canvas conversation, plans, changes, and activity workspace" width="3432" height="1776"></div>
         <div class="title"><h2>Codex Canvas</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Work with Codex on a spatial canvas. Follow plans, review changes and activity, and keep useful results in view.</p>
+      </a>
+      <a class="demo" href="http://localhost:3009/">
+        <div class="preview"><img src="images/assemblavatar.png" alt="Assemblavatar procedural 3D modelling studio with avatar drafts and reference photos" width="3456" height="1762"></div>
+        <div class="title"><h2>Assemblavatar</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Build editable 3D objects and avatars from descriptions and photos. Inspect each draft, refine the geometry, and export your model.</p>
       </a>
     </nav>
     <footer>Start the demos with <code>./run-all.sh</code> from the repository root. Each link opens a local app.</footer>

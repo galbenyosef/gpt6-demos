@@ -51,6 +51,8 @@ The toolkit includes primitives, transformations, PBR materials, CSG union/subtr
 
 ## Architecture
 
+Read the [architecture guide](docs/architecture.md) for component responsibilities, data flow, isolation boundaries, draft/revision persistence, progress handling and extension points.
+
 ```text
 React editor / Three.js viewer
           ↓ HTTP + server-sent events

@@ -6,7 +6,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, and a generative canvas and stop-motion studio. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, and an AI-assisted procedural 3D modelling studio. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration.
 
@@ -20,19 +20,21 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 ./run-all.sh
 ```
 
-The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), and Codex Canvas on [port 3008](http://localhost:3008). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all eight demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), and Assemblavatar on [port 3009](http://localhost:3009). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all nine demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
 Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`. The launcher assigns port 3007, overriding the standalone default.
 
 For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). The launcher assigns port 3008, overriding the standalone default of 3030.
 
+For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run), including the Chromium installation and server-side `.env` configuration. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
+
 For Crosstalk voice control in Europa, first run `bun install` in `cross-talk/` and configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
 ### Demo portal
 
-![GPT6 Demos portal showing all seven interactive demos](./images/portal.png)
+![GPT6 Demos portal screenshot](./images/portal.png)
 
-Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the eight demos in a four-column, two-row grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
+Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the nine demos in a four-column grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
 
 The page uses plain HTML, inline CSS, and relative image paths, so it needs no build, JavaScript, or external assets and works over HTTP or `file://`. The demo servers must still be running for the links to open. To serve only the portal, run `bun run portal-server.ts` from the repository root (default port 3000; override with `PORT`). If you change a demo port in `run-all.sh`, update its link in `index.html` too.
 
@@ -135,6 +137,16 @@ A local graphical client for Codex built with Bun and TypeScript. Work with exis
 [Codex Canvas — Spatial coding workspace demo](https://youtu.be/WrBpo7HGLT0)
 
 [Source and setup](./codexcanvas/README.md) · [Demo specification](./codexcanvas/specs/codexcanvas.md)
+
+### Assemblavatar — Procedural 3D modelling studio
+
+A local 3D modelling studio built with Bun, TypeScript, React, and Three.js. Describe an object or avatar and add reference photographs; GPT-6 Astra writes editable modelling code, builds it in an isolated runtime, inspects rendered views, and refines the geometry. Each rendered draft appears immediately and stays available in Results, including candidates that need further work. Inspect and edit objects or source, compare revisions, and export GLB, GLTF, or PNG. AI generation requires an OpenAI API key configured in the local `.env` file; realistic photo likeness remains an experimental capability.
+
+[![Assemblavatar — Procedural 3D modelling studio demo](https://i.ytimg.com/vi/ZeBiaORTdug/hqdefault.jpg)](https://youtu.be/ZeBiaORTdug)
+
+[Assemblavatar — Procedural 3D modelling studio demo](https://youtu.be/ZeBiaORTdug)
+
+[Source and setup](./assemblavatar/README.md) · [Architecture guide](./assemblavatar/docs/architecture.md) · [Demo specification](./assemblavatar/specs/assemblavatar.md)
 
 ---
 
