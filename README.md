@@ -20,7 +20,7 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 ./run-all.sh
 ```
 
-Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. If an installation fails, no servers are started.
+Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. Assemblavatar uses production dependencies and run mode; Playwright is only a development test dependency. If an installation fails, no servers are started.
 
 The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
@@ -28,7 +28,7 @@ Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#
 
 For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). The launcher assigns port 3008, overriding the standalone default of 3030.
 
-For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run), including the Chromium installation and server-side `.env` configuration. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
+For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run) for server-side `.env` configuration. Rendering uses the open Assemblavatar browser tab; no Playwright or separate Chromium installation is needed. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
 
 For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-more-match/README.md#run). The launcher runs `dev:web` on port 3010, overriding the standalone browser default of 3210. To open its Electrobun desktop window separately, run `bun run dev` from `one-more-match/`.
 

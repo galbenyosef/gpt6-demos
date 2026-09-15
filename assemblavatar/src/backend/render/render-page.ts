@@ -23,3 +23,13 @@ async function render(input: { scene: Record<string, unknown>; overrides: Overri
 async function importGlb(data: string) { const bytes = Uint8Array.from(atob(data), c => c.charCodeAt(0)); const result = await new GLTFLoader().parseAsync(bytes.buffer, ""); const diagnostics = validateScene(result.scene); const scene = result.scene.toJSON(); disposeScene(result.scene); return { scene, diagnostics, metadata: { imported: true } }; }
 async function inspectImage(data: string) { const response = await fetch(data); const bitmap = await createImageBitmap(await response.blob()); const size = { width: bitmap.width, height: bitmap.height }; bitmap.close(); if (size.width > 4096 || size.height > 4096 || size.width * size.height > 16777216) throw Error("Images must be no larger than 4096 × 4096"); return size; }
 Object.assign(globalThis, { assemblavatarRender: render, assemblavatarImport: importGlb, assemblavatarInspectImage: inspectImage });
+
+const operations = { render, importGlb, inspectImage };
+window.addEventListener("message", async event => {
+  if (event.source !== parent || !Object.hasOwn(operations, event.data?.operation)) return;
+  try {
+    const result = await (operations[event.data.operation as keyof typeof operations] as (input: any) => Promise<unknown>)(event.data.input);
+    parent.postMessage({ result }, "*");
+  } catch (error) { parent.postMessage({ error: error instanceof Error ? error.message : "Rendering failed" }, "*"); }
+});
+parent.postMessage({ ready: true }, "*");

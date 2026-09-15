@@ -23,7 +23,7 @@ These checks cover the implemented MVP capabilities. The empirical photo-object 
 - Use the section 46 `buildModel(ctx): ModelBuildOutput` contract.
 - Canonical state consists of source, parameters and revision-scoped manual overrides.
 - Execute untrusted programs only in QuickJS WASM inside a disposable worker. Do not use host eval, Node VM, or browser execution of generated code.
-- Render and export trusted scene data in a separate headless Chromium context using Three.js.
+- Render and export trusted scene data in an isolated frame in the open application tab using Three.js; Playwright is used only in development tests.
 - Keep `.env`, generated assets and local application data ignored by Git.
 - GPT-6 Astra is the only generative model; examples are explicitly hand-written runtime fixtures.
 

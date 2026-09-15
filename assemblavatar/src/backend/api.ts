@@ -19,6 +19,7 @@ export function createApplication(root = config.dataDir) {
     const origin = req.headers.get("origin");
     if (origin && origin !== url.origin || req.headers.get("sec-fetch-site") === "cross-site") return json({ error: { code: "FORBIDDEN", message: "Cross-origin requests are not allowed" } }, 403);
     try {
+      if (parts[1] === "render") return await generation.renderer.fetch(req);
       if (parts[1] === "config" && method === "GET") return json({ model: config.model, apiKeyConfigured: Boolean(config.apiKey), maxIterations: config.maxIterations, maxUpload: config.maxUpload, runtimeVersion: "1.0.0" });
       if (parts[1] === "examples") {
         if (method === "GET") return json(Object.entries(examples).map(([key, value]) => ({ key, name: value.name, kind: value.kind })));
