@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "file": "player.glb",
+      "author": "One More Match project",
+      "source": "scripts/player-asset.ts",
+      "license": "Original project asset; distributed with this project",
+      "notes": "Original skinned mesh, 11 bones, six material groups, nine animation clips. Regenerate with bun run assets."
+    },
+    {
+      "file": "icon.svg",
+      "author": "One More Match project",
+      "license": "Original project asset; distributed with this project"
+    },
+    {
+      "file": "runtime pitch, ball, national kit patterns, stadium, labels and sound effects",
+      "author": "One More Match project",
+      "source": "apps/client/scene.ts and apps/client/audio.ts",
+      "license": "Original procedural assets; distributed with this project"
+    }
+  ],
+  "notes": "No external network assets, official federation logos, real-player likenesses, or sampled recordings are used. System fonts are referenced locally with serif/sans-serif fallbacks. Country colour schemes are original traditional-colour interpretations."
+}

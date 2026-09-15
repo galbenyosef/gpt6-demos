@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "types": ["bun"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "paths": { "electrobun/main": ["./.hutch/devkit/api/sdks/main/index.ts"] }
+  },
+  "include": ["apps/desktop/**/*.ts", "electrobun.config.ts", "hutch.config.ts"]
+}

@@ -1,0 +1,10 @@
+node_modules
+.hutch
+build
+artifacts
+dist
+public/assets/player.glb
+specs/one-more-match.md
+AGENTS.md
+CLAUDE.md
+bun.lock
