@@ -3,10 +3,29 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts",
+    "build": "bun scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test tests/unit tests/integration tests/modelling",
+    "test:render": "bun test tests/render",
+    "test:live": "bun scripts/live-benchmark.ts"
   },
-  "peerDependencies": {
-    "typescript": "^7"
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0"
+  },
+  "dependencies": {
+    "typescript": "5.9.3",
+    "playwright": "^1.63.0",
+    "quickjs-emscripten": "^0.32.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.0",
+    "three-bvh-csg": "^0.0.18",
+    "zod": "^4.6.5"
   }
 }
