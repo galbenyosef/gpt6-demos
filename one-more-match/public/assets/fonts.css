@@ -1,0 +1,3 @@
+/* System fallbacks keep the app completely offline. Bundled fonts are added by the asset preparation step. */
+@font-face{font-family:'Match Sans';src:local('Inter'),local('Arial');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Match Display';src:local('Georgia');font-weight:400;font-display:swap}
