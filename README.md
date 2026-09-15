@@ -1,6 +1,8 @@
 # GPT6 Demos
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE.md)
+[![Linux](https://img.shields.io/badge/Linux-tested-FCC624?logo=linux&logoColor=black)](#platform-support)
+[![macOS](https://img.shields.io/badge/macOS-tested-000000?logo=apple&logoColor=white)](#platform-support)
 [![Bun](https://img.shields.io/badge/Runtime-Bun-14151a?logo=bun&logoColor=white)](https://bun.sh/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
@@ -8,9 +10,15 @@
 
 A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, and a 7-a-side football game. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
+Here, “demos” means real applications that demonstrate GPT6's power to generate software and, in some cases, use GPT6 within the application itself. The apps conform to strictly defined use cases, documented in the `specs/` directory of most projects.
+
 The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration and is available both in the browser and as a Linux native desktop executable with Crosstalk included.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
+
+## Platform support
+
+The demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there.
 
 ## Run all demos
 
