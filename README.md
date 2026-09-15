@@ -6,7 +6,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, and an AI-assisted procedural 3D modelling studio. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, and a 7-a-side football game. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration and is available both in the browser and as a Linux native desktop executable with Crosstalk included.
 
@@ -22,7 +22,7 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 
 Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. If an installation fails, no servers are started.
 
-The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), and Assemblavatar on [port 3009](http://localhost:3009). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all nine demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
 Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`. The launcher assigns port 3007, overriding the standalone default.
 
@@ -30,13 +30,15 @@ For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). 
 
 For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run), including the Chromium installation and server-side `.env` configuration. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
 
+For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-more-match/README.md#run). The launcher runs `dev:web` on port 3010, overriding the standalone browser default of 3210. To open its Electrobun desktop window separately, run `bun run dev` from `one-more-match/`.
+
 For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). The launcher installs Crosstalk's dependencies automatically. Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
 ### Demo portal
 
 ![GPT6 Demos portal screenshot](./images/portal.png)
 
-Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the nine demos in a four-column grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
+Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the ten demos in a four-column grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
 
 The page uses plain HTML, inline CSS, and relative image paths, so it needs no build, JavaScript, or external assets and works over HTTP or `file://`. The demo servers must still be running for the links to open. To serve only the portal, run `bun run portal-server.ts` from the repository root (default port 3000; override with `PORT`). If you change a demo port in `run-all.sh`, update its link in `index.html` too.
 
@@ -157,6 +159,16 @@ A local 3D modelling studio built with Bun, TypeScript, React, and Three.js. Des
 [Assemblavatar — Procedural 3D modelling studio demo](https://youtu.be/ZeBiaORTdug)
 
 [Source and setup](./assemblavatar/README.md) · [Architecture guide](./assemblavatar/docs/architecture.md) · [Demo specification](./assemblavatar/specs/assemblavatar.md)
+
+### One More Match — Football
+
+A playable 7-a-side football game built with Three.js, React, and a Bun service for match simulation, physics, computer players, and local saves. Choose one of 20 countries, pass, tackle, and shoot against the computer with keyboard or gamepad controls, then go straight into another match. Play in a browser or an Electrobun desktop window, with adjustable difficulty, graphics, sound, and controls. Matches and preferences are saved locally; no remote AI service is required.
+
+[![One More Match — Football demo](https://i.ytimg.com/vi/AgoJbg8DOSA/hqdefault.jpg)](https://youtu.be/AgoJbg8DOSA)
+
+[One More Match — Football demo](https://youtu.be/AgoJbg8DOSA)
+
+[Source and setup](./one-more-match/README.md) · [Demo specification](./one-more-match/specs/one-more-match.md) · [Validation report](./one-more-match/VALIDATION.md)
 
 ---
 

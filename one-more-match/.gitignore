@@ -36,6 +36,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # local runtime and generated native bundles
 .data/
 .hutch/
+.cottontail-tmp/
 build/
 artifacts/
 test-results/

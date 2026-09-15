@@ -15,6 +15,7 @@ const assets = new Map([
     "flip-slop.png",
     "codexcanvas.png",
     "assemblavatar.png",
+    "one-more-match.png",
   ].map((name) => [`/images/${name}`, `images/${name}`]),
 ]);
 

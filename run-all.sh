@@ -6,10 +6,10 @@ set -m
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
-DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas assemblavatar)
+DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas assemblavatar one-more-match)
 # Europa imports shared Crosstalk source, whose dependencies live in cross-talk/.
 INSTALL_PROJECTS=(cross-talk "${DEMOS[@]}")
-PORTS=(3001 3002 3003 3004 3005 3006 3007 3008 3009)
+PORTS=(3001 3002 3003 3004 3005 3006 3007 3008 3009 3010)
 PORTAL_PORT=3000
 SERVICES=("${DEMOS[@]}" portal)
 SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT")
@@ -77,6 +77,9 @@ for i in "${!SERVICES[@]}"; do
       cd -- "$ROOT_DIR/$demo"
       if [[ "$demo" == assemblavatar ]]; then
         export ASSEMBLAVATAR_PORT="$port"
+      fi
+      if [[ "$demo" == one-more-match ]]; then
+        exec bun run dev:web
       fi
       exec bun run dev
     fi
