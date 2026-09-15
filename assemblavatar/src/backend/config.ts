@@ -8,6 +8,7 @@ export const config = {
   maxUpload: integer("MAX_UPLOAD_SIZE_MB", 30, 1, 100) * 1024 * 1024,
   maxIterations: integer("MAX_GENERATION_ITERATIONS", 4, 1, 8),
   maxRepairs: integer("MAX_PROGRAM_REPAIR_ATTEMPTS", 3, 0, 5),
+  aiRequestTimeoutMs: integer("AI_REQUEST_TIMEOUT_MS", 600000, 1000, 1800000),
   maxSource: integer("MAX_SOURCE_SIZE_KB", 500, 1, 500) * 1024,
   timeout: integer("SANDBOX_TIMEOUT_MS", 10000, 100, 30000),
   memory: integer("SANDBOX_MEMORY_MB", 128, 16, 256) * 1024 * 1024,

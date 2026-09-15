@@ -52,3 +52,26 @@ The handwritten examples and synthetic reference are labelled honestly. No real 
 ## Workflow decision
 
 Continue maintaining this implementation-state file alongside the existing specification. Add OpenSpec only if a future change needs an explicit proposal/approval workflow; it is not a prerequisite to implementing or running Assemblavatar.
+
+## Martest timeout investigation — 2026-09-15
+
+- Original job failed at the hardcoded 180-second AI deadline, before producing source. All five uploaded photos survived refresh.
+- Made the deadline configurable (600 seconds by default), added correlated failure metrics, and restored latest-job progress/error state when reopening an assemblage.
+- Live retry generated source in 172 seconds, repaired a validation error, built 135 meshes / 130,192 triangles, and rendered all seven views. Evaluation requested refinement; the refinement request timed out after about 250 seconds, before the application deadline. No approved revision was committed.
+- Switched Responses calls to background creation and status polling, with bounded retrieval retries and provider cancellation. Kept `store: false`; temporary provider retention for background polling is documented in README.
+- Added recovery from a saved build attempt, retaining evaluation/acceptance checks. Recovery rebuilt the head, but the provider returned `credit_balance_exhausted`. Retrieved the response directly to verify that specific error and made it visible in the saved Martest job. Further paid retries stopped.
+- Saved source: `data/attempts/attempt_250f9be4-26d2-4e85-9e1a-94c3a83a6afd.json`. Recovery request: `/private/tmp/assemblavatar-martest-recover.json`. These are local ignored data, not delivery fixtures.
+- Headless browser check confirmed Martest's terminal status survives refresh with no uncaught page errors. Live active-job refresh was not captured before the job failed.
+- No likeness success is claimed. Completing AI evaluation/refinement requires replenished API credits.
+
+- Local draft rendering produced seven PNGs and an unapproved GLB under `data/diagnostics/martest-draft/`. The front view was inspected: geometry is present, but visibly approximate and still needs refinement. The worker emitted a QuickJS disposal assertion after returning the build; local rendering/export still completed. This cleanup warning needs follow-up.
+- Targeted checks: 11 tests passed across Astra request lifecycle, job recovery, generation and HTTP API checks.
+
+## Martest after credit replenishment — 2026-09-15
+
+- Resumed the saved source in job `job_ebe62453-1207-4646-860e-3a6c25c5adae`, with all five original photographs and a two-pass limit. Credits are working: both evaluations, the refinement and the automatic code repair completed.
+- Background refinement completed in about 263 seconds without the previous connection timeout. The complete run took about 470 seconds.
+- Verified active progress before and after an actual Chromium page refresh; both showed the running evaluation and no uncaught page errors.
+- Refined geometry built and rendered: 125 meshes, 75,744 vertices, 143,344 triangles. Saved attempt: `attempt_26571853-d913-422e-b4eb-fcbe171ba0ce`.
+- Final evaluation rejected realistic anatomy and recognisable likeness (eye rims, pointed nose, thin mouth, blocky lower face, rigid hair). The two-pass limit was respected; no approved revision was committed and no further paid retries were started. The remaining problem is model quality, not credits or request handling.
+- Preserved refined source and diagnostic previews under `data/diagnostics/martest-refined/`, explicitly unapproved. Recovery can use the refined attempt ID on a future run.

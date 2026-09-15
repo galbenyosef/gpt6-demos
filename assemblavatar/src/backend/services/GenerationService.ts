@@ -5,7 +5,7 @@ import { AstraClient, type AIContext, type ModellingAI } from "../ai/AstraClient
 import { SandboxRunner } from "../sandbox/SandboxRunner";
 import { RenderService } from "../render/RenderService";
 import { WorkspaceService } from "./WorkspaceService";
-export interface GenerationInput { prompt: string; automaticRefinement: boolean; maxIterations: number; profile: string; code?: string; overrides?: Override[]; parameters?: Record<string, unknown>; incorporateOverrides?: boolean; selectedObjectId?: string; parentRevisionId?: string }
+export interface GenerationInput { prompt: string; automaticRefinement: boolean; maxIterations: number; profile: string; code?: string; overrides?: Override[]; parameters?: Record<string, unknown>; incorporateOverrides?: boolean; selectedObjectId?: string; parentRevisionId?: string; resumeAttemptId?: string }
 export class GenerationService {
   private reservedSlots = 0;
   private controllers = new Map<string, AbortController>(); readonly events = new EventTarget();
@@ -30,6 +30,15 @@ export class GenerationService {
     try {
       const a = await store.assemblages.require(job.assemblageId), detail = await this.workspaces.detail(a.id);
       let source = detail.source?.code, prior = detail.revision;
+      let recovered: GeneratedProgram | undefined;
+      if (input.resumeAttemptId) {
+        if (input.code !== undefined) throw Error("Cannot combine manual source and recovery");
+        const attempt = await store.attempts.require(input.resumeAttemptId);
+        const previousJob = await store.jobs.require(attempt.jobId);
+        if (previousJob.assemblageId !== a.id || !["failed", "cancelled"].includes(previousJob.status)) throw Error("Recovery requires a stopped job from this assemblage");
+        if (attempt.status !== "rendered") throw Error("Recovery requires a successfully built attempt");
+        recovered = { code: attempt.sourceProgram, summary: "Recovered generated model", assumptions: [], expectedLimitations: ["Recovered attempt is re-evaluated before acceptance."], objectStructure: [] };
+      }
       if (input.parentRevisionId) { prior = await store.revisions.require(input.parentRevisionId); if (prior.assemblageId !== a.id) throw Error("Revision belongs to another assemblage"); source = (await store.programs.require(prior.sourceProgramId)).code; }
       let overrides = input.overrides ?? prior?.overrides ?? []; const parameters = input.parameters ?? prior?.parameters ?? {};
       const images: AIContext["images"] = [];
@@ -39,7 +48,7 @@ export class GenerationService {
       const textureUrls = await this.workspaces.textureUrls(a);
       const context = (): AIContext => ({ prompt: `${input.prompt}${input.selectedObjectId ? `\nSelected object: ${input.selectedObjectId}` : ""}${input.incorporateOverrides ? "\nIncorporate all supplied overrides into the source; they will be cleared after a successful build." : ""}\nAvailable texture asset IDs: ${Object.keys(textureUrls).join(", ")}`, kind: a.kind, profile: input.profile, jobId: job.id, iteration: job.iteration, source, originalPrompt: prior?.originatingPrompt ?? input.prompt, overrides, parameters, images: [...images, ...renders] });
       job.status = "running";
-      let generated: GeneratedProgram = input.code !== undefined ? { code: input.code, summary: input.prompt, objectStructure: [], assumptions: [], expectedLimitations: [] } : await (async () => { await this.update(job, source ? "refining" : "generating", .1); return source ? this.ai.refine(context(), signal) : this.ai.generate(context(), signal); })();
+      let generated: GeneratedProgram = recovered ?? (input.code !== undefined ? { code: input.code, summary: input.prompt, objectStructure: [], assumptions: [], expectedLimitations: [] } : await (async () => { await this.update(job, source ? "refining" : "generating", .1); return source ? this.ai.refine(context(), signal) : this.ai.generate(context(), signal); })());
       let evaluation: Revision["evaluation"];
       for (let iteration = 1; iteration <= job.maxIterations; iteration++) {
         signal.throwIfAborted(); job.iteration = iteration; source = generated.code;
@@ -48,7 +57,7 @@ export class GenerationService {
           await this.update(job, repair ? "repairing" : "validating", .2);
           const attempt = { id: id("attempt"), jobId: job.id, iteration, sourceProgram: source, status: "build-failed" as const };
           try { build = await this.sandbox.build(source, { parameters, metadata: { assemblageId: a.id, revision: a.currentRevision + 1 } }, Object.keys(textureUrls), signal); await store.attempts.put({ ...attempt, status: "rendered", diagnostics: build.diagnostics }); break; }
-          catch (error) { signal.throwIfAborted(); const diagnostics = error instanceof Error ? error.message : "Build failed"; await store.attempts.put({ ...attempt, error: diagnostics }); if (input.code !== undefined || repair === config.maxRepairs) throw error; generated = await this.ai.repair({ ...context(), source, diagnostics }, signal); source = generated.code; }
+          catch (error) { signal.throwIfAborted(); const diagnostics = error instanceof Error ? error.message : "Build failed"; await store.attempts.put({ ...attempt, error: diagnostics }); if (input.code !== undefined || repair === config.maxRepairs) throw error; await this.update(job, "repairing", .2); generated = await this.ai.repair({ ...context(), source, diagnostics }, signal); source = generated.code; }
         }
         if (!build) throw Error("No valid build produced");
         if (input.incorporateOverrides) overrides = [];

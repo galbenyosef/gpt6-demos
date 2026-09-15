@@ -12,6 +12,8 @@ bun run dev
 
 Open **http://127.0.0.1:3000**. Use the existing `.env`, or create one using `.env.example` as a guide. Set `OPENAI_API_KEY` and leave `OPENAI_MODEL=gpt-6-astra`. Bun loads `.env` on the server. The key is never sent to the browser. `.env`, `.env.*` (except `.env.example`), `data/` and generated build files are ignored by Git.
 
+AI requests have a configurable ten-minute deadline (`AI_REQUEST_TIMEOUT_MS=600000`). Long photo-guided generations display their AI phase; refreshing an assemblage reconnects to its current job.
+
 `bun run start` runs without hot reloading. Prefer it for long generation jobs: changing backend code in development restarts the server and interrupts jobs. `CHROMIUM_PATH` can point to an existing compatible Chromium executable instead of installing Playwright's browser.
 
 ## Use the studio
@@ -134,3 +136,9 @@ See [implementation-state.md](implementation-state.md) for completed phases and 
 - Security tests exercise isolation and budgets; this is not an independently audited multi-tenant sandbox. Chromium and the TypeScript compiler need normal host resources in addition to the bounded QuickJS heap.
 
 The OpenAI integration follows the official [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) and [model documentation](https://developers.openai.com/api/docs/models). GPT-6 Astra is the only generative model; there is no fallback 3D provider.
+
+### Long AI requests and recovery
+
+Astra requests use Responses background mode with status polling and a configurable ten-minute overall deadline (`AI_REQUEST_TIMEOUT_MS`). `store: false` remains set; OpenAI temporarily retains background response data for polling (roughly ten minutes), as described in the [official documentation](https://developers.openai.com/api/docs/guides/background). Cancellation attempts to cancel the provider response as well. Exhausted-credit failures report the billing problem explicitly.
+
+A failed or cancelled job with a successfully built attempt can be resumed through the generate endpoint by supplying `resumeAttemptId` alongside the normal prompt/profile/refinement settings. Recovery validates ownership, rebuilds the source and evaluates its renders before accepting anything. Photos do not need re-uploading.
