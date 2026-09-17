@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-17T21:39:35.307412+00:00",
+  "title": "Design System: GPT6 Demos Gallery",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Interaction Blue",
+        "tonalRamp": [
+          "oklch(15% 0.21 264)",
+          "oklch(26% 0.21 264)",
+          "oklch(38% 0.21 264)",
+          "oklch(49% 0.21 264)",
+          "oklch(61% 0.21 264)",
+          "oklch(72% 0.21 264)",
+          "oklch(84% 0.21 264)",
+          "oklch(95% 0.21 264)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Deep Interaction Blue",
+        "tonalRamp": [
+          "oklch(15% 0.18 264)",
+          "oklch(26% 0.18 264)",
+          "oklch(38% 0.18 264)",
+          "oklch(49% 0.18 264)",
+          "oklch(61% 0.18 264)",
+          "oklch(72% 0.18 264)",
+          "oklch(84% 0.18 264)",
+          "oklch(95% 0.18 264)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "White Canvas",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(49% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Dark Ink",
+        "tonalRamp": [
+          "oklch(15% 0.01 265)",
+          "oklch(26% 0.01 265)",
+          "oklch(38% 0.01 265)",
+          "oklch(49% 0.01 265)",
+          "oklch(61% 0.01 265)",
+          "oklch(72% 0.01 265)",
+          "oklch(84% 0.01 265)",
+          "oklch(95% 0.01 265)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Supporting Gray",
+        "tonalRamp": [
+          "oklch(15% 0.018 265)",
+          "oklch(26% 0.018 265)",
+          "oklch(38% 0.018 265)",
+          "oklch(49% 0.018 265)",
+          "oklch(61% 0.018 265)",
+          "oklch(72% 0.018 265)",
+          "oklch(84% 0.018 265)",
+          "oklch(95% 0.018 265)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Quiet Line",
+        "tonalRamp": [
+          "oklch(15% 0.008 265)",
+          "oklch(26% 0.008 265)",
+          "oklch(38% 0.008 265)",
+          "oklch(49% 0.008 265)",
+          "oklch(61% 0.008 265)",
+          "oklch(72% 0.008 265)",
+          "oklch(84% 0.008 265)",
+          "oklch(95% 0.008 265)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Image Ground",
+        "tonalRamp": [
+          "oklch(15% 0.004 265)",
+          "oklch(26% 0.004 265)",
+          "oklch(38% 0.004 265)",
+          "oklch(49% 0.004 265)",
+          "oklch(61% 0.004 265)",
+          "oklch(72% 0.004 265)",
+          "oklch(84% 0.004 265)",
+          "oklch(95% 0.004 265)"
+        ]
+      },
+      "root-arrow": {
+        "role": "neutral",
+        "displayName": "Root Arrow Gray",
+        "tonalRamp": [
+          "oklch(15% 0.018 265)",
+          "oklch(26% 0.018 265)",
+          "oklch(38% 0.018 265)",
+          "oklch(49% 0.018 265)",
+          "oklch(61% 0.018 265)",
+          "oklch(72% 0.018 265)",
+          "oklch(84% 0.018 265)",
+          "oklch(95% 0.018 265)"
+        ]
+      },
+      "selection": {
+        "role": "neutral",
+        "displayName": "Selection Blue",
+        "tonalRamp": [
+          "oklch(15% 0.045 264)",
+          "oklch(26% 0.045 264)",
+          "oklch(38% 0.045 264)",
+          "oklch(49% 0.045 264)",
+          "oklch(61% 0.045 264)",
+          "oklch(72% 0.045 264)",
+          "oklch(84% 0.045 264)",
+          "oklch(95% 0.045 264)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Portal display",
+        "purpose": "Large portal heading; root-display retains the compact incumbent heading."
+      },
+      "body": {
+        "displayName": "Portal description",
+        "purpose": "Card description; dialog-body uses a more open line height."
+      }
+    },
+    "shadows": [
+      {
+        "name": "preview-label",
+        "value": "0 3px 12px #17191e1a",
+        "purpose": "Separate the white label from the screenshot."
+      },
+      {
+        "name": "dialog",
+        "value": "0 24px 90px #17191e33",
+        "purpose": "Separate the preview dialog from its backdrop."
+      },
+      {
+        "name": "play-disc",
+        "value": "0 8px 24px #0003",
+        "purpose": "Separate the play control from the poster."
+      }
+    ],
+    "motion": [
+      {
+        "name": "dialog-arrival",
+        "value": "260ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Translate from 14px below and release a clipping inset; disabled with prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "root-two-column",
+        "value": "1000px"
+      },
+      {
+        "name": "root-single-column",
+        "value": "560px"
+      },
+      {
+        "name": "portal-compact",
+        "value": "900px"
+      },
+      {
+        "name": "portal-single-column",
+        "value": "600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Open demo",
+      "kind": "button",
+      "refersTo": "launch",
+      "description": "Primary launch anchor with an external-link arrow.",
+      "html": "<a class=\"ds-launch\" href=\"#\">Open demo <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a>",
+      "css": ".ds-launch{display:inline-flex;align-items:center;gap:20px;background:var(--accent,#2457d6);color:#fff;border-radius:8px;padding:12px 18px;text-decoration:none;font:600 .875rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.ds-launch svg{width:22px;height:22px}.ds-launch:hover{background:#1944ae}.ds-launch:focus-visible{outline:3px solid var(--accent,#2457d6);outline-offset:6px}"
+    },
+    {
+      "name": "Watch on YouTube",
+      "kind": "button",
+      "description": "Quiet secondary destination below the player.",
+      "html": "<a class=\"ds-youtube\" href=\"#\">Watch on YouTube <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a>",
+      "css": ".ds-youtube{display:inline-flex;align-items:center;gap:5px;color:var(--muted,#626771);font:.8125rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;text-underline-offset:4px}.ds-youtube svg{width:18px;height:18px}.ds-youtube:focus-visible{outline:3px solid var(--accent,#2457d6);outline-offset:6px}"
+    },
+    {
+      "name": "Close preview",
+      "kind": "button",
+      "refersTo": "close",
+      "description": "Circular 44px close target in the dialog bar.",
+      "html": "<button class=\"ds-close\" aria-label=\"Close preview\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m6 6 12 12M6 18 18 6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg></button>",
+      "css": ".ds-close{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--muted,#626771);cursor:pointer}.ds-close svg{width:22px;height:22px}.ds-close:hover{background:var(--surface,#f5f6f8);color:var(--ink,#17191e)}.ds-close:focus-visible{outline:3px solid var(--accent,#2457d6);outline-offset:6px}"
+    },
+    {
+      "name": "Watch preview label",
+      "kind": "custom",
+      "refersTo": "preview-action",
+      "description": "Image-overlay label; the whole gallery entry is the interactive button. This isolated sample exposes its parent hover state.",
+      "html": "<button class=\"ds-preview-parent\"><span class=\"ds-preview-action\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 11 7-11 7V5Z\" fill=\"currentColor\"/></svg>Watch preview</span></button>",
+      "css": ".ds-preview-parent{padding:14px;border:0;background:var(--surface,#f5f6f8);cursor:pointer}.ds-preview-action{display:inline-flex;align-items:center;gap:7px;background:#fff;color:var(--ink,#17191e);padding:9px 13px;border-radius:24px;font:600 .75rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;box-shadow:0 3px 12px #17191e1a}.ds-preview-action svg{width:15px;height:15px}.ds-preview-parent:hover .ds-preview-action{background:var(--accent,#2457d6);color:#fff}.ds-preview-parent:focus-visible{outline:3px solid var(--accent,#2457d6);outline-offset:6px}"
+    },
+    {
+      "name": "Play walkthrough",
+      "kind": "button",
+      "refersTo": "play-disc",
+      "description": "Centered explicit-play control; sample omits externally sourced poster artwork.",
+      "html": "<button class=\"ds-play\"><span class=\"ds-disc\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 11 7-11 7V5Z\" fill=\"currentColor\"/></svg></span><span>Play walkthrough · YouTube</span></button>",
+      "css": ".ds-play{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;aspect-ratio:16/9;border:0;background:var(--ink,#17191e);color:#fff;cursor:pointer;font:600 .9375rem -apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif;text-shadow:0 2px 8px #000}.ds-disc{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:#fff;color:var(--ink,#17191e);box-shadow:0 8px 24px #0003}.ds-disc svg{width:32px;height:32px}.ds-play:hover .ds-disc{background:var(--accent,#2457d6);color:#fff}.ds-play:focus-visible{outline:3px solid var(--accent,#2457d6);outline-offset:-6px}@media(max-width:600px){.ds-disc{width:56px;height:56px}.ds-play{gap:10px;font-size:.8125rem}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Screenshot Gallery",
+    "overview": "The gallery is a light, minimalist frame for real application screenshots. White space, dark system sans text, quiet gray supporting copy, and a single blue interaction accent preserve the identity established by the root index.html. Screenshots supply the variety and color.\n\nThis system governs the root gallery and its portal/ extension only. It does not govern the ten independent demo applications. The root retains its compact direct-launch grid; the portal extends that language with larger images and an in-page video preview.",
+    "keyCharacteristics": [
+      "White ground and system sans typography.",
+      "Unboxed screenshot-and-caption entries.",
+      "Blue links, hover states, and visible keyboard focus.",
+      "Flat gallery with elevation reserved for overlaid controls and dialogs."
+    ],
+    "rules": [
+      {
+        "name": "The Screenshot Color Rule",
+        "body": "Let application screenshots supply the gallery’s visual variety; keep the surrounding interface neutral with blue interaction cues.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat Gallery Rule",
+        "body": "Keep gallery entries flat; reserve elevation for the preview overlay controls and modal.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the root gallery’s white, system sans, and blue identity.",
+      "Do reuse the existing application screenshots without changing their artwork.",
+      "Do keep gallery images contained within their widescreen frames.",
+      "Do preserve visible keyboard focus and reduced-motion behavior.",
+      "Do treat the portal as an extension of the gallery, with its own documented spacing and dialog patterns."
+    ],
+    "donts": [
+      "Don’t apply this gallery system to the ten independent applications.",
+      "Don’t wrap the screenshot and caption together in a raised panel.",
+      "Don’t autoplay walkthroughs when a preview opens.",
+      "Don’t replace the actual screenshots with decorative imagery."
+    ]
+  }
+}
