@@ -5,16 +5,17 @@ A local 3D modelling studio where GPT-6 Astra writes procedural TypeScript, buil
 ## Run
 
 ```sh
-bun install
-bunx playwright install chromium
-bun run dev
+bun install --production
+bun run start
 ```
 
 Open **http://127.0.0.1:3000**. Use the existing `.env`, or create one using `.env.example` as a guide. Set `OPENAI_API_KEY` and leave `OPENAI_MODEL=gpt-6-astra`. Bun loads `.env` on the server. The key is never sent to the browser. `.env`, `.env.*` (except `.env.example`), `data/` and generated build files are ignored by Git.
 
 AI requests have a configurable ten-minute deadline (`AI_REQUEST_TIMEOUT_MS=600000`). Long photo-guided generations display their AI phase; refreshing an assemblage reconnects to its current job.
 
-`bun run start` runs without hot reloading. Prefer it for long generation jobs: changing backend code in development restarts the server and interrupts jobs. `CHROMIUM_PATH` can point to an existing compatible Chromium executable instead of installing Playwright's browser.
+`bun run start` runs in production mode without hot reloading. Previews, image decoding and GLB/GLTF processing run in an isolated frame in your open Assemblavatar tab. Keep the tab open while generating or importing; refreshes reconnect pending rendering work. No Playwright or separate Chromium installation is required at runtime. `run-all.sh` uses this mode automatically.
+
+For development, use `bun install` and `bun run dev`. Hot reload restarts the server when backend code changes and interrupts active jobs. Playwright is used only by the development browser tests.
 
 ## Use the studio
 
@@ -64,7 +65,7 @@ Bun API → workspace and generation services → filesystem repositories
                 ├─ AST + TypeScript validation
                 └─ QuickJS WASM VM with memory/time limits
                        ↓ validated scene JSON
-              isolated Chromium render context
+              isolated frame in the open browser tab
                 ├─ deterministic seven-view Three.js render
                 ├─ GLTFExporter + GLB reload validation
                 └─ Astra review → bounded refinement
@@ -74,7 +75,7 @@ Bun API → workspace and generation services → filesystem repositories
 
 Generated JavaScript runs **only inside QuickJS**. The VM has no filesystem, network, environment, module loader or host-function bindings. The browser receives scene JSON, never generated executable code. The default VM heap limit is 128 MiB; execution, scene size, source length, segment counts, dimensions, object count and triangles are bounded. Parser/typechecking work also runs in the disposable worker, with an outer timeout.
 
-The renderer receives data in a fresh context with external requests blocked. Reference uploads are signature-checked and decoded before storage. Only PNG/JPEG/WebP up to 4096 × 4096 are accepted. GLB imports must embed resources and must not require extensions. All export builds are reloaded to verify geometry.
+The renderer receives data in a fresh sandboxed frame with external requests blocked by Content Security Policy. Reference uploads are signature-checked and decoded before storage. Only PNG/JPEG/WebP up to 4096 × 4096 are accepted. GLB imports must embed resources and must not require extensions. All export builds are reloaded to verify geometry.
 
 The application is intended for a **single local user**. It binds to loopback by default and checks Host/Origin to prevent cross-origin API access. This release does not supply account authentication or a multi-user deployment configuration.
 
@@ -107,19 +108,20 @@ The optional, feature-detected WebMCP surface lists or opens existing assemblage
 ## Verify
 
 ```sh
+bun install
 bun run typecheck
 bun run build
 bun test
 ```
 
-`bun test` includes Chromium rendering tests. To run separately:
+`bun test` includes browser rendering tests. Install their development-only browser with `bunx playwright install chromium`, or set `CHROMIUM_PATH` to a compatible test browser. To run separately:
 
 ```sh
 bun run test        # unit, geometry, API, sandbox and generation orchestration
 bun run test:render # deterministic renders, export round-trip and API edit workflow
 ```
 
-Live tests use the server's OpenAI key and incur API usage. Start the app first:
+Live tests use the server's OpenAI key and incur API usage. Start the app and keep its browser tab open first:
 
 ```sh
 bun run test:live house
@@ -135,7 +137,7 @@ See [implementation-state.md](implementation-state.md) for completed phases and 
 - Real-photo avatar likeness remains an empirical evaluation task. The profiles and pipeline are implemented; photorealistic reconstruction is not established by the house benchmark.
 - GLB import is for viewing and re-export; imported geometry has explicit imported provenance, not inferred procedural source. Generate a procedural version before using source-driven edits or duplication.
 - The runtime has no standalone arbitrary-mesh bevel, automatic UV unwrapping, animation/rigging, local face-landmark extraction, collaboration or source-diff UI. Bevelled extrusions and preview comparison are available.
-- Security tests exercise isolation and budgets; this is not an independently audited multi-tenant sandbox. Chromium and the TypeScript compiler need normal host resources in addition to the bounded QuickJS heap.
+- Security tests exercise isolation and budgets; this is not an independently audited multi-tenant sandbox. The user browser and the TypeScript compiler need normal host resources in addition to the bounded QuickJS heap.
 
 The OpenAI integration follows the official [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) and [model documentation](https://developers.openai.com/api/docs/models). GPT-6 Astra is the only generative model; there is no fallback 3D provider.
 

@@ -1,3 +1,4 @@
+import { connectRenderBrowser } from "../helpers/browser";
 import { expect, test } from "bun:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -8,6 +9,7 @@ test("build → reference upload → manual edit → export → import → resto
   const dir = await mkdtemp(join(tmpdir(), "assemblavatar-workflow-")), app = createApplication(dir);
   const call = async (path: string, data?: unknown, method = data ? "POST" : "GET") => { const response = await app.fetch(new Request(`http://127.0.0.1:3000/api${path}`, { method, headers: data instanceof FormData ? {} : { "Content-Type": "application/json" }, body: data instanceof FormData ? data : data ? JSON.stringify(data) : undefined })); if (!response.ok) throw Error(JSON.stringify(await response.json())); return response; };
   const finish = async (jobId: string) => { for (let i = 0; i < 1000; i++) { const j = await app.store.jobs.require(jobId); if (!["queued", "running"].includes(j.status) && !app.workspaces.busy.has(j.assemblageId)) { expect(j.error).toBeUndefined(); expect(j.status).toBe("completed"); return; } await Bun.sleep(20); } throw Error("Job timed out"); };
+  const disconnect = await connectRenderBrowser(app.generation.renderer);
   try {
     const a = await (await call("/assemblages", {name:"Workflow test",kind:"object"})).json();
     const first = await (await call(`/assemblages/${a.id}/build`, {code:examples.robot.code,prompt:"Build fixture"})).json(); await finish(first.jobId);
@@ -24,5 +26,5 @@ test("build → reference upload → manual edit → export → import → resto
     await call(`/assemblages/${a.id}/revisions`,{revisionId:original.revision!.id}); expect((await app.workspaces.detail(a.id)).currentRevision).toBe(1);
     const duplicate = await (await call(`/assemblages/${a.id}/duplicate`,{})).json(); await finish(duplicate.jobId); expect((await app.workspaces.detail(duplicate.assemblageId)).source?.code).toBe(original.source?.code);
     const cross = await app.fetch(new Request(`http://127.0.0.1:3000/api/assemblages/${target.id}/revisions`,{method:"POST",body:JSON.stringify({revisionId:original.revision!.id})}));expect(cross.status).toBe(400);
-  } finally { await app.generation.renderer.close(); await rm(dir,{recursive:true,force:true}); }
+  } finally { await disconnect(); await app.generation.renderer.close(); await rm(dir,{recursive:true,force:true}); }
 },120000);

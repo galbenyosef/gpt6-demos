@@ -23,7 +23,7 @@ flowchart TD
     Worker --> Validator[TypeScript and AST validation]
     Validator --> VM[QuickJS WASM execution]
     VM --> Scene[Scene JSON and diagnostics]
-    Scene --> Renderer[Playwright Chromium and Three.js]
+    Scene --> Renderer[Open browser tab and Three.js]
     Renderer --> Draft[Saved draft, seven previews and exports]
     Draft --> Store
     Draft -->|Progress event| Editor
@@ -45,7 +45,7 @@ Generated code does not execute in the editor or in the server's JavaScript envi
 | [persistence/store.ts](../src/backend/persistence/store.ts) | JSON repositories, asset storage, identifiers, atomic file replacement and restart recovery. |
 | [sandbox/](../src/backend/sandbox/) | Program validation, trusted runtime bundling, disposable worker supervision and QuickJS execution. |
 | [modelling/runtime.ts](../src/backend/modelling/runtime.ts) | Trusted geometry, materials, deformation, CSG, object naming and scene-budget enforcement. |
-| [render/](../src/backend/render/) | Headless Chromium rendering, image validation, GLB import and export verification. |
+| [render/](../src/backend/render/) | Browser task queue, isolated-frame rendering, image validation, GLB import and export verification. |
 | [frontend/app.tsx](../src/frontend/app.tsx) | Workspace UI, AI instructions, reference uploads, Results, source editing, history and progress subscriptions. |
 | [frontend/Viewer.ts](../src/frontend/Viewer.ts) | Interactive scene loading, orbit controls, selection, transform gizmos and object-property changes. |
 | [shared/domain.ts](../src/shared/domain.ts) | Persistent records and build/evaluation types shared by client and server. |
@@ -124,11 +124,11 @@ Isolation is layered:
 
 The trusted runtime supplies primitives, transformations, materials, CSG, lofts, extrusion, lathe, smoothing/subdivision and deformation. Stable object identities derive from names and hierarchy, allowing manual overrides to be reapplied. Renaming or restructuring generated objects can still affect identity continuity.
 
-This is a local, single-user design. The TypeScript compiler and Chromium are host processes and do not share the QuickJS heap quota. The boundary should not be described as an independently audited multi-tenant execution service.
+This is a local, single-user design. The TypeScript compiler and user browser are host processes and do not share the QuickJS heap quota. The boundary should not be described as an independently audited multi-tenant execution service.
 
 ## 6. Rendering, editing and export
 
-`RenderService` serializes operations through a queue and reuses a headless Chromium browser. Each operation gets a fresh browser context with external requests blocked and an operation deadline. Trusted browser code loads scene data and resolves textures through server-provided asset data URLs.
+`RenderService` queues render, image-inspection and GLB-import tasks for an open application tab. The tab polls for work and runs each task in a fresh sandboxed iframe whose Content Security Policy blocks external requests. Trusted browser code loads scene data and resolves textures through server-provided asset data URLs. The frame receives scene data, never generated executable source. Claim tokens and renewable leases let another tab reclaim pending work after refresh or disconnection; stale results are rejected. Cancellation removes queued work, frame operations have a 60-second deadline, and server tasks fail after two minutes if no browser completes them. Playwright exists only in development tests.
 
 Rendering produces 768 × 768 PNGs for front, left-45°, left, right-45°, right, back and top. It uses fixed camera directions, consistent framing and studio lighting. These are review views, not camera-pose matches to the uploaded photographs.
 

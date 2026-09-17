@@ -1,6 +1,8 @@
 # GPT6 Demos
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE.md)
+[![Linux](https://img.shields.io/badge/Linux-tested-FCC624?logo=linux&logoColor=black)](#platform-support)
+[![macOS](https://img.shields.io/badge/macOS-tested-000000?logo=apple&logoColor=white)](#platform-support)
 [![Bun](https://img.shields.io/badge/Runtime-Bun-14151a?logo=bun&logoColor=white)](https://bun.sh/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
@@ -8,9 +10,15 @@
 
 A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, and a 7-a-side football game. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
+Here, “demos” means real applications that demonstrate GPT6's power to generate software and, in some cases, use GPT6 within the application itself. The apps conform to strictly defined use cases, documented in the `specs/` directory of most projects.
+
 The repository also includes **Crosstalk**, a reusable voice control service that lets an AI explain and operate an application through its registered tools. Edificio Europa is its first integration and is available both in the browser and as a Linux native desktop executable with Crosstalk included.
 
 Use this repository to try the demos, explore how they work, or build on their ideas. Follow the linked project READMEs for installation, development, and build instructions.
+
+## Platform support
+
+The demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there.
 
 ## Run all demos
 
@@ -20,7 +28,7 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 ./run-all.sh
 ```
 
-Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. If an installation fails, no servers are started.
+Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. Assemblavatar uses production dependencies and run mode; Playwright is only a development test dependency. If an installation fails, no servers are started.
 
 The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). Two separate portal processes run alongside the demos: the **plain, original portal** at [http://localhost:3000/](http://localhost:3000/) and the **new preview portal** at [http://localhost:3090/portal/](http://localhost:3090/portal/). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and both portals; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
@@ -28,7 +36,7 @@ Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#
 
 For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). The launcher assigns port 3008, overriding the standalone default of 3030.
 
-For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run), including the Chromium installation and server-side `.env` configuration. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
+For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run) for server-side `.env` configuration. Rendering uses the open Assemblavatar browser tab; no Playwright or separate Chromium installation is needed. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
 
 For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-more-match/README.md#run). The launcher runs `dev:web` on port 3010, overriding the standalone browser default of 3210. To open its Electrobun desktop window separately, run `bun run dev` from `one-more-match/`.
 

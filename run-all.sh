@@ -34,7 +34,11 @@ done
 # Complete every install before starting any servers; keep checked-in versions.
 for project in "${INSTALL_PROJECTS[@]}"; do
   printf '[%s] Checking/installing dependencies…\n' "$project"
-  if ! (cd -- "$ROOT_DIR/$project" && bun install --frozen-lockfile); then
+  install_options=(--frozen-lockfile)
+  if [[ "$project" == assemblavatar ]]; then
+    install_options+=(--production)
+  fi
+  if ! (cd -- "$ROOT_DIR/$project" && bun install "${install_options[@]}"); then
     printf '[%s] Dependency installation failed; no servers started.\n' "$project" >&2
     exit 1
   fi
@@ -80,6 +84,7 @@ for i in "${!SERVICES[@]}"; do
       cd -- "$ROOT_DIR/$demo"
       if [[ "$demo" == assemblavatar ]]; then
         export ASSEMBLAVATAR_PORT="$port"
+        exec bun run start
       fi
       if [[ "$demo" == one-more-match ]]; then
         exec bun run dev:web
