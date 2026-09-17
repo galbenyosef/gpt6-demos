@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run every demo with labelled logs and shared Ctrl+C cleanup.
+# Run every demo and both portals with labelled logs and shared Ctrl+C cleanup.
 set -euo pipefail
 # Give each background job its own process group, including Bun's children.
 set -m
@@ -11,8 +11,11 @@ DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laborator
 INSTALL_PROJECTS=(cross-talk "${DEMOS[@]}")
 PORTS=(3001 3002 3003 3004 3005 3006 3007 3008 3009 3010)
 PORTAL_PORT=3000
-SERVICES=("${DEMOS[@]}" portal)
-SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT")
+# Plain original portal: http://localhost:3000/
+# New preview gallery:   http://localhost:3090/portal/
+PREVIEW_PORT=3090
+SERVICES=("${DEMOS[@]}" portal portal-preview)
+SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT" "$PREVIEW_PORT")
 for project in "${INSTALL_PROJECTS[@]}"; do
   if [[ ! -f "$ROOT_DIR/$project/package.json" ]]; then
     echo "Missing project: $ROOT_DIR/$project" >&2
@@ -20,7 +23,7 @@ for project in "${INSTALL_PROJECTS[@]}"; do
   fi
 done
 
-for asset in index.html portal-server.ts; do
+for asset in index.html portal-server.ts portal/index.html portal/portal.css portal/portal.js; do
   if [[ ! -f "$ROOT_DIR/$asset" ]]; then
     echo "Missing portal file: $ROOT_DIR/$asset" >&2
     exit 1
@@ -43,7 +46,7 @@ LOGGER_PIDS=()
 cleanup() {
   trap '' INT TERM
   echo
-  echo 'Stopping all demos and the portal…'
+  echo 'Stopping all demos and both portals…'
   for pid in "${SERVER_PIDS[@]}"; do
     kill -TERM -- "-$pid" 2>/dev/null || true
   done
@@ -70,7 +73,7 @@ for i in "${!SERVICES[@]}"; do
   LOGGER_PIDS+=("$!")
   (
     export PORT="$port"
-    if [[ "$demo" == portal ]]; then
+    if [[ "$demo" == portal || "$demo" == portal-preview ]]; then
       cd -- "$ROOT_DIR"
       exec bun run portal-server.ts
     else
@@ -85,9 +88,21 @@ for i in "${!SERVICES[@]}"; do
     fi
   ) > "$fifo" 2>&1 &
   SERVER_PIDS+=("$!")
-  printf '%-28s http://localhost:%s\n' "$demo" "$port"
+  if [[ "$demo" == portal ]]; then
+    printf '%-28s http://localhost:%s/\n' 'Plain portal (original)' "$port"
+  elif [[ "$demo" == portal-preview ]]; then
+    printf '%-28s http://localhost:%s/portal/\n' 'Preview portal (new)' "$port"
+  else
+    printf '%-28s http://localhost:%s\n' "$demo" "$port"
+  fi
 done
-printf '\nPress Ctrl+C to stop all %s demos and the portal.\n\n' "${#DEMOS[@]}"
+printf '\nPortal summary:\n'
+printf '  Plain, original portal: http://localhost:%s/\n' "$PORTAL_PORT"
+printf '    Simple gallery; cards link directly to the demo apps.\n'
+printf '  New preview portal:    http://localhost:%s/portal/\n' "$PREVIEW_PORT"
+printf '    Cards open descriptions and in-page YouTube previews.\n'
+printf '    Demo titles and Open demo links launch apps in a new tab.\n'
+printf '\nPress Ctrl+C to stop all %s demos and both portals.\n\n' "${#DEMOS[@]}"
 
 # Bash 3.2 (included with macOS) has no wait -n.
 while true; do
@@ -102,3 +117,9 @@ while true; do
   sleep 1 &
   wait "$!" || true
 done
+
+# Portal quick reference:
+# http://localhost:3000/        — plain, original gallery with direct app links.
+# http://localhost:3090/portal/ — new gallery with descriptions and YouTube previews.
+# In the new gallery, demo titles and Open demo links open apps in a new tab.
+# Both portals start with this script; Ctrl+C stops them and all ten demos.

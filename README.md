@@ -22,7 +22,7 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 
 Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. If an installation fails, no servers are started.
 
-The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). A separate portal process runs on [port 3000](http://localhost:3000). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and the portal; if any process exits, the launcher stops the others too. The assigned ports must be free.
+The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). Two separate portal processes run alongside the demos: the **plain, original portal** at [http://localhost:3000/](http://localhost:3000/) and the **new preview portal** at [http://localhost:3090/portal/](http://localhost:3090/portal/). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and both portals; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
 Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`. The launcher assigns port 3007, overriding the standalone default.
 
@@ -34,13 +34,32 @@ For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-
 
 For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). The launcher installs Crosstalk's dependencies automatically. Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
-### Demo portal
+### Demo portals
 
-![GPT6 Demos portal screenshot](./images/portal.png)
+`./run-all.sh` starts both portals:
 
-Open [http://localhost:3000](http://localhost:3000) after starting the launcher, or open the root [index.html](./index.html) directly from disk. The white portal presents the ten demos in a four-column grid on desktop, with two columns on tablets and one on phones. Each card uses its screenshot from `images/`, a short description, and a link to the demo’s assigned localhost port.
+| Portal | Address | Behavior |
+| --- | --- | --- |
+| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; cards link directly to the apps. |
+| New preview portal | [http://localhost:3090/portal/](http://localhost:3090/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. |
 
-The page uses plain HTML, inline CSS, and relative image paths, so it needs no build, JavaScript, or external assets and works over HTTP or `file://`. The demo servers must still be running for the links to open. To serve only the portal, run `bun run portal-server.ts` from the repository root (default port 3000; override with `PORT`). If you change a demo port in `run-all.sh`, update its link in `index.html` too.
+The original [index.html](./index.html) uses a four-column desktop grid, two columns on tablets, and one on phones. It uses plain HTML, inline CSS, and relative image paths, so it needs no build or JavaScript and can also be opened directly from disk.
+
+![Plain, original GPT6 Demos portal screenshot](./images/portal.png)
+
+The new [portal/index.html](./portal/index.html) uses a light, two-column desktop gallery and one column on phones, with plain HTML, CSS, and JavaScript. Closing a preview stops its video. Embedded YouTube playback requires internet access and an HTTP address; when opening the file directly from disk, use **Watch on YouTube** instead.
+
+To serve either portal separately from the repository root:
+
+```sh
+# Plain, original portal: http://localhost:3000/
+bun run portal-server.ts
+
+# New preview portal: http://localhost:3090/portal/
+PORT=3090 bun run portal-server.ts
+```
+
+The demo servers must still be running for app links to work. Ports 3000 and 3090 must be free before starting `./run-all.sh`; stop any separately running portal servers first. If you change a demo port in `run-all.sh`, update its links in both `index.html` and `portal/index.html`.
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 
