@@ -6,6 +6,8 @@ It follows the mouse. That is the entire product.
 
 **Current build:** complete software implementation with diagnostic geometry for Default, Paco, and gatita. These numbered shapes exercise animation, movement, and pack loading. They are **not finished character artwork**. Original character references remain in `specs/example-character/`; release acceptance is tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
+New [static pose studies for Paco and gatita](specs/pose-studies/README.md) develop the supplied references in preparation for animation authoring. They are reference-only and are not bundled runtime assets.
+
 ## Build and run
 
 Requires macOS 13 or later, Xcode Command Line Tools, and stable Rust (1.88 or newer; tested with 1.97.1). Mac only. On purpose. The build downloads Rust dependencies; the running app has no network client or telemetry.
@@ -68,6 +70,14 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 ```
 
 The workspace test command includes a main-thread AppKit integration executable and therefore needs access to the macOS window server. Its preferences use an isolated test suite; it does not change the app’s saved settings. On a headless or sandboxed host, run the portable tests separately.
+
+Run the opt-in native idle benchmark on a Mac with an awake display:
+
+```sh
+cargo test -p notavirus-app --test native --release --locked -- --benchmark
+```
+
+It warms up for three seconds, then measures 15 seconds of process CPU and peak RSS. It checks 60 Hz callbacks, stationary geometry, <1% CPU, and <80 MB peak RSS. The real clock, cursor polling, screen cache, renderer, and mouse monitors stay active; only the simulation input is held at the display center so normal mouse activity cannot start a chase. A temporary sprite appears during the run. It uses isolated preferences and cleans up afterward. This is a controlled native benchmark, not a substitute for physical click-through or mixed-display acceptance. Results and environment are recorded in the implementation plan.
 
 Core and pack crates have no AppKit dependencies and can be checked on Linux:
 

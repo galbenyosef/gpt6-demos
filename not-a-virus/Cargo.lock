@@ -236,6 +236,7 @@ name = "notavirus-app"
 version = "0.1.0"
 dependencies = [
  "block2",
+ "libc",
  "notavirus-core",
  "notavirus-pack",
  "objc2",

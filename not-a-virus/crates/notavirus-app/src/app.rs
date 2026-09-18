@@ -30,6 +30,10 @@ pub struct App {
     roots: Vec<PathBuf>,
     packs: Vec<Candidate>,
     failure: Option<String>,
+    #[cfg(test)]
+    benchmark_input: Option<(notavirus_core::Vec2, notavirus_core::ScreenGeometry)>,
+    #[cfg(test)]
+    ticks: u64,
 }
 #[derive(Default)]
 pub struct Ivars {
@@ -308,6 +312,10 @@ impl App {
             roots,
             packs: candidates,
             failure: None,
+            #[cfg(test)]
+            benchmark_input: None,
+            #[cfg(test)]
+            ticks: 0,
         };
         app.render_geometry(mtm);
         Ok(app)
@@ -328,7 +336,7 @@ impl App {
         Ok(())
     }
     fn render_geometry(&mut self, mtm: MainThreadMarker) {
-        if let Some((cursor, screen)) = self.cursor.sample(mtm) {
+        if let Some((cursor, screen)) = self.sample(mtm) {
             let out = self.brain.tick(TickInput {
                 dt: 0.,
                 cursor,
@@ -341,10 +349,14 @@ impl App {
         }
     }
     fn tick(&mut self, mtm: MainThreadMarker) {
+        #[cfg(test)]
+        {
+            self.ticks += 1;
+        }
         let now = Instant::now();
         let dt = now.duration_since(self.last).as_secs_f64();
         self.last = now;
-        if let Some((cursor, screen)) = self.cursor.sample(mtm) {
+        if let Some((cursor, screen)) = self.sample(mtm) {
             let out = self.brain.tick(TickInput {
                 dt,
                 cursor,
@@ -356,7 +368,24 @@ impl App {
                 .apply(&self.panel, &self.brain.pack, out, screen.backing_scale);
         }
     }
+    fn sample(
+        &mut self,
+        mtm: MainThreadMarker,
+    ) -> Option<(notavirus_core::Vec2, notavirus_core::ScreenGeometry)> {
+        // Benchmarks still pay for the production cursor poll and screen cache.
+        let sampled = self.cursor.sample(mtm);
+        #[cfg(test)]
+        if let Some(input) = self.benchmark_input {
+            return Some(input);
+        }
+        sampled
+    }
 }
+
+#[cfg(test)]
+#[allow(dead_code)] // Invoked by the native integration executable, not the binary test target.
+#[path = "benchmark.rs"]
+pub mod benchmark;
 pub fn run() {
     let mtm = MainThreadMarker::new().expect("main thread");
     let app = NSApplication::sharedApplication(mtm);

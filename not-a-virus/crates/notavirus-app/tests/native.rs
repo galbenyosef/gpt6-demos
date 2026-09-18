@@ -27,6 +27,11 @@ fn main() {
     use objc2_app_kit::*;
     use objc2_foundation::MainThreadMarker;
     let mtm = MainThreadMarker::new().unwrap();
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/packs");
+    if std::env::args().any(|arg| arg == "--benchmark") {
+        app::benchmark::idle(mtm, root);
+        return;
+    }
     let app = NSApplication::sharedApplication(mtm);
     app.setActivationPolicy(NSApplicationActivationPolicy::Accessory);
     let panel = panel::create(mtm);
@@ -52,7 +57,6 @@ fn main() {
             | NSWindowCollectionBehavior::FullScreenAuxiliary
             | NSWindowCollectionBehavior::Stationary
     ));
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/packs");
     for id in ["default", "paco", "gatita"] {
         let mut loaded = notavirus_pack::load(&root.join(id)).unwrap();
         let renderer = bridge::Renderer::prepare(&mut loaded).unwrap();
