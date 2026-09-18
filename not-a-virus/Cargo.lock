@@ -246,9 +246,11 @@ dependencies = [
  "objc2-foundation",
  "objc2-quartz-core",
  "png",
+ "tempfile",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
+ "zip",
 ]
 
 [[package]]

@@ -28,6 +28,8 @@ block2 = "0.6"
 [target.'cfg(target_os = "macos")'.dev-dependencies]
 libc = "0.2"
 png = "0.18"
+tempfile = "3"
+zip = { version = "2.4", default-features = false, features = ["deflate"] }
 
 [[test]]
 name = "native"

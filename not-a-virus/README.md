@@ -69,7 +69,7 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 ./scripts/bundle.sh
 ```
 
-The workspace test command includes a main-thread AppKit integration executable and therefore needs access to the macOS window server. Its preferences use an isolated test suite; it does not change the app’s saved settings. On a headless or sandboxed host, run the portable tests separately.
+The workspace test command includes a main-thread AppKit integration executable and therefore needs access to the macOS window server. It checks native rendering and controls plus the production import path: valid archives, failure preservation, error recovery, startup reconstruction and removed-pack fallback. Its files and preferences are isolated; it does not change the app’s saved settings. File chooser interaction and physical desktop behavior remain manual checks. On a headless or sandboxed host, run the portable tests separately.
 
 Run the opt-in native idle benchmark on a Mac with an awake display:
 

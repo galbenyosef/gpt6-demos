@@ -8,17 +8,17 @@ All paths below are relative to `not-a-virus/`. Keep the project in this directo
 
 | Field | Current value |
 |---|---|
-| Last updated | 2026-09-18 — Paco runtime animation integrated; native pixel regression fixed; final-art benchmark passed |
+| Last updated | 2026-09-18 — Paco committed and accepted live; native import/restart acceptance passed |
 | Specification baseline | Revision 0.3, pack `schema = 1` |
 | Overall implementation | `in_progress` — native app and Paco default implemented; full desktop release acceptance pending |
-| Active task | None — Paco integration and available verification complete; desktop acceptance remains pending |
-| Next task | T10/T11 — physical desktop and live-motion acceptance, mixed displays/Spaces/fullscreen, macOS 13/fresh-Mac checks |
-| Next concrete action | Use the rebuilt bundle with Packs → Paco for a bounded manual desktop session, then Quit. Verify click-through, import and lifecycle; complete mixed-display/Spaces/fullscreen checks on suitable hardware. |
+| Active task | None — available native acceptance checks passed; physical desktop checks pending |
+| Next task | T10/T11 — physical desktop acceptance, mixed displays/Spaces/fullscreen, macOS 13/fresh-Mac checks |
+| Next concrete action | Complete physical click-through, file chooser and menu Quit checks when desktop automation is available; test mixed displays/Spaces/fullscreen and macOS 13/fresh Mac on suitable environments. |
 | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
-| v1 release | `not_ready` — Paco art is integrated; physical desktop and live-motion release acceptance remain pending |
+| v1 release | `not_ready` — Paco art is integrated and accepted by the user; physical desktop release acceptance remains pending |
 | Character assets | Default and Paco now share a real 16-frame transparent 512×512 animation atlas, preview and Paco icon. gatita remains explicitly Diagnostic. Source art/prompts/compiler and offline preview are in art/paco/. |
 | Blocker to starting software work | None; software is implemented. |
-| Checks performed for this plan | 24 portable tests plus native controls and 96 pixel comparisons passed; formatting/strict Clippy/signed bundle passed. Paco benchmark: 59.85 Hz, 0.751% CPU, 45.96 MB peak RSS. User launched the bundle and confirmed that it works brilliantly; app may remain running. |
+| Checks performed for this plan | 24 portable tests plus native controls, import/reconstruction scenarios and 96 pixel comparisons passed; formatting/strict Clippy/signed bundle passed. Paco benchmark: 59.85 Hz, 0.751% CPU, 45.96 MB peak RSS. User launched the bundle and confirmed that it works brilliantly; app may remain running. |
 
 Historical starting point (before implementation):
 
@@ -53,9 +53,9 @@ Implementation should continue through all available v1 software tasks. A workin
 | T05 | Movement and behavior state machine | T04 | `done` | 13 deterministic runtime tests pass, including full cycle, interruptions, edges, zero radius and 60/120 Hz |
 | T06 | Default, Paco, and gatita diagnostic packs | T03 | `done` | Default/Paco/gatita diagnostic atlases and minimal/named fixtures pass real loader; generated original geometry |
 | T07 | Renderer, cursor, and simulation integration | T02, T05, T06 | `blocked` | Renderer, main-thread 60 Hz display link/timer, monitors, display geometry and pause complete; native checks pass. Mixed-display and physical click-through checks pending. |
-| T08 | Pack management, menu controls, persistence, and logs | T07 | `blocked` | Software and automated/native checks complete; manual import-dialog/restart acceptance remains pending. |
+| T08 | Pack management, menu controls, persistence, and logs | T07 | `blocked` | Native post-chooser import/reconstruction checks pass, including failures and recovery; physical chooser and process-restart acceptance remain pending. |
 | T09 | Release bundle and documentation | T08 | `done` | Rebuilt 2.8 MiB bundle with Paco icon/atlas, LICENSE/plist/PkgInfo and verified ad-hoc signature; README/art docs updated. |
-| T10 | Automated, desktop, and performance verification | T09 | `blocked` | Controlled 60 Hz idle benchmark passed; remaining physical desktop/hardware checks pending. |
+| T10 | Automated, desktop, and performance verification | T09 | `blocked` | Controlled idle benchmark and native import/reconstruction checks passed; desktop automation failed to start, and physical/hardware checks remain pending. |
 | T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | Paco animation/default/icon implemented; native pixel/performance checks pass. User accepted the live Paco result; full desktop release acceptance remains. |
 
 Default execution order is T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11. If one task is blocked, the dependency column determines which other tasks can proceed. T06 can be completed before T04/T05 if fixtures are needed for their tests.
@@ -212,7 +212,7 @@ Spec: all of §10 and §15. Deliverables: passing applicable checks, recorded na
 - [x] Run formatting, core/pack tests, relevant app/integration tests, linting, release build, and bundle/signature checks using the commands below. Add Linux CI for the portable crates where repository CI permits; record whether a Linux run actually occurred.
 - [ ] Complete the manual Mac checklist: launch/no Dock/no prompts, built-in/external display movement, Retina changes, clicks, pause/resume, pack switching/import failures, single-instance behavior, Spaces/fullscreen expectations, and clean Quit.
 - [x] Record unavailable hardware/OS checks as pending with the specific environment needed. Do not claim a second-display test from a single-display run.
-- [x] Measure release-build idle CPU at 60 Hz and RSS after loading a representative pack, against the spec's <1% CPU and <80 MB targets. Controlled native benchmark passed; final-art performance must be remeasured. Machine, OS, atlas, interval, values and no-per-frame-decode evidence are logged below.
+- [x] Measure release-build idle CPU at 60 Hz and RSS after loading a representative pack, against the spec's <1% CPU and <80 MB targets. Controlled native benchmark passed with the final Paco atlas. Machine, OS, atlas, interval, values and no-per-frame-decode evidence are logged below.
 - [x] Investigate failures and add focused regression coverage where it verifies meaningful behavior. Reopen affected earlier tasks as necessary.
 
 Exit: software readiness is supported by evidence. Set `Software prototype = ready` only when T01–T10 are complete and its required checks passed. If final artwork is absent, keep v1 release readiness pending and proceed with all other available work.
@@ -262,13 +262,13 @@ Linux CI must explicitly select portable crates and avoid building the macOS app
 | G03 — Reproducible relocatable bundle and docs | Software prototype | `passed` | Relocatable signed bundle and developer documentation verified. |
 | G04 — Full desktop checklist and performance | Verified software prototype / v1 | `pending_environment` | Controlled native idle benchmark passed; physical desktop and mixed-display matrix remains unverified. |
 | G05 — Finished original/licensed bundled default | v1 release | `passed` | Original AI-assisted Paco animation integrated as default; source, prompts, compiler and provenance preserved. |
-| G06 — Final-art regression checks and §15 success | v1 release | `pending_environment` | Native frame/scale/flip, controls, asset and performance checks passed. Physical desktop/live-motion acceptance remains. |
+| G06 — Final-art regression checks and §15 success | v1 release | `pending_environment` | Native frame/scale/flip, controls, asset and performance checks passed. User accepted live Paco; physical desktop acceptance remains. |
 
 Gate states: `not_run`, `passed`, `failed`, `pending_assets`, or `pending_environment`. Do not equate `pending_environment` with passed.
 
 | Asset | Reference | Runtime manifest/atlas | Visual review | Next step |
 |---|---|---|---|---|
-| Default | Paco reference and authored source in art/paco/ | 512×512 RGBA, 16 frames, six clips; id default retained | Native source silhouettes verified at all sizes/facings | Complete live-motion and physical desktop acceptance |
+| Default | Paco reference and authored source in art/paco/ | 512×512 RGBA, 16 frames, six clips; id default retained | Native source silhouettes verified at all sizes/facings | User accepted live motion; complete physical desktop acceptance |
 | Paco | [Original](specs/example-character/paco.jpeg), [authored animation](art/paco/README.md) | Real runtime atlas/preview and six clips; version 2 | Warm identity/poses inspected; 96 native silhouette comparisons pass | User accepted live motion; physical desktop acceptance remains; no missing runtime roles |
 | gatita | [Original](specs/example-character/gatita.jpeg), [new pose study](specs/pose-studies/gatita-v1.png) | Valid diagnostic grid atlas, preview, complete roles and chained stop | Five static poses reviewed for identity/playfulness; corrected background to white | Authored play/roll/purr/crouch/bound/settle/sleep/wake clips remain |
 
@@ -378,3 +378,12 @@ Before handing back, update the current-state table, task ledger, completed chec
 - User ran the rebuilt app and reported “it works brilliantly,” accepting the visible Paco result. This is live-result acceptance, not specific evidence for import, mixed displays, click-through, or fresh-Mac checks.
 - User requested committing the completed changes and proceeding to the next step. Commit scope is the Paco animation, renderer correction, native regression checks, reproducible assets and corresponding documentation.
 - Next: T10/T11 desktop lifecycle/import acceptance on the available Mac; retain hardware-dependent gates where not observed.
+
+### 2026-09-18 — T10: native import and restart-path acceptance
+- Committed the completed Paco work as `e7c4d39` following the user's instruction. Their “it works brilliantly” feedback establishes acceptance of the visible live result, without inferring unreported hardware/input checks.
+- Desktop automation attempt failed before connecting: `Sky Computer Use native pipe startup failed`. No physical click-through, chooser interaction or menu Quit is claimed from this attempt. The user's running app was not quit or reconfigured.
+- Extracted the existing post-chooser import action into one shared delegate method, preserving install/discover/switch/error/menu behavior and consistently logging failures. Native tests invoke that same production path with real archives, temporary directories and an isolated UserDefaults suite.
+- Passed: successful import selects and renders the pack at the saved size while paused; truncated archives, duplicate user IDs and bundled-ID collisions preserve the active renderer, position, pack list and installed files; a subsequent valid import clears the disabled menu error. Reconstructing the app restores the imported pack, size and pause state; removing its folder falls back to the default and updates saved selection. This exercises startup reconstruction within the harness, not a fresh OS process or the file chooser.
+- Passed: `cargo test --workspace --locked` (24 portable tests, 96 native pixel comparisons, native controls and import/reconstruction acceptance); strict workspace/all-target Clippy; release bundle build and strict signature verification; formatting and diff checks. New test dependencies reuse the already locked zip/tempfile versions.
+- Remaining: actual clicks beneath the sprite, native chooser interaction, menu Quit/process restart, mixed-scale displays, Spaces/fullscreen, macOS 13 fallback on that OS, and fresh-Mac installation. No v1.1 scope or second-character artwork added; gatita remains diagnostic.
+- Next: complete the remaining physical desktop checks with a working desktop connection and the hardware/OS matrix.

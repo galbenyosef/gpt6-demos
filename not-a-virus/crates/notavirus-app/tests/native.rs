@@ -100,7 +100,8 @@ fn main() {
             assert!(unsafe { renderer.layer.contents() }.is_some());
         }
     }
-    app::verify_controls(mtm, root);
+    app::verify_controls(mtm, root.clone());
+    app::import_acceptance::verify(mtm, root);
     println!(
         "native: accessory policy, all panel flags, three pack images, 1×/1.5×/2× size, Retina scale, frame UVs, mirroring and failed-load resource preservation passed"
     );

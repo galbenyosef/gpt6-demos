@@ -155,27 +155,7 @@ define_class!(
                 return;
             }
             if let Some(path) = chooser.URL().and_then(|u| u.path()) {
-                if let Some(app) = self.ivars().state.borrow_mut().as_mut() {
-                    let ids = app
-                        .packs
-                        .iter()
-                        .filter_map(|p| p.id.clone())
-                        .collect::<Vec<_>>();
-                    match packs::install(&PathBuf::from(path.to_string()), &app.roots[1], &ids) {
-                        Ok(path) => {
-                            app.packs = packs::discover(&app.roots);
-                            match app.switch(&path, self.mtm()) {
-                                Ok(()) => app.failure = None,
-                                Err(e) => app.failure = Some(e),
-                            }
-                        }
-                        Err(e) => {
-                            tracing::error!(%e,"pack import failed");
-                            app.failure = Some(e.to_string());
-                        }
-                    }
-                }
-                self.menu();
+                self.import_path(&PathBuf::from(path.to_string()));
             }
         }
         #[unsafe(method(about:))]
@@ -196,6 +176,28 @@ impl Delegate {
     pub fn new(mtm: MainThreadMarker) -> Retained<Self> {
         let this = Self::alloc(mtm).set_ivars(Ivars::default());
         unsafe { msg_send![super(this), init] }
+    }
+    // Shared by the file chooser and native acceptance checks. The chooser itself
+    // remains a manual desktop check; installation and menu state use this path.
+    fn import_path(&self, archive: &std::path::Path) {
+        if let Some(app) = self.ivars().state.borrow_mut().as_mut() {
+            let ids = app
+                .packs
+                .iter()
+                .filter_map(|p| p.id.clone())
+                .collect::<Vec<_>>();
+            let result = packs::install(archive, &app.roots[1], &ids)
+                .map_err(|e| e.to_string())
+                .and_then(|path| {
+                    app.packs = packs::discover(&app.roots);
+                    app.switch(&path, self.mtm())
+                });
+            app.failure = result.err();
+            if let Some(error) = &app.failure {
+                tracing::error!(%error, "pack import failed");
+            }
+        }
+        self.menu();
     }
     fn show_menu(&self) {
         // Menu tracking runs a nested event loop; release the borrow before it.
@@ -510,3 +512,7 @@ pub fn verify_controls(mtm: MainThreadMarker, root: PathBuf) {
         "native controls: stale preferences fallback, Pause/Resume clock ownership, Size, pack switch, failed switch preservation, menu checks, persisted settings and Quit cleanup passed"
     );
 }
+
+#[cfg(test)]
+#[path = "../tests/support/import.rs"]
+pub mod import_acceptance;
