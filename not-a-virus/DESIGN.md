@@ -26,14 +26,14 @@ components:
 
 The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.
 
-The default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita remains diagnostic. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.
+The default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita uses a smooth 24-frame atlas documented in `art/gatita/`. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.
 
 **Key Characteristics:**
 
 - One transparent, shadowless sprite panel that lets mouse events reach the desktop.
 - AppKit status menu, file chooser, and alerts with native control states.
 - Pack-defined artwork, filtering, facing, and animation timing.
-- Warm, effortful Paco animation; explicit diagnostic status for gatita.
+- Warm, effortful Paco animation and sweet, playful gatita animation.
 
 ## Colors
 
@@ -88,7 +88,7 @@ Packs shows the active valid pack checked. Invalid packs are disabled with the f
 
 ### Native dialogs
 
-Import uses a single-file `NSOpenPanel` for `.petpack` files. About uses `NSAlert` and explicitly identifies “v0.1 · Paco animation; gatita diagnostic.” A startup failure uses `NSAlert` to name the default-pack problem and show its reason before termination. AppKit supplies dialog typography, layout, buttons, focus, and accessibility behavior; no custom visual variants are implemented.
+Import uses a single-file `NSOpenPanel` for `.petpack` files. About uses `NSAlert` and explicitly identifies “v0.1 · Paco and gatita.” A startup failure uses `NSAlert` to name the default-pack problem and show its reason before termination. AppKit supplies dialog typography, layout, buttons, focus, and accessibility behavior; no custom visual variants are implemented.
 
 Source evidence: `crates/notavirus-app/src/{panel,status,bridge,app,tick}.rs`, `crates/notavirus-core/src/{brain,pack}.rs`, `resources/packs/*/pack.toml`, `PRODUCT.md`, and `.impeccable/review/{direction,finish-review}.md`. Source verification does not establish perceived motion quality, final-art readability, or cross-display visual acceptance.
 

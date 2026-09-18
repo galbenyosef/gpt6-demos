@@ -31,4 +31,4 @@ cargo test -p notavirus-app --test native --locked -- --capture
 
 The compiler guards the source dimensions; changing the source requires reviewing registration. Icon generation uses macOS `sips` and `iconutil`. Native checks need WindowServer access; a sandbox may prevent Apple's icon compiler from reading system resources. Generated native view snapshots go to `target/native-captures/` and do not display a desktop pet. Normal native tests verify all 16 source silhouettes at three sizes and both facings. Art validation also checks transparent tile margins and grounded feet.
 
-Final desktop interaction and mixed-display acceptance remain in [IMPLEMENTATION_PLAN.md](../../IMPLEMENTATION_PLAN.md). gatita remains diagnostic. The reference-only review in `specs/pose-studies/` is historical and is not evidence of runtime animation acceptance.
+Final desktop interaction and mixed-display acceptance remain in [IMPLEMENTATION_PLAN.md](../../IMPLEMENTATION_PLAN.md). gatita now has her own authored smooth animation pack in `art/gatita/`. The reference-only review in `specs/pose-studies/` is historical and is not evidence of runtime animation acceptance.

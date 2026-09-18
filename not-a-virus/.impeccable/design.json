@@ -51,12 +51,12 @@
   ],
   "narrative": {
     "northStar": "A small transparent desktop companion",
-    "overview": "The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.\n\nThe default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita remains diagnostic. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.",
+    "overview": "The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.\n\nThe default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita uses a smooth 24-frame atlas documented in `art/gatita/`. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.",
     "keyCharacteristics": [
       "One transparent, shadowless sprite panel that lets mouse events reach the desktop.",
       "AppKit status menu, file chooser, and alerts with native control states.",
       "Pack-defined artwork, filtering, facing, and animation timing.",
-      "Warm, effortful Paco animation; explicit diagnostic status for gatita."
+      "Warm, effortful Paco animation and sweet, playful gatita animation."
     ],
     "rules": [
       {

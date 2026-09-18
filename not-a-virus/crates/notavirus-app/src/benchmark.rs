@@ -30,7 +30,7 @@ fn pump(seconds: f64) {
     }
 }
 
-pub fn idle(mtm: MainThreadMarker, root: PathBuf) {
+pub fn idle(mtm: MainThreadMarker, root: PathBuf, pack_id: &str) {
     if cfg!(debug_assertions) {
         panic!("benchmark must use --release");
     }
@@ -42,12 +42,9 @@ pub fn idle(mtm: MainThreadMarker, root: PathBuf) {
         NSUserDefaults::initWithSuiteName(NSUserDefaults::alloc(), Some(&suite)).unwrap();
     defaults.removePersistentDomainForName(&suite);
     let delegate = Delegate::new(mtm);
-    let mut app = App::with_options(
-        &delegate,
-        Preferences::from_defaults(defaults.clone()),
-        vec![root],
-    )
-    .unwrap();
+    let mut preferences = Preferences::from_defaults(defaults.clone());
+    preferences.active = pack_id.into();
+    let mut app = App::with_options(&delegate, preferences, vec![root]).unwrap();
     let (_, screen) = app
         .cursor
         .sample(mtm)

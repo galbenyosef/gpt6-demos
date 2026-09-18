@@ -162,7 +162,7 @@ define_class!(
         fn about(&self, _: &NSMenuItem) {
             let alert = NSAlert::new(self.mtm());
             alert.setMessageText(ns_string!("NotAVirus"));
-            alert.setInformativeText(ns_string!("It follows the mouse.\nThat is the entire product.\n\nv0.1 · Paco animation; gatita diagnostic\nMenu bar sprite. No network. No permissions."));
+            alert.setInformativeText(ns_string!("It follows the mouse.\nThat is the entire product.\n\nv0.1 · Paco and gatita\nMenu bar sprite. No network. No permissions."));
             alert.runModal();
         }
         #[unsafe(method(quit:))]

@@ -79,6 +79,103 @@ fn paco_runtime_art_is_transparent_registered_and_shared_with_default() {
     }
 }
 #[test]
+fn gatita_art_has_smooth_alpha_padding_and_authored_motion() {
+    use notavirus_core::*;
+    let loaded = load(&root().join("resources/packs/gatita")).unwrap();
+    assert_eq!((loaded.width, loaded.height), (512, 768));
+    assert_eq!(loaded.pack.filter, Filter::Linear);
+    for frame in 0..24 {
+        let (mut solid, mut soft, mut bottom) = (0, 0, 0);
+        for y in 0..128 {
+            for x in 0..128 {
+                let a = loaded.rgba[((frame / 4 * 128 + y) * 512 + frame % 4 * 128 + x) * 4 + 3];
+                if a > 0 {
+                    assert!(
+                        (8..120).contains(&x) && (8..116).contains(&y),
+                        "clipped frame {frame}"
+                    );
+                    soft += usize::from(a < 255);
+                }
+                if a >= 128 {
+                    solid += 1;
+                    bottom = y;
+                }
+            }
+        }
+        assert!(
+            solid > 1500 && soft > 80,
+            "missing drawing or smooth alpha in frame {frame}"
+        );
+        let ground = match frame {
+            9 => 107,
+            11 => 111,
+            _ => 115,
+        };
+        assert!(
+            (ground - 2..=ground).contains(&bottom),
+            "unstable ground: frame {frame}, bottom {bottom}"
+        );
+    }
+    let pack = loaded.pack;
+    let idle = &pack.clips[pack.behavior.idle];
+    assert_eq!(
+        idle.frames.first().unwrap().uv,
+        idle.frames.last().unwrap().uv
+    );
+    assert!(idle.duration() > 5.);
+    let stop = &pack.clips[pack.behavior.stop.unwrap()];
+    assert_eq!(stop.interrupt, Interrupt::Finish);
+    assert_eq!(pack.clips[stop.next.unwrap()].interrupt, Interrupt::OnMove);
+
+    // Exercise the shipped manifest through a complete chase/rest/wake cycle.
+    let origin = Vec2::new(100., 100.);
+    let resting_cursor = origin + pack.anchor_offset(1.);
+    let mut brain = Brain::new(pack, origin);
+    let input = |cursor| TickInput {
+        dt: 1. / 120.,
+        cursor,
+        scale: 1.,
+        paused: false,
+        screen: ScreenGeometry {
+            id: 1,
+            backing_scale: 2.,
+            visible: Rect {
+                origin: Vec2::ZERO,
+                size: Vec2::new(1600., 1000.),
+            },
+        },
+    };
+    for _ in 0..360 {
+        brain.tick(input(resting_cursor));
+    }
+    assert_eq!(brain.phase, Phase::Idle);
+    brain.tick(input(Vec2::new(900., 112.)));
+    assert_eq!(
+        brain.phase,
+        Phase::Starting,
+        "play/roll/purr must yield immediately to chase"
+    );
+    let mut clips = std::collections::HashSet::new();
+    for _ in 0..3000 {
+        brain.tick(input(Vec2::new(900., 112.)));
+        clips.insert(brain.pack.clips[brain.player.clip].name.clone());
+    }
+    for name in [
+        "bound",
+        "settle",
+        "tail_flick",
+        "play_roll_purr",
+        "curl_up_asleep",
+    ] {
+        assert!(clips.contains(name), "shipped gatita cycle skipped {name}");
+    }
+    assert_eq!(brain.phase, Phase::Sleeping);
+    brain.tick(input(Vec2::new(1200., 112.)));
+    assert_eq!(brain.phase, Phase::Waking);
+    assert_eq!(brain.pack.clips[brain.player.clip].name, "stretch");
+}
+
+#[test]
 fn rejects_invalid_schema_roles_timing_motion_and_unknown_keys() {
     for (from, to) in [
         ("schema = 1", "schema = 2"),

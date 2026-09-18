@@ -32,7 +32,13 @@ fn main() {
     let mtm = MainThreadMarker::new().unwrap();
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../resources/packs");
     if std::env::args().any(|arg| arg == "--benchmark") {
-        app::benchmark::idle(mtm, root);
+        let args = std::env::args().collect::<Vec<_>>();
+        let selected = args
+            .windows(2)
+            .find(|a| a[0] == "--pack")
+            .map_or("default", |a| a[1].as_str());
+        assert!(["default", "paco", "gatita"].contains(&selected));
+        app::benchmark::idle(mtm, root, selected);
         return;
     }
     let app = NSApplication::sharedApplication(mtm);
@@ -60,11 +66,14 @@ fn main() {
             | NSWindowCollectionBehavior::FullScreenAuxiliary
             | NSWindowCollectionBehavior::Stationary
     ));
-    capture::paco(
-        &panel,
-        &root,
-        std::env::args().any(|arg| arg == "--capture"),
-    );
+    for id in ["paco", "gatita"] {
+        capture::pack(
+            &panel,
+            &root,
+            id,
+            std::env::args().any(|arg| arg == "--capture"),
+        );
+    }
     for id in ["default", "paco", "gatita"] {
         let mut loaded = notavirus_pack::load(&root.join(id)).unwrap();
         let renderer = bridge::Renderer::prepare(&mut loaded).unwrap();
