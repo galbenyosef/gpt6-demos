@@ -19,14 +19,11 @@ impl Renderer {
                 *c = ((u16::from(*c) * alpha + 127) / 255) as u8;
             }
         }
-        // CALayer uses bottom-left texture coordinates: reverse storage rows here;
-        // frame UVs were converted from top-left atlas coordinates by the loader.
+        // CGImage consumes top-down PNG rows unchanged. The loader already
+        // converted frame UVs to bottom-left; reversing the bytes here would
+        // select the opposite atlas row and invert the sprite a second time.
         let stride = loaded.width as usize * 4;
-        let mut pixels = Vec::with_capacity(loaded.rgba.len());
-        for row in loaded.rgba.chunks_exact(stride).rev() {
-            pixels.extend_from_slice(row);
-        }
-        let data = CFData::from_bytes(&pixels);
+        let data = CFData::from_bytes(&loaded.rgba);
         let provider =
             CGDataProvider::with_cf_data(Some(&data)).ok_or("cannot create image provider")?;
         let space = CGColorSpace::new_device_rgb().ok_or("cannot create color space")?;
@@ -69,7 +66,11 @@ impl Renderer {
     pub fn attach(&self, panel: &NSPanel) {
         let view = panel.contentView().expect("panel content view");
         view.setWantsLayer(true);
-        view.setLayer(Some(&self.layer));
+        // AppKit owns the backing layer's geometry and may ignore/reset its
+        // transform (including during snapshots). Keep the sprite as a child.
+        let host = CALayer::new();
+        view.setLayer(Some(&host));
+        host.addSublayer(&self.layer);
     }
     pub fn apply(&self, panel: &NSPanel, pack: &Pack, out: TickOutput, backing: f64) {
         // A stationary panel needs no AppKit/Core Animation mutations between
@@ -104,12 +105,12 @@ impl Renderer {
             CGPoint::new(uv.origin.x, uv.origin.y),
             CGSize::new(uv.size.x, uv.size.y),
         ));
-        // Pixels are stored bottom-up for UV addressing; invert locally for display.
+        // Mirror only the sprite child, leaving AppKit's backing geometry intact.
         let transform = CGAffineTransform {
             a: if out.flip_x { -1. } else { 1. },
             b: 0.,
             c: 0.,
-            d: -1.,
+            d: 1.,
             tx: if out.flip_x {
                 pack.mirror_translation(out.scale)
             } else {

@@ -41,22 +41,22 @@
   },
   "components": [
     {
-      "name": "Sprite viewport — geometry only",
+      "name": "Sprite viewport \u2014 geometry only",
       "kind": "custom",
       "refersTo": "sprite-small",
-      "description": "Transparent geometry preview only: one native screen point is mapped to one CSS pixel for inspection. No character art, frame border, custom hover, or focus state exists on the click-through panel. AppKit menus and dialogs have no authoritative HTML/CSS equivalent and are documented in DESIGN.md instead.",
+      "description": "Geometry-only documentation sample: one native point maps to one CSS pixel for inspection. The actual panel renders pack-owned character art; this sample intentionally omits it. AppKit controls have no authoritative HTML/CSS equivalent and are documented in DESIGN.md.",
       "html": "<div class=\"ds-sprite-viewport\" aria-hidden=\"true\"></div>",
       "css": ".ds-sprite-viewport { width: 128px; height: 128px; background: transparent; border: none; box-shadow: none; pointer-events: none; }"
     }
   ],
   "narrative": {
     "northStar": "A small transparent desktop companion",
-    "overview": "The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.\n\nThis documents the implemented prototype from source and the pinned native direction. The bundled numbered geometric atlases are original diagnostic fixtures, including those named Paco and gatita. They establish runtime behavior, not a finished character style. The finish review's `ship` disposition covers prototype code and interaction only; it is not screenshot-backed visual approval, final-art acceptance, or v1 release approval. No web detector was used.",
+    "overview": "The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.\n\nThe default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita remains diagnostic. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.",
     "keyCharacteristics": [
       "One transparent, shadowless sprite panel that lets mouse events reach the desktop.",
       "AppKit status menu, file chooser, and alerts with native control states.",
       "Pack-defined artwork, filtering, facing, and animation timing.",
-      "Explicit diagnostic artwork status until finished character assets are accepted."
+      "Warm, effortful Paco animation; explicit diagnostic status for gatita."
     ],
     "rules": [
       {

@@ -1,6 +1,6 @@
 schema = 1
 id = "gatita"
-name = "gatita"
+name = "gatita (Diagnostic)"
 author = "NotAVirus — diagnostic fixture, not final art"
 version = 1
 tile = [128, 128]

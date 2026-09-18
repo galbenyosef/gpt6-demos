@@ -26,14 +26,14 @@ components:
 
 The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.
 
-This documents the implemented prototype from source and the pinned native direction. The bundled numbered geometric atlases are original diagnostic fixtures, including those named Paco and gatita. They establish runtime behavior, not a finished character style. The finish review's `ship` disposition covers prototype code and interaction only; it is not screenshot-backed visual approval, final-art acceptance, or v1 release approval. No web detector was used.
+The default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita remains diagnostic. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.
 
 **Key Characteristics:**
 
 - One transparent, shadowless sprite panel that lets mouse events reach the desktop.
 - AppKit status menu, file chooser, and alerts with native control states.
 - Pack-defined artwork, filtering, facing, and animation timing.
-- Explicit diagnostic artwork status until finished character assets are accepted.
+- Warm, effortful Paco animation; explicit diagnostic status for gatita.
 
 ## Colors
 
@@ -70,7 +70,7 @@ The sprite panel has no shadow, border, opaque background, or material effect. `
 
 ## Shapes
 
-The viewport follows the tile rectangle; the atlas alpha defines the visible silhouette. There is no application-defined corner radius or rounded container. Keep artwork within its tile and preserve the pack's anchor across animation frames. Facing mirrors about that anchor. Atlas top-left coordinates are converted for Core Animation, with premultiplied alpha and a local vertical correction so the sprite displays upright.
+The viewport follows the tile rectangle; the atlas alpha defines the visible silhouette. There is no application-defined corner radius or rounded container. Keep artwork within its tile and preserve the pack's anchor across animation frames. Facing mirrors about that anchor. The loader converts atlas top-left coordinates to bottom-left UVs once. Top-down PNG rows remain unchanged in CGImage; the sprite is a child of AppKit's backing layer and mirrors horizontally about its anchor. Native pixel checks verify actual orientation and sampling.
 
 ## Components
 
@@ -88,7 +88,7 @@ Packs shows the active valid pack checked. Invalid packs are disabled with the f
 
 ### Native dialogs
 
-Import uses a single-file `NSOpenPanel` for `.petpack` files. About uses `NSAlert` and explicitly identifies “v0.1 · Diagnostic artwork.” A startup failure uses `NSAlert` to name the default-pack problem and show its reason before termination. AppKit supplies dialog typography, layout, buttons, focus, and accessibility behavior; no custom visual variants are implemented.
+Import uses a single-file `NSOpenPanel` for `.petpack` files. About uses `NSAlert` and explicitly identifies “v0.1 · Paco animation; gatita diagnostic.” A startup failure uses `NSAlert` to name the default-pack problem and show its reason before termination. AppKit supplies dialog typography, layout, buttons, focus, and accessibility behavior; no custom visual variants are implemented.
 
 Source evidence: `crates/notavirus-app/src/{panel,status,bridge,app,tick}.rs`, `crates/notavirus-core/src/{brain,pack}.rs`, `resources/packs/*/pack.toml`, `PRODUCT.md`, and `.impeccable/review/{direction,finish-review}.md`. Source verification does not establish perceived motion quality, final-art readability, or cross-display visual acceptance.
 

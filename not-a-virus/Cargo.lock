@@ -245,6 +245,7 @@ dependencies = [
  "objc2-core-graphics",
  "objc2-foundation",
  "objc2-quartz-core",
+ "png",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",

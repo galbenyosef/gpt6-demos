@@ -53,7 +53,7 @@ define_class!(
                     *self.ivars().state.borrow_mut() = Some(app);
                     self.menu();
                     self.start_clock();
-                    tracing::info!("NotAVirus launched; diagnostic artwork");
+                    tracing::info!("NotAVirus launched");
                 }
                 Err(e) => {
                     tracing::error!(%e,"startup failed");
@@ -182,7 +182,7 @@ define_class!(
         fn about(&self, _: &NSMenuItem) {
             let alert = NSAlert::new(self.mtm());
             alert.setMessageText(ns_string!("NotAVirus"));
-            alert.setInformativeText(ns_string!("It follows the mouse.\nThat is the entire product.\n\nv0.1 · Diagnostic artwork\nMenu bar sprite. No network. No permissions."));
+            alert.setInformativeText(ns_string!("It follows the mouse.\nThat is the entire product.\n\nv0.1 · Paco animation; gatita diagnostic\nMenu bar sprite. No network. No permissions."));
             alert.runModal();
         }
         #[unsafe(method(quit:))]

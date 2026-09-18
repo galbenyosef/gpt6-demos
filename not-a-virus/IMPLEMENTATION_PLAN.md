@@ -8,17 +8,17 @@ All paths below are relative to `not-a-virus/`. Keep the project in this directo
 
 | Field | Current value |
 |---|---|
-| Last updated | 2026-09-18 — controlled idle benchmark passed; static pose studies completed |
+| Last updated | 2026-09-18 — Paco runtime animation integrated; native pixel regression fixed; final-art benchmark passed |
 | Specification baseline | Revision 0.3, pack `schema = 1` |
-| Overall implementation | `in_progress` — software complete; release acceptance pending |
-| Active task | None — this phase complete; remaining desktop and runtime-art acceptance tracked below |
-| Next task | T10 — remaining physical/hardware checks; T11 — animation authoring after the reference-only stage |
-| Next concrete action | Review the saved Paco/gatita pose studies, then author transparent animation when that stage is in scope; complete physical click-through/import/Quit and mixed-display/Spaces checks on a suitable desktop. |
+| Overall implementation | `in_progress` — native app and Paco default implemented; full desktop release acceptance pending |
+| Active task | None — Paco integration and available verification complete; desktop acceptance remains pending |
+| Next task | T10/T11 — physical desktop and live-motion acceptance, mixed displays/Spaces/fullscreen, macOS 13/fresh-Mac checks |
+| Next concrete action | Use the rebuilt bundle with Packs → Paco for a bounded manual desktop session, then Quit. Verify click-through, import and lifecycle; complete mixed-display/Spaces/fullscreen checks on suitable hardware. |
 | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
-| v1 release | `not_ready` — finished default artwork and desktop acceptance remain pending |
-| Character assets | Default/Paco/gatita runtime packs remain diagnostic. New static Paco/gatita pose studies are saved under specs/pose-studies/; they are not runtime animation. |
+| v1 release | `not_ready` — Paco art is integrated; physical desktop and live-motion release acceptance remain pending |
+| Character assets | Default and Paco now share a real 16-frame transparent 512×512 animation atlas, preview and Paco icon. gatita remains explicitly Diagnostic. Source art/prompts/compiler and offline preview are in art/paco/. |
 | Blocker to starting software work | None; software is implemented. |
-| Checks performed for this plan | 23 portable tests and native integration passed; strict Clippy passed. Controlled release idle benchmark passed at 60.00 Hz, 0.899% CPU and 53.26 MB peak RSS. Full desktop/final-art acceptance remains pending. |
+| Checks performed for this plan | 24 portable tests plus native controls and 96 pixel comparisons passed; formatting/strict Clippy/signed bundle passed. Paco benchmark: 59.85 Hz, 0.751% CPU, 45.96 MB peak RSS. User launched the bundle and confirmed that it works brilliantly; app may remain running. |
 
 Historical starting point (before implementation):
 
@@ -48,15 +48,15 @@ Implementation should continue through all available v1 software tasks. A workin
 |---|---|---|---|---|
 | T01 | Workspace and dependency boundaries | — | `done` | Workspace compiles; Rust 1.97.1 / SDK 27.0; target-scoped objc2 0.6.4 / frameworks 0.3.2; macOS floor 13.0 |
 | T02 | Native macOS shell and early bundle smoke test | T01 | `blocked` | Implemented; native flags/lifecycle checks and live launch/reopen pass. Full manual click-through/Quit acceptance not established by CUA. |
-| T03 | Pack schema, atlas loading, and validation | T01 | `done` | 9 loader/import tests pass; strict schema, static RGBA PNG, named/grid geometry and contained asset paths |
+| T03 | Pack schema, atlas loading, and validation | T01 | `done` | 10 loader/import/art tests pass; strict schema, static RGBA PNG, named/grid geometry and contained asset paths |
 | T04 | Deterministic clip player | T03 | `done` | Runtime tests pass for exact boundaries, variable durations, chain carry, flip modes and pause |
 | T05 | Movement and behavior state machine | T04 | `done` | 13 deterministic runtime tests pass, including full cycle, interruptions, edges, zero radius and 60/120 Hz |
 | T06 | Default, Paco, and gatita diagnostic packs | T03 | `done` | Default/Paco/gatita diagnostic atlases and minimal/named fixtures pass real loader; generated original geometry |
 | T07 | Renderer, cursor, and simulation integration | T02, T05, T06 | `blocked` | Renderer, main-thread 60 Hz display link/timer, monitors, display geometry and pause complete; native checks pass. Mixed-display and physical click-through checks pending. |
 | T08 | Pack management, menu controls, persistence, and logs | T07 | `blocked` | Software and automated/native checks complete; manual import-dialog/restart acceptance remains pending. |
-| T09 | Release bundle and documentation | T08 | `done` | Fresh staged 1.5 MiB relocatable bundle, icon/LICENSE/plist/PkgInfo, ad-hoc signing verified; README and PACK_AUTHORING.md written. |
+| T09 | Release bundle and documentation | T08 | `done` | Rebuilt 2.8 MiB bundle with Paco icon/atlas, LICENSE/plist/PkgInfo and verified ad-hoc signature; README/art docs updated. |
 | T10 | Automated, desktop, and performance verification | T09 | `blocked` | Controlled 60 Hz idle benchmark passed; remaining physical desktop/hardware checks pending. |
-| T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | Static pose studies complete per §12.2; authored runtime animation and final desktop acceptance remain pending. |
+| T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | Paco animation/default/icon implemented; native pixel/performance checks pass. User accepted the live Paco result; full desktop release acceptance remains. |
 
 Default execution order is T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11. If one task is blocked, the dependency column determines which other tasks can proceed. T06 can be completed before T04/T05 if fixtures are needed for their tests.
 
@@ -85,7 +85,7 @@ These resolve implementation details without adding user-facing scope. If the sp
 | D06 | Bundle a pack with id `default` so the specified first-launch fallback resolves. Use separate Paco/gatita fixtures for behavior testing. Final default art may be based on either character. | Spec §§6.3 and 12 require a valid default but only one polished character to ship. |
 | D07 | Start with the supported 60 Hz main-run-loop timer for the early native smoke test. Add the display-link path and retain the timer fallback before T07 completes. | Exposes AppKit lifecycle problems early without postponing spec §3.4. Display-link callbacks must schedule/coalesce work onto the main thread. |
 | D08 | Resolve duplicate pack IDs deterministically in documented search order; first valid candidate wins. Reject an import that would silently replace an existing ID. | Spec §4.1 establishes discovery order but not collisions; keep the active/default pack safe and errors understandable. |
-| D09 | Final animated artwork is not present. Use clearly identified diagnostic geometry for software tests and retain the original reference JPEGs. | The current art direction is reference/pose work; do not mistake renamed, resized, or bobbing JPEGs for authored animation clips. |
+| D09 | Preserve diagnostic geometry for software tests and original JPEGs/pose studies as references. Default/Paco now use separately generated runtime frames; gatita remains diagnostic. | Updated by the user-authorized T11 animation stage; references are never substituted for authored animation clips. |
 
 Select compatible crate versions using the installed toolchain, current official documentation, and downloaded crate sources when needed. Record significant API/version decisions and commit the application lockfile as part of normal repository work if commits are in scope. Do not invent API signatures from the illustrative spec or add an async runtime/GPU framework to work around a small integration issue.
 
@@ -223,9 +223,9 @@ Spec: §§4.6–4.7, 10.2–10.3, 12, 15. Deliverables: at least one finished bu
 
 - [x] Record availability and provenance of final animation frames. Reference-only work remains reference-only until finished asset authoring is in scope or usable assets are supplied; continue software tasks meanwhile.
 - [x] Create and visually inspect static Paco/gatita pose studies before animation authoring, per §12.2; preserve references and record generation provenance.
-- [ ] Replace diagnostic artwork for at least the bundled default with a consistent transparent PNG atlas, preview, and complete clip mappings. Validate and render it through the same public pack path.
+- [x] Replace diagnostic artwork for at least the bundled default with a consistent transparent PNG atlas, preview, and complete clip mappings. Validate and render it through the same public pack path.
 - [ ] Check stable silhouette, ground anchor, facing, frame transitions, clipping, filtering, and legibility at all supported sizes. Recheck resource/performance limits for the final atlas.
-- [ ] Preserve Paco's friendly exhausted expression and visual identity, or gatita's tabby features, playful idle sequence, and visual purr, depending on the finished pack being integrated.
+- [x] Preserve Paco's friendly exhausted expression and visual identity in the integrated default. gatita remains diagnostic.
 - [ ] Rerun affected desktop scenarios and bundle smoke checks with final artwork; update the asset table separately for both characters.
 - [ ] Review every release gate and the four success criteria in spec §15; document any remaining second-character work without implying it shipped.
 
@@ -257,30 +257,30 @@ Linux CI must explicitly select portable crates and avoid building the macOS app
 
 | Gate | Required for | State | Evidence / next action |
 |---|---|---|---|
-| G01 — Core/loader behavior and failure tests | Software prototype | `passed` | 23 portable tests passed in the committed baseline. |
+| G01 — Core/loader behavior and failure tests | Software prototype | `passed` | 24 portable tests plus native pixel regression passed with Paco assets. |
 | G02 — Native window, input, rendering, lifecycle | Software prototype | `pending_environment` | Native flags/rendering/selectors passed; physical input and desktop lifecycle checks remain. |
 | G03 — Reproducible relocatable bundle and docs | Software prototype | `passed` | Relocatable signed bundle and developer documentation verified. |
 | G04 — Full desktop checklist and performance | Verified software prototype / v1 | `pending_environment` | Controlled native idle benchmark passed; physical desktop and mixed-display matrix remains unverified. |
-| G05 — Finished original/licensed bundled default | v1 release | `pending_assets` | Diagnostic atlases only; final authored character animation remains. |
-| G06 — Final-art regression checks and §15 success | v1 release | `not_run` | Requires finished default artwork and complete desktop acceptance. |
+| G05 — Finished original/licensed bundled default | v1 release | `passed` | Original AI-assisted Paco animation integrated as default; source, prompts, compiler and provenance preserved. |
+| G06 — Final-art regression checks and §15 success | v1 release | `pending_environment` | Native frame/scale/flip, controls, asset and performance checks passed. Physical desktop/live-motion acceptance remains. |
 
 Gate states: `not_run`, `passed`, `failed`, `pending_assets`, or `pending_environment`. Do not equate `pending_environment` with passed.
 
 | Asset | Reference | Runtime manifest/atlas | Visual review | Next step |
 |---|---|---|---|---|
-| Default | To use a finished character for release | Valid diagnostic grid atlas, preview and manifest | Upright numbered sprite observed live | Replace with authored final character at T11 |
-| Paco | [Original](specs/example-character/paco.jpeg), [new pose study](specs/pose-studies/paco-v1.png) | Valid diagnostic grid atlas, preview and full spec manifest | Four static poses reviewed for identity, warmth and silhouette; runtime art remains diagnostic | Authored stand/run/sit/wipe/turn/sleep clips remain |
+| Default | Paco reference and authored source in art/paco/ | 512×512 RGBA, 16 frames, six clips; id default retained | Native source silhouettes verified at all sizes/facings | Complete live-motion and physical desktop acceptance |
+| Paco | [Original](specs/example-character/paco.jpeg), [authored animation](art/paco/README.md) | Real runtime atlas/preview and six clips; version 2 | Warm identity/poses inspected; 96 native silhouette comparisons pass | User accepted live motion; physical desktop acceptance remains; no missing runtime roles |
 | gatita | [Original](specs/example-character/gatita.jpeg), [new pose study](specs/pose-studies/gatita-v1.png) | Valid diagnostic grid atlas, preview, complete roles and chained stop | Five static poses reviewed for identity/playfulness; corrected background to white | Authored play/roll/purr/crouch/bound/settle/sleep/wake clips remain |
 
 ## 8. Blockers, risks, and open decisions
 
 | ID | Item | Impact | State / next action |
 |---|---|---|---|
-| B01 | Finished animation atlases have not been created | Blocks final character/release gate, not software implementation | Open; static pose studies now exist per §12.2, but transparent animation authoring belongs to the subsequent art stage |
+| B01 | Finished animation atlas availability | Previously blocked bundled-default gate | Resolved for Paco/default by user-authorized animation authoring. gatita remains diagnostic and is not required for the one-character v1 minimum. |
 | R01 | Native API signatures and display-link availability depend on selected crate/SDK versions | Potential T02/T07 integration issue | Verify actual APIs early; keep the documented timer fallback and avoid changing deployment target casually |
 | R02 | External-display, mixed-scale, or fullscreen test environment may be unavailable | May leave a specific manual check pending | Determine in T10; record real availability rather than assuming a blocker now |
 | R03 | Large final atlases may exceed the RSS target despite meeting the 4096-side file limit | Performance/release risk | Measure representative and final packs; document supported budgets and resolve before claiming the performance gate passed |
-| O01 | Which finished character becomes the bundled default | Does not block engine or fixtures | Use diagnostic `default` initially; select from available finished assets without changing user-selected pack IDs |
+| O01 | Which finished character becomes the bundled default | Does not block engine or fixtures | Resolved: Paco, as proposed and approved by the user. Preserve stable pack IDs and existing user selection. |
 
 Add new items with a stable ID, affected task, concrete next step, and resolution evidence. Record routine technical decisions directly; seek user input only when a material unresolved product choice prevents correct progress.
 
@@ -356,3 +356,25 @@ Before handing back, update the current-state table, task ledger, completed chec
 - Passed after benchmark integration: `cargo test --workspace --locked` (14 core + 9 pack tests, native window/renderer/control integration), strict workspace/all-target Clippy. Initial new-code dead-code/constant-assert lint findings and formatting were corrected.
 - Remaining: physical desktop/hardware acceptance in T10, final authored animation in T11, and final-art performance/visual regression checks. The software prototype and v1 retain their strict not_ready gate status.
 - Final bundle: `./scripts/bundle.sh` passed, rebuilding and ad-hoc signing `dist/NotAVirus.app`. Pose-study PNGs are outside runtime resources and do not increase bundle memory. Selected PNG dimensions: Paco 1983×793, gatita 1536×1024. Prompt JSON parsed successfully; formatting and diff whitespace checks passed. No commits or staging changes were made.
+
+### 2026-09-18 — T11 animation stage authorized
+- User approved the proposed next steps: author Paco animation, integrate/review it, finish available desktop acceptance, remeasure performance and package. This advances beyond §12.2's earlier reference-only stage; supplied references and static studies remain preserved.
+- Keep the app closed during authoring; any desktop test must be bounded and cleaned up afterward, following the user's request to remove the previous floating artifact.
+- Next: generate authored animation frames and validate transparent atlas geometry before replacing diagnostic default/Paco assets.
+
+### 2026-09-18 — T11: Paco runtime art, native rendering fix and verification
+- Authored a 16-frame Paco animation sheet with built-in imagegen, derived from the approved reference/pose studies. Integrated a 512×512 transparent RGBA atlas and 128×128 tiles into both stable ids `default` and `paco`; six clips cover seated sweat wipe, huffing jog, getting up, sitting down, turning and dozing. Generated a Paco preview and app icon; gatita is now explicitly labeled Diagnostic. Full source/prompt provenance and a self-contained offline preview are in `art/paco/`.
+- Asset compilation uses a reproducible Rust example: binary alpha removes translucent cutout fringe, common 1/3 nearest sampling preserves seated/standing proportions, and feet register to (64,116), with two-pixel passing-pose lift. The source dimension guard prevents silently compiling unrelated art. Original diagnostic Default/Paco packs were preserved under `tests/fixtures/diagnostic/`; the fixture generator now writes only tests/fixtures and cannot overwrite production art.
+- D13: user approval explicitly advanced beyond the earlier reference-only stage. Paco becomes default while retaining ids and saved user selection. Artwork clip timing is authored in pack data: 2.38-second idle loop, 10 fps jog, 500 ms get-up, 460 ms sit-down, two-frame turn and two-second doze.
+- Found and fixed a material renderer defect. Offscreen native snapshots showed the previous row-byte reversal combined with UV conversion selected/inverted the wrong atlas rows. AppKit view snapshots also ignored the transform on its backing layer. CGImage now retains source row order, and an independent sprite sublayer owns mirroring beneath AppKit's backing layer; no vertical transform is needed. Earlier property-only orientation evidence is superseded by pixel comparisons.
+- Passed: `cargo test --workspace --locked` (14 core + 10 pack tests, native controls and 16 frames × 3 sizes × 2 facings = 96 exact source-silhouette comparisons). A new asset test verifies alpha, padding, grounding and shared Default/Paco pixels. `--capture` writes NSView snapshots under target/native-captures without showing an overlay. Visually inspected source, compiled atlas and native captures; this proves static rendering, not full live-motion/desktop acceptance.
+- Passed: `cargo fmt --all -- --check`; `cargo clippy --workspace --all-targets --locked -- -D warnings`; `./scripts/bundle.sh`; codesign strict/deep verification; plist lint; `git diff --check`. Bundle is 2.8 MiB. Apple's iconutil rejected the iconset inside the sandbox but succeeded outside it; no malformed iconset workaround was used.
+- Final-art performance passed: `cargo test -p notavirus-app --test native --release --locked -- --benchmark`. Actual Paco default atlas 512×512, Small 128pt, backing scale 2; 3-second warmup then 15.072 seconds, 902 callbacks = 59.85 Hz, CPU 0.751%, peak RSS 45.96 MB on the same M4 Pro/macOS 26.6.2 machine. Synthetic stationary simulation input; real clock/cursor/renderer/monitors. Temporary panel/status item cleaned up on exit.
+- Browser policy rejected opening the local HTML preview, so no alternate URL or browser workaround was attempted. The self-contained file remains available to the user. Review evidence and limits are in `.impeccable/review/paco-animation.md`; documentation reflects the actual source, child-layer renderer and per-character status.
+- Remaining: physical click-through over opaque/transparent pixels, live import/menu Quit, mixed-display/Spaces/fullscreen, macOS 13 fallback/fresh-Mac and human live-motion judgment. G05 passes for Paco; G02/G04/G06 remain pending environment. No v1 release claim, commits, preference reset, or staging changes were made.
+- Cleanup verification: an exact executable-name process check found no NotAVirus app or native integration process after the tests; no desktop artifact was left running.
+
+### 2026-09-18 — User acceptance and commit checkpoint
+- User ran the rebuilt app and reported “it works brilliantly,” accepting the visible Paco result. This is live-result acceptance, not specific evidence for import, mixed displays, click-through, or fresh-Mac checks.
+- User requested committing the completed changes and proceeding to the next step. Commit scope is the Paco animation, renderer correction, native regression checks, reproducible assets and corresponding documentation.
+- Next: T10/T11 desktop lifecycle/import acceptance on the available Mac; retain hardware-dependent gates where not observed.

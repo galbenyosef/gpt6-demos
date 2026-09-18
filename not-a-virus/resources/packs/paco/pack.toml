@@ -1,16 +1,15 @@
 schema = 1
-id = "paco"                 # [a-z0-9_-]+
+id = "paco"
 name = "Paco"
-author = "NotAVirus"
-version = 1
-tile = [128, 128]           # frame size in atlas pixels
-anchor = [64, 116]          # ground contact, from the frame's top-left
-filter = "nearest"         # nearest | linear; default nearest
+author = "NotAVirus — AI-assisted original animation; provenance in art/paco/"
+version = 2
+tile = [128, 128]
+anchor = [64, 116]
+filter = "nearest"
 
 [atlas]
 file = "atlas.png"
-grid = [8, 4]               # columns, rows; indices start at top-left, row-major
-# Alternative to grid: regions = "atlas.json"
+grid = [4, 4]
 
 [behavior]
 preset = "chase"
@@ -24,41 +23,41 @@ idle_delay_ms = 250
 sleep_after_ms = 12000
 
 [motion]
-max_speed = 180             # screen points / second
-acceleration = 500          # screen points / second squared
-stop_distance = 24          # distance from the clamped target origin
-start_distance = 40         # must be greater than stop_distance
+max_speed = 180
+acceleration = 500
+stop_distance = 24
+start_distance = 40
 
 [states.sit_and_wipe]
-frames = [0, 1, 2, 1]       # indices into grid, or names
-fps = 6
+frames = [0, 1, 2, 3, 0]
+durations_ms = [1400, 150, 280, 150, 400]
 loop = true
 
 [states.huffing_run]
-frames = [8, 9, 10, 11]
-fps = 12
+frames = [4, 5, 6, 7]
+fps = 10
 loop = true
-flip = "velocity"           # none | velocity | always_left | always_right
+flip = "velocity"
 
 [states.stand_up]
-frames = [16, 17, 18]
-fps = 10
+frames = [8, 9, 10, 11]
+durations_ms = [80, 160, 160, 100]
 loop = false
 interrupt = "finish"
 
 [states.sit_down]
-frames = [18, 17, 16]
-fps = 10
+frames = [11, 10, 9, 8]
+durations_ms = [80, 100, 120, 160]
 loop = false
 interrupt = "on_move"
 
 [states.turn_around]
-frames = [20, 21]
+frames = [12, 13]
 fps = 12
 loop = false
 interrupt = "finish"
 
 [states.doze]
-frames = [24, 25]
-fps = 2
+frames = [14, 15]
+durations_ms = [850, 1150]
 loop = true

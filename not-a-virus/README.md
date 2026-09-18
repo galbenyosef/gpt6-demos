@@ -4,9 +4,9 @@ A macOS menu bar sprite. No network. No extra permissions.
 
 It follows the mouse. That is the entire product.
 
-**Current build:** complete software implementation with diagnostic geometry for Default, Paco, and gatita. These numbered shapes exercise animation, movement, and pack loading. They are **not finished character artwork**. Original character references remain in `specs/example-character/`; release acceptance is tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+**Current build:** Paco is now a real animated pixel-art character, bundled as `Paco (Default)` and `Paco`. gatita remains a labeled diagnostic pack. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
-New [static pose studies for Paco and gatita](specs/pose-studies/README.md) develop the supplied references in preparation for animation authoring. They are reference-only and are not bundled runtime assets.
+Open the [Paco animation preview](art/paco/preview.html) to inspect the shipped clips without opening the desktop app. [Artwork provenance and rebuilding instructions](art/paco/README.md) include the generated source, prompts and asset compiler. The original JPEGs and [static pose studies](specs/pose-studies/README.md) are preserved.
 
 ## Build and run
 
@@ -22,7 +22,7 @@ The script builds the locked release workspace, assembles `NotAVirus.app`, ad-ho
 
 Click **‽** in the menu bar. Choose Pause/Resume, Packs, Size, About, or Quit. Small/Medium/Large are 1×/1.5×/2×; the first launch uses Small. Click-through stays enabled. Scale changes artwork, not chase speed. The selected pack, size, and pause state persist in UserDefaults. Reopening the bundle brings attention to the existing menu instead of creating another pet.
 
-Paco's diagnostic pack accelerates slowly and uses stand/run/sit/turn/doze clips. gatita's accelerates quickly and uses crouch/bound/settle/play/sleep/stretch clips, including a chained stop sequence and unequal frame durations. Those role names describe intended final animation; the current atlas shows numbered diagnostic poses.
+Paco gets up, jogs after the pointer, sits with relief, wipes his brow, and dozes. His pack uses a transparent 16-frame atlas and slower acceleration. gatita's diagnostic pack accelerates quickly and exercises crouch/bound/settle/play/sleep/stretch roles using numbered shapes; her character animation is not authored yet.
 
 ## Packs
 
@@ -87,4 +87,4 @@ cargo test --locked -p notavirus-core -p notavirus-pack
 
 `notavirus-core` owns plain point geometry, validated pack types, the clip player, and behavior/movement. `notavirus-pack` owns untrusted TOML/JSON/PNG decoding and bounded zip installation. `notavirus-app` owns all AppKit objects on the main thread. The window display link targets 60 Hz on supported macOS versions; macOS 13 uses a main-run-loop timer. Each simulation tick is capped at 100 ms and subdivided to at most 1/120 s. Pausing invalidates the tick source.
 
-`python3 scripts/generate-fixtures.py` deterministically regenerates the diagnostic PNGs and manifests with Python's standard library. Their provenance is embedded in PNG metadata. They are original test geometry, not adaptations of the supplied JPEGs. Do not replace final-art acceptance with a successful test build. Current checks and hardware/art gaps are recorded only in the implementation plan.
+`python3 scripts/generate-fixtures.py` regenerates diagnostic PNGs/manifests only under `tests/fixtures/`, so it cannot overwrite runtime artwork. To rebuild Paco, use the commands in `art/paco/README.md`. `cargo test -p notavirus-app --test native --locked -- --capture` also writes offscreen native snapshots at all three sizes and both facings under `target/native-captures/`; it leaves no desktop overlay. Current checks and hardware/art gaps are recorded in the implementation plan.

@@ -7,6 +7,9 @@ mod app;
 #[path = "../src/bridge.rs"]
 mod bridge;
 #[cfg(target_os = "macos")]
+#[path = "support/capture.rs"]
+mod capture;
+#[cfg(target_os = "macos")]
 #[path = "../src/cursor.rs"]
 mod cursor;
 #[cfg(target_os = "macos")]
@@ -57,6 +60,11 @@ fn main() {
             | NSWindowCollectionBehavior::FullScreenAuxiliary
             | NSWindowCollectionBehavior::Stationary
     ));
+    capture::paco(
+        &panel,
+        &root,
+        std::env::args().any(|arg| arg == "--capture"),
+    );
     for id in ["default", "paco", "gatita"] {
         let mut loaded = notavirus_pack::load(&root.join(id)).unwrap();
         let renderer = bridge::Renderer::prepare(&mut loaded).unwrap();

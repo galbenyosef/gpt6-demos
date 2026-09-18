@@ -105,7 +105,7 @@ frames = [24, 25]
 fps = 2
 '''
 for id,name,color,extra in [('default','Default',(39,163,122,255),default),('paco','Paco',(42,126,218,255),None),('gatita','gatita',(192,133,73,255),gatita)]:
-    folder=ROOT/'resources/packs'/id; folder.mkdir(parents=True,exist_ok=True)
+    folder=ROOT/'tests/fixtures/diagnostic'/id; folder.mkdir(parents=True,exist_ok=True)
     (folder/'pack.toml').write_text(paco if id=='paco' else base.format(id=id,name=name,filter='linear' if id=='gatita' else 'nearest')+extra)
     atlas(folder,color)
 # Minimal and named-region fixtures exercise both atlas encodings.

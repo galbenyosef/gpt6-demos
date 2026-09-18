@@ -36,13 +36,47 @@ fn real_packs_and_both_atlas_layouts() {
     for name in ["default", "paco", "gatita"] {
         let p = load(&root().join("resources/packs").join(name)).unwrap();
         assert_eq!(p.pack.id, name);
-        assert_eq!(p.rgba.len(), 1024 * 512 * 4);
+        assert_eq!(p.rgba.len(), p.width as usize * p.height as usize * 4);
     }
     let p = load(&root().join("tests/fixtures/minimal")).unwrap();
     assert_eq!(p.pack.clips[0].frames[0].uv.origin.y, 0.75);
     assert_eq!(p.pack.clips[0].frames[1].uv.origin.x, 0.125);
     let p = load(&root().join("tests/fixtures/regions")).unwrap();
     assert_eq!(p.pack.clips[1].frames[0].uv.origin.y, 0.);
+}
+#[test]
+fn paco_runtime_art_is_transparent_registered_and_shared_with_default() {
+    let p = load(&root().join("resources/packs/paco")).unwrap();
+    let default = load(&root().join("resources/packs/default")).unwrap();
+    assert_eq!((p.width, p.height), (512, 512));
+    assert_eq!(p.rgba, default.rgba);
+    for frame in 0..16 {
+        let mut occupied = 0;
+        let mut bottom = 0;
+        for y in 0..128 {
+            for x in 0..128 {
+                let alpha = p.rgba[((frame / 4 * 128 + y) * 512 + frame % 4 * 128 + x) * 4 + 3];
+                assert!(
+                    alpha == 0 || alpha == 255,
+                    "pixel art has translucent fringe"
+                );
+                if alpha > 0 {
+                    assert!(
+                        (8..120).contains(&x) && (8..116).contains(&y),
+                        "clipped tile {frame}"
+                    );
+                    occupied += 1;
+                    bottom = bottom.max(y);
+                }
+            }
+        }
+        assert!(occupied > 2000, "missing art in frame {frame}");
+        assert_eq!(
+            bottom,
+            if frame == 5 || frame == 7 { 113 } else { 115 },
+            "unstable ground in frame {frame}"
+        );
+    }
 }
 #[test]
 fn rejects_invalid_schema_roles_timing_motion_and_unknown_keys() {
