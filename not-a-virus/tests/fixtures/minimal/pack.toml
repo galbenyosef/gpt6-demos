@@ -1,0 +1,16 @@
+schema = 1
+id = "minimal"
+name = "minimal"
+author = "NotAVirus — diagnostic fixture, not final art"
+version = 1
+tile = [128, 128]
+anchor = [64, 116]
+filter = "nearest"
+[atlas]
+file = "atlas.png"
+grid = [8, 4]
+
+[states.idle]
+frames = [0, 1]
+[states.run]
+frames = [8, 9]

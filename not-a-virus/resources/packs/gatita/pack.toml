@@ -1,0 +1,56 @@
+schema = 1
+id = "gatita"
+name = "gatita"
+author = "NotAVirus — diagnostic fixture, not final art"
+version = 1
+tile = [128, 128]
+anchor = [64, 116]
+filter = "linear"
+[atlas]
+file = "atlas.png"
+grid = [8, 4]
+
+[behavior]
+preset = "chase"
+idle = "play_roll_purr"
+moving = "bound"
+start_moving = "crouch"
+stop_moving = "settle"
+sleep = "curl_up_asleep"
+wake = "stretch"
+idle_delay_ms = 180
+sleep_after_ms = 18000
+[motion]
+max_speed = 420
+acceleration = 1600
+stop_distance = 18
+start_distance = 32
+[states.play_roll_purr]
+frames = [0, 1, 2, 3, 4, 5, 4, 0]
+durations_ms = [180, 120, 120, 200, 160, 300, 200, 220]
+loop = true
+[states.bound]
+frames = [8, 9, 10, 11]
+fps = 14
+[states.crouch]
+frames = [16, 17]
+fps = 12
+loop = false
+[states.settle]
+frames = [18, 19]
+durations_ms = [80, 160]
+loop = false
+interrupt = "finish"
+next = "tail_flick"
+[states.tail_flick]
+frames = [20, 21]
+fps = 10
+loop = false
+interrupt = "on_move"
+[states.curl_up_asleep]
+frames = [24, 25]
+fps = 2
+[states.stretch]
+frames = [26, 27, 28]
+fps = 10
+loop = false

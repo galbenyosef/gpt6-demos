@@ -8,19 +8,19 @@ All paths below are relative to `not-a-virus/`. Keep the project in this directo
 
 | Field | Current value |
 |---|---|
-| Last updated | 2026-09-18 — Rust build output excluded from Git |
+| Last updated | 2026-09-18 — implementation and automated verification complete; release gates explicitly pending |
 | Specification baseline | Revision 0.3, pack `schema = 1` |
-| Overall implementation | `not_started` |
-| Active task | None |
-| Next task | T01 — workspace and dependency boundaries |
-| Next concrete action | Read applicable repository instructions and the spec, inspect the working tree, then replace the starter package with the three-crate workspace described in T01. |
-| Software prototype | `not_ready` |
-| v1 release | `not_ready` |
-| Character assets | Reference JPEGs only; no runtime atlases or pack manifests exist yet. |
-| Blocker to starting software work | None identified |
-| Checks performed for this plan | Inspected project files and spec; no application build, runtime test, or performance measurement performed. |
+| Overall implementation | `in_progress` — software complete; release acceptance pending |
+| Active task | None — available implementation work complete; acceptance tasks below are blocked on desktop/art evidence |
+| Next task | T10 — remaining desktop/idle acceptance; then T11 — finished character art |
+| Next concrete action | On a controlled Mac desktop, verify physical click-through, import chooser, menu Quit, mixed displays/Spaces/fullscreen and sustained idle CPU below 1%; obtain authored final character animation for T11. |
+| Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
+| v1 release | `not_ready` — finished default artwork and desktop acceptance remain pending |
+| Character assets | Default, Paco and gatita have validated diagnostic manifests/transparent atlases/previews. Both supplied JPEG references are preserved. No finished character animation is claimed. |
+| Blocker to starting software work | None; software is implemented. |
+| Checks performed for this plan | 23 portable tests and main-thread native integration checks passed; formatting, strict Clippy, release bundle/signature/plist checks passed. Live sprite/menu observed. Full desktop/performance acceptance remains separate. |
 
-Observed starting point:
+Historical starting point (before implementation):
 
 - `Cargo.toml` defines package `not-a-virus`, version `0.1.0`, edition `2024`, with no dependencies.
 - `src/main.rs` only prints `Hello, world!`.
@@ -46,17 +46,17 @@ Implementation should continue through all available v1 software tasks. A workin
 
 | ID | Task | Depends on | Status | Evidence / remaining work |
 |---|---|---|---|---|
-| T01 | Workspace and dependency boundaries | — | `not_started` | Starter package only; `/target/` ignore rule prepared |
-| T02 | Native macOS shell and early bundle smoke test | T01 | `not_started` | No app shell |
-| T03 | Pack schema, atlas loading, and validation | T01 | `not_started` | No loader |
-| T04 | Deterministic clip player | T03 | `not_started` | No player |
-| T05 | Movement and behavior state machine | T04 | `not_started` | No simulation |
-| T06 | Default, Paco, and gatita diagnostic packs | T03 | `not_started` | References only |
-| T07 | Renderer, cursor, and simulation integration | T02, T05, T06 | `not_started` | No working sprite |
-| T08 | Pack management, menu controls, persistence, and logs | T07 | `not_started` | No user workflow |
-| T09 | Release bundle and documentation | T08 | `not_started` | No reproducible bundle |
-| T10 | Automated, desktop, and performance verification | T09 | `not_started` | All verification gates pending |
-| T11 | Finished default artwork and release acceptance | T10, final artwork | `not_started` | Reference art is not a runtime pack |
+| T01 | Workspace and dependency boundaries | — | `done` | Workspace compiles; Rust 1.97.1 / SDK 27.0; target-scoped objc2 0.6.4 / frameworks 0.3.2; macOS floor 13.0 |
+| T02 | Native macOS shell and early bundle smoke test | T01 | `blocked` | Implemented; native flags/lifecycle checks and live launch/reopen pass. Full manual click-through/Quit acceptance not established by CUA. |
+| T03 | Pack schema, atlas loading, and validation | T01 | `done` | 9 loader/import tests pass; strict schema, static RGBA PNG, named/grid geometry and contained asset paths |
+| T04 | Deterministic clip player | T03 | `done` | Runtime tests pass for exact boundaries, variable durations, chain carry, flip modes and pause |
+| T05 | Movement and behavior state machine | T04 | `done` | 13 deterministic runtime tests pass, including full cycle, interruptions, edges, zero radius and 60/120 Hz |
+| T06 | Default, Paco, and gatita diagnostic packs | T03 | `done` | Default/Paco/gatita diagnostic atlases and minimal/named fixtures pass real loader; generated original geometry |
+| T07 | Renderer, cursor, and simulation integration | T02, T05, T06 | `blocked` | Renderer, main-thread 60 Hz display link/timer, monitors, display geometry and pause complete; native checks pass. Mixed-display and physical click-through checks pending. |
+| T08 | Pack management, menu controls, persistence, and logs | T07 | `blocked` | Software and automated/native checks complete; manual import-dialog/restart acceptance remains pending. |
+| T09 | Release bundle and documentation | T08 | `done` | Fresh staged 1.5 MiB relocatable bundle, icon/LICENSE/plist/PkgInfo, ad-hoc signing verified; README and PACK_AUTHORING.md written. |
+| T10 | Automated, desktop, and performance verification | T09 | `blocked` | Automated checks passed; full desktop matrix and a controlled sustained-idle benchmark remain pending. |
+| T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | B01: final authored animation atlases absent; diagnostic assets explicitly not release art. Reference-only art direction preserved. |
 
 Default execution order is T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11. If one task is blocked, the dependency column determines which other tasks can proceed. T06 can be completed before T04/T05 if fixtures are needed for their tests.
 
@@ -95,11 +95,11 @@ Select compatible crate versions using the installed toolchain, current official
 
 Spec: §§5, 7, 9. Deliverables: workspace `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `crates/{notavirus-core,notavirus-pack,notavirus-app}/`, and appropriate build-output ignores.
 
-- [ ] Inspect applicable repository instructions and preserve the spec, reference images, and existing unrelated changes.
-- [ ] Convert the starter into a three-crate workspace with dependency direction D01; remove/replace the obsolete starter entry point after the new app entry point exists.
-- [ ] Keep native dependencies target-scoped to macOS. Core/pack libraries must build and test on Linux without compiling AppKit.
-- [ ] Add only dependencies needed by implemented steps; pin their resolved versions in `Cargo.lock`. Specify the app binary name per D02.
-- [ ] Establish plain coordinate, pack, frame, clip, role, screen-geometry, and tick input/output types; preserve separation of screen points and atlas pixels.
+- [x] Inspect applicable repository instructions and preserve the spec, reference images, and existing unrelated changes.
+- [x] Convert the starter into a three-crate workspace with dependency direction D01; remove/replace the obsolete starter entry point after the new app entry point exists.
+- [x] Keep native dependencies target-scoped to macOS. Core/pack libraries must build and test on Linux without compiling AppKit.
+- [x] Add only dependencies needed by implemented steps; pin their resolved versions in `Cargo.lock`. Specify the app binary name per D02.
+- [x] Establish plain coordinate, pack, frame, clip, role, screen-geometry, and tick input/output types; preserve separation of screen points and atlas pixels.
 
 Exit: Cargo recognizes all three members; core/pack checks work independently; the macOS app entry point compiles. Record the actual Rust version, SDK/deployment-target choice, and dependency results.
 
@@ -107,10 +107,10 @@ Exit: Cargo recognizes all three members; core/pack checks work independently; t
 
 Spec: §§3.1–3.2, 3.4, 3.6–3.7, 6.1–6.2, 7. Deliverables: app lifecycle, `panel.rs`, initial `status.rs`, `resources/Info.plist`, initial `scripts/bundle.sh`.
 
-- [ ] Create the accessory application, status item, About and Quit actions; keep native owners/delegates alive for the application's lifetime.
-- [ ] Create the borderless, nonactivating transparent panel with the exact click-through, shadow, level, collection, and activation behavior from §3.2. Use a simple diagnostic rectangle at this stage.
-- [ ] Implement single-instance detection for this app; a second launch returns attention to the existing menu-bar app and exits without creating another panel. Use the platform's application lifecycle facilities, not process/window inspection.
-- [ ] Add the provisional main-thread timer, cleanup on Quit, and an initial relocatable `.app` bundle with `LSUIElement`, executable name, resources, and deployment target.
+- [x] Create the accessory application, status item, About and Quit actions; keep native owners/delegates alive for the application's lifetime.
+- [x] Create the borderless, nonactivating transparent panel with the exact click-through, shadow, level, collection, and activation behavior from §3.2. Use a simple diagnostic rectangle at this stage.
+- [x] Implement single-instance detection for this app; a second launch returns attention to the existing menu-bar app and exits without creating another panel. Use the platform's application lifecycle facilities, not process/window inspection.
+- [x] Add the provisional main-thread timer, cleanup on Quit, and an initial relocatable `.app` bundle with `LSUIElement`, executable name, resources, and deployment target.
 - [ ] Smoke-test the bundle: no Dock icon, no TCC prompt, clicks reach the underlying app, Quit releases the panel and process, and a second launch does not duplicate it.
 
 Exit: a local native app launches and quits cleanly with the required window behavior. Movement and character rendering can remain pending. Log any native test that could not be performed rather than assuming it passed.
@@ -119,12 +119,12 @@ Exit: a local native app launches and quits cleanly with the required window beh
 
 Spec: §§4.1–4.3, 4.6, 9, 10.1. Deliverables: loader modules in `notavirus-pack`, public validated core types, focused malformed/valid fixtures.
 
-- [ ] Parse schema 1 metadata, atlas, behavior, motion, and arbitrary `[states.<name>]` clip definitions with all specified defaults. Required roles are idle/moving, not fixed clip names.
-- [ ] Enforce role loop types, explicit missing references, optional-role behavior, finite numeric bounds, timing alternatives, and clip-chain validity. Reject `[[rules]]`, unknown behavior keys/enums, and unsupported schemas/presets.
-- [ ] Load a static RGBA PNG once; reject APNG, invalid dimensions, inconsistent grids, or missing/out-of-bounds frames. Support top-left row-major grid indices and untrimmed/unrotated named regions.
-- [ ] Convert atlas coordinates at a documented boundary; retain frame dimensions and anchor data so the renderer does not guess orientation or mirroring origin. Premultiply alpha exactly once at the rendering boundary.
-- [ ] Resolve all referenced files within the pack root; enforce file/dimension limits before expensive allocations and return useful structured errors.
-- [ ] Test the spec's complete minimum/Paco examples plus a complete gatita fixture. Include unequal frame durations, invalid clip graphs, and invalid paths/atlas geometry.
+- [x] Parse schema 1 metadata, atlas, behavior, motion, and arbitrary `[states.<name>]` clip definitions with all specified defaults. Required roles are idle/moving, not fixed clip names.
+- [x] Enforce role loop types, explicit missing references, optional-role behavior, finite numeric bounds, timing alternatives, and clip-chain validity. Reject `[[rules]]`, unknown behavior keys/enums, and unsupported schemas/presets.
+- [x] Load a static RGBA PNG once; reject APNG, invalid dimensions, inconsistent grids, or missing/out-of-bounds frames. Support top-left row-major grid indices and untrimmed/unrotated named regions.
+- [x] Convert atlas coordinates at a documented boundary; retain frame dimensions and anchor data so the renderer does not guess orientation or mirroring origin. Premultiply alpha exactly once at the rendering boundary.
+- [x] Resolve all referenced files within the pack root; enforce file/dimension limits before expensive allocations and return useful structured errors.
+- [x] Test the spec's complete minimum/Paco examples plus a complete gatita fixture. Include unequal frame durations, invalid clip graphs, and invalid paths/atlas geometry.
 
 Exit: valid directory packs produce fully validated runtime data; invalid packs fail without partially replacing an active pack. Both grid and named-region paths have meaningful tests. Zip installation follows in T08.
 
@@ -132,11 +132,11 @@ Exit: valid directory packs produce fully validated runtime data; invalid packs 
 
 Spec: §§4.2–4.4, 10.1. Deliverables: `notavirus-core/src/player.rs` and unit tests.
 
-- [ ] Implement frame sampling, fixed FPS and per-frame durations, loop wrapping, and all flip modes.
-- [ ] Represent clip completion separately from phase selection. Carry elapsed time through loop boundaries and `next` chains; reject cycles in the loader rather than hanging during playback.
-- [ ] Return control to the behavior engine when a one-shot chain ends. Do not hardcode `next = run` or restart an unchanged clip on each tick.
-- [ ] Expose enough state to test the current clip, frame, elapsed time, completion, and facing without AppKit or real-time sleeps.
-- [ ] Test time zero, exact boundaries, multiple frames per step, unequal durations, chained clips, completion, and pause preservation.
+- [x] Implement frame sampling, fixed FPS and per-frame durations, loop wrapping, and all flip modes.
+- [x] Represent clip completion separately from phase selection. Carry elapsed time through loop boundaries and `next` chains; reject cycles in the loader rather than hanging during playback.
+- [x] Return control to the behavior engine when a one-shot chain ends. Do not hardcode `next = run` or restart an unchanged clip on each tick.
+- [x] Expose enough state to test the current clip, frame, elapsed time, completion, and facing without AppKit or real-time sleeps.
+- [x] Test time zero, exact boundaries, multiple frames per step, unequal durations, chained clips, completion, and pause preservation.
 
 Exit: injected time produces deterministic frames and completion events, with no image decoding or allocation required each animation frame.
 
@@ -144,12 +144,12 @@ Exit: injected time produces deterministic frames and completion events, with no
 
 Spec: §§3.3, 4.3–4.4, 5.5, 10.1. Deliverables: `brain.rs`, `math.rs`, integrated pure-core tick, scenario tests.
 
-- [ ] Implement cursor speed, character speed, clamped target distance, arrival time, and rest time as separate signals. Use the requested scale for artwork/anchor only, not speed or chase distances.
-- [ ] Implement start/stop hysteresis, bounded velocity/acceleration and braking, radius intersection stopping, visible-frame clamping, and the specified bounded simulation time.
-- [ ] Implement all phases and optional transitions, with held position during idle/start/wake/stop/sleep and continued following during moving/turning.
-- [ ] Implement the exact precedence and `finish`/`on_move` behavior, including stop-chain interruption, current-demand reevaluation after completion, and wake replacing start.
-- [ ] Handle facing thresholds, vertical motion, direction changes within one-shots, pause/resume, display relocation, oversized tiles, and size changes without artificial speed/turn events.
-- [ ] Add deterministic tests for all core scenarios in §10.1. Include stationary pointer catch-up, jitter, simultaneous conditions, 60/120 Hz comparable trajectories, zero stop radius, and long-tick bounds.
+- [x] Implement cursor speed, character speed, clamped target distance, arrival time, and rest time as separate signals. Use the requested scale for artwork/anchor only, not speed or chase distances.
+- [x] Implement start/stop hysteresis, bounded velocity/acceleration and braking, radius intersection stopping, visible-frame clamping, and the specified bounded simulation time.
+- [x] Implement all phases and optional transitions, with held position during idle/start/wake/stop/sleep and continued following during moving/turning.
+- [x] Implement the exact precedence and `finish`/`on_move` behavior, including stop-chain interruption, current-demand reevaluation after completion, and wake replacing start.
+- [x] Handle facing thresholds, vertical motion, direction changes within one-shots, pause/resume, display relocation, oversized tiles, and size changes without artificial speed/turn events.
+- [x] Add deterministic tests for all core scenarios in §10.1. Include stationary pointer catch-up, jitter, simultaneous conditions, 60/120 Hz comparable trajectories, zero stop radius, and long-tick bounds.
 
 Exit: full Paco and gatita behavior cycles can be exercised through pure data and simulated time. A distant stationary pointer does not make the character sit down prematurely; unreachable screen-edge targets cannot trap it in endless running.
 
@@ -157,11 +157,11 @@ Exit: full Paco and gatita behavior cycles can be exercised through pure data an
 
 Spec: §§4.2, 4.6–4.7, 12. Deliverables: `resources/packs/default/`, development/test Paco and gatita packs, asset-status updates below.
 
-- [ ] Supply a valid bundled `default` pack, preview, and transparent static atlas so first launch works without external files.
-- [ ] Supply complete Paco and gatita manifests using their different role mappings, timing, filters, and motion values from the spec. The gatita TOML in §4.7 is a fragment and must be completed.
-- [ ] Use visibly distinct diagnostic frames/poses for each role so wrong frame order, phase, anchor, or flip can be spotted. Include a numbered atlas test fixture for coordinate checks.
-- [ ] Cover a multi-clip one-shot sequence and unequal durations in at least one fixture. Exercise both a minimal two-clip pack and the richer personalities.
-- [ ] Keep diagnostic artwork clearly identified in development documentation and the asset table. Preserve source JPEGs; do not represent fixtures as finished Paco/gatita animations.
+- [x] Supply a valid bundled `default` pack, preview, and transparent static atlas so first launch works without external files.
+- [x] Supply complete Paco and gatita manifests using their different role mappings, timing, filters, and motion values from the spec. The gatita TOML in §4.7 is a fragment and must be completed.
+- [x] Use visibly distinct diagnostic frames/poses for each role so wrong frame order, phase, anchor, or flip can be spotted. Include a numbered atlas test fixture for coordinate checks.
+- [x] Cover a multi-clip one-shot sequence and unequal durations in at least one fixture. Exercise both a minimal two-clip pack and the richer personalities.
+- [x] Keep diagnostic artwork clearly identified in development documentation and the asset table. Preserve source JPEGs; do not represent fixtures as finished Paco/gatita animations.
 
 Exit: all fixtures pass the real loader and can drive player/behavior tests. This completes software fixtures only, not final artwork.
 
@@ -169,10 +169,10 @@ Exit: all fixtures pass the real loader and can drive player/behavior tests. Thi
 
 Spec: §§3.2–3.7, 4.5, 5.3–5.5. Deliverables: `cursor.rs`, `tick.rs`, `bridge.rs`, application state wiring.
 
-- [ ] Load the atlas into the native image/layer once, select frames via `contentsRect`, convert the Y axis once, and mirror about the anchor with correct translation. Support nearest and linear filtering.
-- [ ] Poll `NSEvent.mouseLocation` each tick and add the specified local/global mouse monitors without adding forbidden APIs or permission requests.
-- [ ] Select the pointer's display, pass plain screen geometry to core, and apply `TickOutput` to the panel/layer on the main thread. Handle display changes, Retina scale, visible bounds, and monitor disconnection sensibly.
-- [ ] Integrate display-link timing with a supported 60 Hz timer fallback. Coalesce callbacks rather than queueing an unbounded backlog; own and release monitor/link resources correctly.
+- [x] Load the atlas into the native image/layer once, select frames via `contentsRect`, convert the Y axis once, and mirror about the anchor with correct translation. Support nearest and linear filtering.
+- [x] Poll `NSEvent.mouseLocation` each tick and add the specified local/global mouse monitors without adding forbidden APIs or permission requests.
+- [x] Select the pointer's display, pass plain screen geometry to core, and apply `TickOutput` to the panel/layer on the main thread. Handle display changes, Retina scale, visible bounds, and monitor disconnection sensibly.
+- [x] Integrate display-link timing with a supported 60 Hz timer fallback. Coalesce callbacks rather than queueing an unbounded backlog; own and release monitor/link resources correctly.
 - [ ] Wire Pause/Resume to the same bounded simulation clock and halt the tick source while paused. Refresh cursor sampling before resuming.
 - [ ] Verify actual transparent frames, facing/anchor stability, continuous chasing after the pointer stops, transitions, and clicks passing through both opaque and transparent sprite pixels.
 
@@ -182,13 +182,13 @@ Exit: the app runs a complete diagnostic character pack on the desktop, with bou
 
 Spec: §§2.6, 4.1–4.2, 6, 8–9, 10.2. Deliverables: complete status menu, pack store/importer, preferences and logging.
 
-- [ ] Discover bundled/user packs in the specified order. Show only actual installed names, useful disabled invalid-pack entries, and deterministic duplicate handling per D08.
-- [ ] Implement `.petpack` import with root/one-folder-deep manifest support, bounded extraction, path traversal/absolute-path rejection, and pack-root containment. Reject archive symlinks or otherwise prove they cannot escape; enforce the actual extracted-byte limit as well as archive metadata limits.
-- [ ] Validate in a temporary location, then install atomically under Application Support. Cleanup failed imports and preserve the existing/active pack on every failure.
-- [ ] Switch packs only after full validation/native resource preparation succeeds. Reset the new player's phase/timers as specified and preserve the requested user scale and pause state.
-- [ ] Implement Packs, Open packs folder, Import, Size, Pause/Resume, About, Quit, and the fixed checked Click-through indication. Keep UI selections consistent with stored settings.
-- [ ] Persist settings with UserDefaults; recover from stale active-pack IDs or invalid preferences using the bundled default and documented defaults.
-- [ ] Add rotating logs at the specified location/size and concise errors in the menu; never write into the installed `.app`.
+- [x] Discover bundled/user packs in the specified order. Show only actual installed names, useful disabled invalid-pack entries, and deterministic duplicate handling per D08.
+- [x] Implement `.petpack` import with root/one-folder-deep manifest support, bounded extraction, path traversal/absolute-path rejection, and pack-root containment. Reject archive symlinks or otherwise prove they cannot escape; enforce the actual extracted-byte limit as well as archive metadata limits.
+- [x] Validate in a temporary location, then install atomically under Application Support. Cleanup failed imports and preserve the existing/active pack on every failure.
+- [x] Switch packs only after full validation/native resource preparation succeeds. Reset the new player's phase/timers as specified and preserve the requested user scale and pause state.
+- [x] Implement Packs, Open packs folder, Import, Size, Pause/Resume, About, Quit, and the fixed checked Click-through indication. Keep UI selections consistent with stored settings.
+- [x] Persist settings with UserDefaults; recover from stale active-pack IDs or invalid preferences using the bundled default and documented defaults.
+- [x] Add rotating logs at the specified location/size and concise errors in the menu; never write into the installed `.app`.
 - [ ] Test malformed/truncated/oversized/traversal archives and failed switches; manually verify import, restart persistence, and fallback behavior.
 
 Exit: a user can import and select a valid new pack without rebuilding, and broken packs leave the last good character running.
@@ -197,11 +197,11 @@ Exit: a user can import and select a valid new pack without rebuilding, and brok
 
 Spec: §§7–9, 11–13, 15. Deliverables: final `scripts/bundle.sh`, resources, README, pack-authoring instructions.
 
-- [ ] Make the release build/bundle reproducible with binary, Info.plist, resources, icon, and `PkgInfo`. Resource discovery must work when launched from Finder or outside the repository directory.
-- [ ] Ad-hoc sign and verify the local bundle. Keep Developer ID/notarization outside this v1 local-build task; record distribution limitations accurately.
-- [ ] Document prerequisites, build/run instructions, supported macOS behavior, controls, install/import paths, log locations, and the minimum viable pack.
-- [ ] Include the spec's concise “Is this a virus?” explanation and explain that sound, physical orbiting, and interactive petting are outside v1.
-- [ ] Describe diagnostic versus finished character assets and the remaining art work honestly. Ensure no runtime network access or developer-only absolute paths are required.
+- [x] Make the release build/bundle reproducible with binary, Info.plist, resources, icon, and `PkgInfo`. Resource discovery must work when launched from Finder or outside the repository directory.
+- [x] Ad-hoc sign and verify the local bundle. Keep Developer ID/notarization outside this v1 local-build task; record distribution limitations accurately.
+- [x] Document prerequisites, build/run instructions, supported macOS behavior, controls, install/import paths, log locations, and the minimum viable pack.
+- [x] Include the spec's concise “Is this a virus?” explanation and explain that sound, physical orbiting, and interactive petting are outside v1.
+- [x] Describe diagnostic versus finished character assets and the remaining art work honestly. Ensure no runtime network access or developer-only absolute paths are required.
 
 Exit: a fresh build produces a relocatable locally signed `NotAVirus.app`, and another developer can build it and add a pack from the documentation.
 
@@ -209,11 +209,11 @@ Exit: a fresh build produces a relocatable locally signed `NotAVirus.app`, and a
 
 Spec: all of §10 and §15. Deliverables: passing applicable checks, recorded native verification, measured performance, updated readiness gates.
 
-- [ ] Run formatting, core/pack tests, relevant app/integration tests, linting, release build, and bundle/signature checks using the commands below. Add Linux CI for the portable crates where repository CI permits; record whether a Linux run actually occurred.
+- [x] Run formatting, core/pack tests, relevant app/integration tests, linting, release build, and bundle/signature checks using the commands below. Add Linux CI for the portable crates where repository CI permits; record whether a Linux run actually occurred.
 - [ ] Complete the manual Mac checklist: launch/no Dock/no prompts, built-in/external display movement, Retina changes, clicks, pause/resume, pack switching/import failures, single-instance behavior, Spaces/fullscreen expectations, and clean Quit.
-- [ ] Record unavailable hardware/OS checks as pending with the specific environment needed. Do not claim a second-display test from a single-display run.
+- [x] Record unavailable hardware/OS checks as pending with the specific environment needed. Do not claim a second-display test from a single-display run.
 - [ ] Measure release-build idle CPU at 60 Hz and RSS after loading a representative pack, against the spec's <1% CPU and <80 MB targets. Record machine, OS, atlas size, sampling interval, and observed values. Verify no per-frame PNG decoding.
-- [ ] Investigate failures and add focused regression coverage where it verifies meaningful behavior. Reopen affected earlier tasks as necessary.
+- [x] Investigate failures and add focused regression coverage where it verifies meaningful behavior. Reopen affected earlier tasks as necessary.
 
 Exit: software readiness is supported by evidence. Set `Software prototype = ready` only when T01–T10 are complete and its required checks passed. If final artwork is absent, keep v1 release readiness pending and proceed with all other available work.
 
@@ -221,7 +221,7 @@ Exit: software readiness is supported by evidence. Set `Software prototype = rea
 
 Spec: §§4.6–4.7, 10.2–10.3, 12, 15. Deliverables: at least one finished bundled character, reviewed art integration, final state/README.
 
-- [ ] Record availability and provenance of final animation frames. Reference-only work remains reference-only until finished asset authoring is in scope or usable assets are supplied; continue software tasks meanwhile.
+- [x] Record availability and provenance of final animation frames. Reference-only work remains reference-only until finished asset authoring is in scope or usable assets are supplied; continue software tasks meanwhile.
 - [ ] Replace diagnostic artwork for at least the bundled default with a consistent transparent PNG atlas, preview, and complete clip mappings. Validate and render it through the same public pack path.
 - [ ] Check stable silhouette, ground anchor, facing, frame transitions, clipping, filtering, and legibility at all supported sizes. Recheck resource/performance limits for the final atlas.
 - [ ] Preserve Paco's friendly exhausted expression and visual identity, or gatita's tabby features, playful idle sequence, and visual purr, depending on the finished pack being integrated.
@@ -256,20 +256,20 @@ Linux CI must explicitly select portable crates and avoid building the macOS app
 
 | Gate | Required for | State | Evidence / next action |
 |---|---|---|---|
-| G01 — Core/loader behavior and failure tests | Software prototype | `not_run` | T03–T05, T08 |
-| G02 — Native window, input, rendering, lifecycle | Software prototype | `not_run` | T02, T07–T08 |
-| G03 — Reproducible relocatable bundle and docs | Software prototype | `not_run` | T09 |
-| G04 — Full desktop checklist and performance | Verified software prototype / v1 | `not_run` | T10; record hardware gaps explicitly |
-| G05 — Finished original/licensed bundled default | v1 release | `pending_assets` | T11; reference JPEGs alone do not satisfy this gate |
-| G06 — Final-art regression checks and §15 success | v1 release | `not_run` | T11 |
+| G01 — Core/loader behavior and failure tests | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
+| G02 — Native window, input, rendering, lifecycle | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
+| G03 — Reproducible relocatable bundle and docs | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
+| G04 — Full desktop checklist and performance | Verified software prototype / v1 | `pending_environment` | Full desktop matrix remains unverified; benchmark evidence appended below |
+| G05 — Finished original/licensed bundled default | v1 release | `not_ready` — finished default artwork and desktop acceptance remain pending |
+| G06 — Final-art regression checks and §15 success | v1 release | `not_ready` — finished default artwork and desktop acceptance remain pending |
 
 Gate states: `not_run`, `passed`, `failed`, `pending_assets`, or `pending_environment`. Do not equate `pending_environment` with passed.
 
 | Asset | Reference | Runtime manifest/atlas | Visual review | Next step |
 |---|---|---|---|---|
-| Default | To use a finished character for release | Missing | Not run | T06 diagnostic pack, then T11 final replacement |
-| Paco | [paco.jpeg](specs/example-character/paco.jpeg) | Missing | Reference direction recorded in spec; final animation not reviewed | T06 fixture; later authored stand/run/sit/wipe/turn/sleep clips |
-| gatita | [gatita.jpeg](specs/example-character/gatita.jpeg) | Missing | Reference direction recorded in spec; final animation not reviewed | T06 fixture; later authored play/roll/purr/crouch/bound/settle/sleep/wake clips |
+| Default | To use a finished character for release | Valid diagnostic grid atlas, preview and manifest | Upright numbered sprite observed live | Replace with authored final character at T11 |
+| Paco | [paco.jpeg](specs/example-character/paco.jpeg) | Valid diagnostic grid atlas, preview and full spec manifest | Native image/size/flip checks pass; not final character art | Authored stand/run/sit/wipe/turn/sleep clips remain |
+| gatita | [gatita.jpeg](specs/example-character/gatita.jpeg) | Valid diagnostic grid atlas, preview, complete roles and chained stop | Pack selection persisted during live session; not final character art | Authored play/roll/purr/crouch/bound/settle/sleep/wake clips remain |
 
 ## 8. Blockers, risks, and open decisions
 
@@ -312,3 +312,31 @@ For each implementation session, append an entry using this shape:
 ```
 
 Before handing back, update the current-state table, task ledger, completed checkboxes, readiness gates, asset statuses, and this log so the next agent can continue from the repository alone.
+
+### 2026-09-18 — T01, T03–T06: workspace, engine and validated diagnostic packs
+- Completed: portable core/pack crates and target-scoped native shell, strict TOML/PNG/JSON validation, deterministic player and movement, secure zip import, diagnostic packs with original numbered geometry. Reference JPEGs preserved.
+- Passed: `cargo check --offline`; `cargo test --workspace --locked` (13 core + 9 pack integration tests).
+- Environment: Rust 1.97.1, macOS SDK 27.0. Downloaded objc2 0.6.4 and framework bindings 0.3.2; runtime-gated AppKit CADisplayLink with 60 Hz NSTimer fallback keeps macOS 13 support.
+- Sequence interpretation: implemented the portable prerequisites and integrated shell while dependencies resolved; T02 desktop exit remains pending, not presumed from compilation.
+- Remaining: native visual/input lifecycle checks, final docs/bundle/performance, final artwork (B01).
+- Next: signed bundle smoke test.
+
+### 2026-09-18 — T02, T07–T10: complete native software and verification
+- Implemented: transparent floating nonactivating click-through panel; single-instance bundle reopen; main-thread window CADisplayLink at 60 Hz with macOS 13 timer fallback; global/local mouse monitors; native CALayer atlas rendering, filtering and anchor mirroring; full menu, isolated/testable UserDefaults, discovery/import, failed-switch preservation and rotating log writer.
+- Passed: `cargo test --workspace --locked` outside the sandbox (14 core + 9 pack tests and main-thread native integration executable). Native checks cover exact window flags/accessory policy, three packs at 1×/1.5×/2×, Retina layer scale, UV/flip transforms, actual Objective-C Pause/Resume/Size/selectPack selectors, stale settings fallback, persisted settings, failed-switch preservation, and the cleanup path used by Quit. Test preferences use an isolated suite and are removed afterward.
+- Passed: `cargo fmt --all -- --check`; `cargo clippy --workspace --all-targets --locked -- -D warnings`; `./scripts/bundle.sh`; `codesign --verify --deep --strict dist/NotAVirus.app`; `plutil -lint`; `otool -l` confirms minos 13.0, SDK 27.0. Bundle is approximately 1.5 MiB with diagnostic resources. A GitHub Actions workflow was added for Linux portable checks and macOS build/lint; no CI run has occurred in this session.
+- Native observation: CUA launched the bundle with no TCC dialog; an upright 128-point numbered sprite rendered, and native menu AX exposed all specified controls. Reopen showed one app instance; gatita selection persisted. CUA timing/state changes made detailed physical click-through, all live sizes, import chooser workflow and menu-Quit evidence inconclusive, so these are not claimed passed from automation alone.
+- Failed/resolved checks: initial native test inside sandbox returned activation policy -1 (no window-server access); the same test outside sandbox passed. Initial Clippy formatting warnings were fixed. Final-art checks remain not_run.
+- Performance investigation: initial renderer mutated the layer/window every tick, and sampling attributed most remaining callback work to repeated NSScreen dictionaries. The renderer now skips unchanged outputs; display rectangles/IDs/scales are cached as plain data, invalidated on display-change notifications and refreshed each second for Dock changes. Pointer/display selection still runs every tick. Source confirms no per-frame PNG decode or image allocation.
+- D10: use runtime-gated AppKit window displayLinkWithTarget (callbacks already on main run loop) instead of a background CVDisplayLink, preserving macOS 13 through the documented timer fallback. D11: cache native screen metadata to meet idle budget; at most one second delay for Dock-only visibleFrame changes, immediate display-configuration invalidation.
+- D12: new_scaled initializes the core with restored user scale, preventing double anchor offsets at launch/pack switch; a regression test verifies feet stay fixed across scale changes.
+- Review: `.impeccable/review/finish-review.md` reports `ship` only for prototype code/interaction scope. No independent screenshot-based visual approval or final-art acceptance is claimed. Native documentation is complete in DESIGN.md, .impeccable/design.json and .impeccable/surfaces/native-companion.md; JSON parsing and source consistency were checked.
+- Still pending: hardware/manual desktop acceptance (mixed Retina displays, actual input landing beneath opaque/transparent pixels, Spaces/Stage Manager/fullscreen, import dialog, live menu Quit), macOS 13 fallback on that OS, fresh-Mac install, final animation art and final-art regressions. These remain visible gates, not missing software implementation.
+
+### 2026-09-18 — T10 handoff: final build, benchmark limits and readiness
+- Final passed commands: `cargo test --workspace --locked` (23 portable tests plus native integration), `cargo fmt --all -- --check`, strict workspace/all-target Clippy, release bundling, codesign verification, plist lint, deployment-target inspection, and `git diff --check`. App was relaunched from the final bundle; exactly one final test process was observed. No commits or staging changes were made.
+- Performance environment: MacBook Pro, Apple M4 Pro, 24 GB RAM, macOS 26.6.2 (25G83), 1024×512 RGBA diagnostic atlas, 128-point sprite, configured 60 Hz AppKit display link. Earlier 3-second `sample` showed a 24.9 MB physical footprint; initial RSS observations were approximately 44–66 MB, below the 80 MB target. Final relaunch RSS was 44,192 KiB; `top` reported approximately 18 MB physical footprint.
+- Final `top -l 4 -s 5 -pid 77871 -stats pid,cpu,mem` sampled over 15 seconds at 18:32:14–18:32:29 local. Discarding its initial 0.0 sample, CPU was 7.4%, 7.5%, 1.9%. An earlier `ps` decayed snapshot was 0.9%. The desktop was interactive and no independently confirmed still-cursor interval was established; these values do NOT prove the <1% sustained idle gate. Keep performance acceptance pending and repeat with a stationary pointer after the pet has settled. Do not reinterpret the 0.9 snapshot as a passing benchmark.
+- All available software tasks are implemented. T02/T07/T08/T10 retain blocked acceptance status where their checklists require physical/manual evidence that the desktop tool did not reliably establish. T11 is blocked by missing authored final character atlases. `Software prototype` remains `not_ready` under this plan's strict all-gates definition; the working signed diagnostic prototype is available at `dist/NotAVirus.app`.
+- Design review disposition: `ship` at prototype code/interaction scope only. It did not independently inspect screenshots; documentation records that limit. Final art, motion/anchor appearance at every scale, mixed-display behavior and fresh-Mac acceptance remain unapproved.
+- Handoff: README.md contains build/run, file/privacy, controls and artifact-status instructions; PACK_AUTHORING.md describes the supported format. Next action is the controlled desktop checklist/idle measurement above, followed by integration of finished original/licensed art. No generated JPEGs or reference-art adaptations were represented as runtime character animation.

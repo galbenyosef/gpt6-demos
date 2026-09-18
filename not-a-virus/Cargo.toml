@@ -1,6 +1,19 @@
-[package]
-name = "not-a-virus"
+[workspace]
+members = ["crates/notavirus-core", "crates/notavirus-pack", "crates/notavirus-app"]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+rust-version = "1.88"
 
-[dependencies]
+[workspace.dependencies]
+notavirus-core = { path = "crates/notavirus-core" }
+notavirus-pack = { path = "crates/notavirus-pack" }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[profile.release]
+lto = "thin"
+strip = true

@@ -1,0 +1,16 @@
+schema = 1
+id = "regions"
+name = "regions"
+author = "NotAVirus — diagnostic fixture, not final art"
+version = 1
+tile = [128, 128]
+anchor = [64, 116]
+filter = "nearest"
+[atlas]
+file = "atlas.png"
+regions = "atlas.json"
+
+[states.idle]
+frames = ["top", "right"]
+[states.run]
+frames = ["bottom", "middle"]
