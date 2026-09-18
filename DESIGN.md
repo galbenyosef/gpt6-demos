@@ -1,6 +1,6 @@
 ---
 name: GPT6 Demos Gallery
-description: A light screenshot gallery and in-page walkthrough portal for ten interactive demos.
+description: A light screenshot gallery and in-page walkthrough portal for eleven interactive demos.
 colors:
   primary: "#2457d6"
   primary-hover: "#1944ae"
@@ -120,7 +120,7 @@ components:
 
 The gallery is a light, minimalist frame for real application screenshots. White space, dark system sans text, quiet gray supporting copy, and a single blue interaction accent preserve the identity established by the root index.html. Screenshots supply the variety and color.
 
-This system governs the root gallery and its portal/ extension only. It does not govern the ten independent demo applications. The root retains its compact direct-launch grid; the portal extends that language with larger images and an in-page video preview.
+This system governs the root gallery and its portal/ extension only. It does not govern the eleven independent demo applications. The root retains its compact direct-launch grid; the portal extends that language with larger images and an in-page video preview.
 
 **Key Characteristics:**
 
@@ -218,7 +218,7 @@ The gallery reuses the repository’s screenshots unchanged. YouTube poster imag
 
 ### Don't:
 
-- Don’t apply this gallery system to the ten independent applications.
+- Don’t apply this gallery system to the eleven independent applications.
 - Don’t wrap the screenshot and caption together in a raised panel.
 - Don’t autoplay walkthroughs when a preview opens.
 - Don’t replace the actual screenshots with decorative imagery.

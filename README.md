@@ -8,7 +8,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, and a 7-a-side football game. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web and native desktop demos exploring 3D graphics, visual design, and playful experiences. Built with Bun, TypeScript, Three.js, and Rust, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, a 7-a-side football game, and a macOS desktop companion. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Here, “demos” means real applications that demonstrate GPT6's power to generate software and, in some cases, use GPT6 within the application itself. The apps conform to strictly defined use cases, documented in the `specs/` directory of most projects.
 
@@ -18,7 +18,7 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 ## Platform support
 
-The demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there.
+The browser demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there. **NotAVirus is a native macOS app** requiring macOS 13 or later; it has no browser, Linux, or Windows version.
 
 ## Run all demos
 
@@ -42,14 +42,16 @@ For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-
 
 For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). The launcher installs Crosstalk's dependencies automatically. Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
+For NotAVirus, follow its [macOS build and run instructions](./not-a-virus/README.md#build-and-run). It runs independently of `run-all.sh` and does not use a web server.
+
 ### Demo portals
 
 `./run-all.sh` starts both portals:
 
 | Portal | Address | Behavior |
 | --- | --- | --- |
-| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; cards link directly to the apps. |
-| New preview portal | [http://localhost:3090/portal/](http://localhost:3090/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. |
+| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; browser cards open the apps, and NotAVirus links to macOS setup. |
+| New preview portal | [http://localhost:3090/portal/](http://localhost:3090/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. NotAVirus provides **Source and setup** for its native macOS app. |
 
 The original [index.html](./index.html) uses a four-column desktop grid, two columns on tablets, and one on phones. It uses plain HTML, inline CSS, and relative image paths, so it needs no build or JavaScript and can also be opened directly from disk.
 
@@ -196,6 +198,16 @@ A playable 7-a-side football game built with Three.js, React, and a Bun service 
 [One More Match — Football demo](https://youtu.be/AgoJbg8DOSA)
 
 [Source and setup](./one-more-match/README.md) · [Demo specification](./one-more-match/specs/one-more-match.md) · [Validation report](./one-more-match/VALIDATION.md)
+
+### NotAVirus — macOS desktop companion
+
+A native macOS desktop companion built with Rust and AppKit. Gatita, a playful tabby, follows the pointer, rolls and purrs visually while resting, and curls up to sleep. Switch to Paco for a slower, good-natured chase with pauses to catch his breath. The transparent character lets clicks pass through to the apps below. Use the paw menu to pause, change character or size, import PNG/TOML packs, and quit. No network access, keystroke reading, or extra permissions are required.
+
+[![NotAVirus — gatita following the pointer on the macOS desktop](./images/not-a-virus.png)](https://youtu.be/EVUgtcsgrEw)
+
+[NotAVirus — Desktop companion demo](https://youtu.be/EVUgtcsgrEw)
+
+[Source and setup](./not-a-virus/README.md) · [Pack authoring](./not-a-virus/PACK_AUTHORING.md) · [Demo specification](./not-a-virus/specs/not-a-virus-spec.md)
 
 ---
 

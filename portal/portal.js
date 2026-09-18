@@ -49,7 +49,8 @@ function openPreview(index, trigger) {
   title.setAttribute('aria-label', `${demo.name} (opens in a new tab)`);
   const launch = document.querySelector('#demo-link');
   launch.href = demo.url;
-  launch.setAttribute('aria-label', `Open ${demo.name} (opens in a new tab)`);
+  document.querySelector('#demo-link-label').textContent = demo.launchLabel || 'Open demo';
+  launch.setAttribute('aria-label', `${demo.launchLabel || 'Open'} ${demo.name} (opens in a new tab)`);
   document.querySelector('#youtube-link').href = `https://www.youtube.com/watch?v=${demo.video}`;
   const description = document.querySelector('#dialog-description');
   description.replaceChildren(...demo.description.split('\n\n').map(text => {
@@ -62,7 +63,7 @@ function openPreview(index, trigger) {
   poster.className = 'video-poster';
   poster.setAttribute('aria-label', `Play ${demo.name} walkthrough on YouTube`);
   const thumbnail = document.createElement('img');
-  thumbnail.src = `https://i.ytimg.com/vi/${demo.video}/maxresdefault.jpg`;
+  thumbnail.src = demo.poster || `https://i.ytimg.com/vi/${demo.video}/maxresdefault.jpg`;
   thumbnail.alt = '';
   thumbnail.addEventListener('load', () => {
     // YouTube can return a tiny placeholder when a high-resolution poster is unavailable.
@@ -75,7 +76,9 @@ function openPreview(index, trigger) {
   poster.append(thumbnail, label);
   poster.addEventListener('click', () => playVideo(demo), { once: true });
   video.append(poster);
-  document.querySelector('#dialog-note').textContent = location.protocol === 'file:'
+  document.querySelector('#dialog-note').textContent = demo.note
+    ? demo.note + (location.protocol === 'file:' ? ' Serve the portal over HTTP for embedded video, or use Watch on YouTube.' : '')
+    : location.protocol === 'file:'
     ? 'For embedded YouTube playback, serve this page with bun run portal-server.ts and open localhost:3000/portal/. Start the apps with ./run-all.sh.'
     : 'The demo runs locally. Start the apps with ./run-all.sh before opening.';
   dialog.showModal();

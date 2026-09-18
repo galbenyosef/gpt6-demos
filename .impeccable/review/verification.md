@@ -16,3 +16,7 @@ No new raster assets were generated or copied. The gallery reuses the repository
 ## Finish review
 
 Independent reviewer disposition: ship. The initial review identified one material finding, a soft enlarged YouTube poster. The fix uses high-resolution thumbnails with screenshot fallback. A verdict pass inspected the recaptured desktop dialog and scored the finding resolved. Playback and new-tab navigation were rechecked after the change (video currentTime 5.187805, paused false).
+
+## 2026-09-18 — NotAVirus collection entry
+
+Added the eleventh entry to both galleries and the global README using the supplied screenshot and YouTube link. Preserved gallery styling. Chrome verification showed the original card and preview dialog with the supplied image, macOS category, source/setup link and correct YouTube video id. Portal handler checks returned 200 for both pages, JavaScript and the new screenshot. Physical app acceptance is outside this gallery change.
