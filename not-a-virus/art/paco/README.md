@@ -1,6 +1,6 @@
 # Paco animation pack
 
-Paco is the bundled default and the `paco` pack. Six clips use 16 original, AI-assisted pixel-art drawings in a 512×512 RGBA atlas. Each tile is 128×128, with a common ground anchor at (64, 116). The two passing run poses lift two pixels; other poses meet the same ground line. Default and Paco share artwork and motion settings while retaining their separate stable IDs.
+Paco is available as the `paco` pack; gatita is the bundled default. Six clips use 16 original, AI-assisted pixel-art drawings in a 512×512 RGBA atlas. Each tile is 128×128, with a common ground anchor at (64, 116). The two passing run poses lift two pixels; other poses meet the same ground line. Paco retains his artwork and motion settings independently of the default pack.
 
 Open [preview.html](preview.html) locally to inspect clips, sizes, facing and transparency against three backgrounds without launching the desktop companion. The page embeds the actual shipped atlas and manifest. It is an authoring aid, not another app surface. The native app only consumes PNG/TOML.
 
@@ -18,7 +18,7 @@ The start/stop interruption rules and chase speeds remain Paco's specified behav
 
 The supplied JPEG and static pose studies are preserved in `specs/`. `source-v1.png` is the selected output of the built-in OpenAI image generation tool, with its original provenance metadata. [prompts.json](prompts.json) records the generation prompt, targeted correction and discarded alternate-stride attempt. No external character sheet was downloaded.
 
-The Rust asset compiler performs only alpha thresholding, bounding-box extraction, shared nearest-neighbor downsampling, ground registration and packing. It does not paint or synthesize poses. A shared 1/3 scale preserves shorter seated proportions; binary alpha removes translucent cutout fringes for nearest filtering. Both runtime PNGs carry a provenance text chunk.
+The Rust asset compiler performs only alpha thresholding, bounding-box extraction, shared nearest-neighbor downsampling, ground registration and packing. It does not paint or synthesize poses. A shared 1/3 scale preserves shorter seated proportions; binary alpha removes translucent cutout fringes for nearest filtering. The runtime PNGs carry a provenance text chunk. The Paco compiler writes only the Paco pack.
 
 From `not-a-virus/`:
 

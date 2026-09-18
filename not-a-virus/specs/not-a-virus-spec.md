@@ -35,7 +35,7 @@ Tone: deadpan utility, not “AI companion,” not “wellness pet,” not Copil
 On launch:
 
 1. No Dock icon.
-2. A status item appears in the menu bar (simple mark, e.g. `‽` or a tiny sprite).
+2. A small paw status icon appears in the menu bar (native template image that adapts to the macOS appearance).
 3. A default pack loads (shipped inside the app bundle).
 4. A borderless transparent panel appears and the character starts lagging behind the cursor.
 5. Clicks pass through the character to whatever is underneath.
@@ -886,7 +886,7 @@ v1 ships at the end of D.
 
 ### 12.1 Shipping requirement
 
-Ship one character so the app is complete without a download.
+Ship one character so the app is complete without a download. Per the user's selection, gatita supplies the bundled `default` pack; Paco remains available as a separate pack.
 
 Constraints:
 

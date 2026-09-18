@@ -2,7 +2,7 @@ use super::app::Delegate;
 use notavirus_pack::Candidate;
 use objc2::{MainThreadOnly, rc::Retained, sel};
 use objc2_app_kit::*;
-use objc2_foundation::{MainThreadMarker, NSString, ns_string};
+use objc2_foundation::{MainThreadMarker, NSSize, NSString, ns_string};
 fn item(
     mtm: MainThreadMarker,
     title: &str,
@@ -30,8 +30,17 @@ fn item(
 pub fn create(mtm: MainThreadMarker) -> Retained<NSStatusItem> {
     let status = NSStatusBar::systemStatusBar().statusItemWithLength(NSVariableStatusItemLength);
     if let Some(button) = status.button(mtm) {
-        button.setTitle(ns_string!("‽"));
-        button.setToolTip(Some(ns_string!("Not a virus")));
+        let paw = NSImage::imageWithSystemSymbolName_accessibilityDescription(
+            ns_string!("pawprint.fill"),
+            Some(ns_string!("NotAVirus")),
+        )
+        .expect("pawprint.fill is available on supported macOS versions");
+        paw.setSize(NSSize::new(18., 18.));
+        paw.setTemplate(true);
+        button.setTitle(ns_string!(""));
+        button.setImage(Some(&paw));
+        button.setImagePosition(NSCellImagePosition::ImageOnly);
+        button.setToolTip(Some(ns_string!("NotAVirus")));
     }
     status
 }

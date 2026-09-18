@@ -1,63 +1,58 @@
 schema = 1
 id = "default"
-name = "Paco (Default)"
-author = "NotAVirus — AI-assisted original animation; provenance in art/paco/"
-version = 2
+name = "gatita (Default)"
+author = "NotAVirus — original AI-assisted artwork; see art/gatita/"
+version = 3
 tile = [128, 128]
 anchor = [64, 116]
-filter = "nearest"
-
+filter = "linear"
 [atlas]
 file = "atlas.png"
-grid = [4, 4]
+grid = [4, 6]
 
 [behavior]
 preset = "chase"
-idle = "sit_and_wipe"
-moving = "huffing_run"
-start_moving = "stand_up"
-stop_moving = "sit_down"
-turn = "turn_around"
-sleep = "doze"
-idle_delay_ms = 250
-sleep_after_ms = 12000
-
+idle = "play_roll_purr"
+moving = "bound"
+start_moving = "crouch"
+stop_moving = "settle"
+sleep = "curl_up_asleep"
+wake = "stretch"
+idle_delay_ms = 180
+sleep_after_ms = 18000
 [motion]
-max_speed = 180
-acceleration = 500
-stop_distance = 24
-start_distance = 40
+max_speed = 420
+acceleration = 1600
+stop_distance = 18
+start_distance = 32
 
-[states.sit_and_wipe]
-frames = [0, 1, 2, 3, 0]
-durations_ms = [1400, 150, 280, 150, 400]
+# Quiet holds frame the playful roll. Idle remains immediately interruptible.
+[states.play_roll_purr]
+frames = [0, 1, 2, 3, 4, 5, 6, 7, 6, 7, 5, 23, 0]
+durations_ms = [900, 240, 160, 280, 180, 240, 650, 650, 650, 650, 220, 260, 400]
 loop = true
-
-[states.huffing_run]
-frames = [4, 5, 6, 7]
-fps = 10
-loop = true
-flip = "velocity"
-
-[states.stand_up]
+[states.bound]
 frames = [8, 9, 10, 11]
-durations_ms = [80, 160, 160, 100]
+fps = 14
+[states.crouch]
+frames = [12, 13]
+durations_ms = [60, 100]
+loop = false
+[states.settle]
+frames = [14, 15]
+durations_ms = [80, 160]
 loop = false
 interrupt = "finish"
-
-[states.sit_down]
-frames = [11, 10, 9, 8]
-durations_ms = [80, 100, 120, 160]
+next = "tail_flick"
+[states.tail_flick]
+frames = [16, 17]
+durations_ms = [120, 160]
 loop = false
 interrupt = "on_move"
-
-[states.turn_around]
-frames = [12, 13]
-fps = 12
+[states.curl_up_asleep]
+frames = [18, 19]
+durations_ms = [1100, 1300]
+[states.stretch]
+frames = [20, 21, 22]
+durations_ms = [120, 260, 120]
 loop = false
-interrupt = "finish"
-
-[states.doze]
-frames = [14, 15]
-durations_ms = [850, 1150]
-loop = true

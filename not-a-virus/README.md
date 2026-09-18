@@ -4,7 +4,7 @@ A macOS menu bar sprite. No network. No extra permissions.
 
 It follows the mouse. That is the entire product.
 
-**Current build:** Paco is now a real animated pixel-art character, bundled as `Paco (Default)` and `Paco`. gatita is a smooth animated tabby with play, roll, visual purr, bounding chase, sleep and stretch clips. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco remains available as a pixel-art character. gatita is a smooth animated tabby with play, roll, visual purr, bounding chase, sleep and stretch clips. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
 Open the [Paco animation preview](art/paco/preview.html) to inspect the shipped clips without opening the desktop app. [Artwork provenance and rebuilding instructions](art/paco/README.md) include the generated source, prompts and asset compiler. The original JPEGs and [static pose studies](specs/pose-studies/README.md) are preserved.
 
@@ -20,7 +20,7 @@ open dist/NotAVirus.app
 
 The script builds the locked release workspace, assembles `NotAVirus.app`, ad-hoc signs it, and verifies the signature. Move the bundle anywhere, including Applications; resources are resolved inside the bundle. `cargo run -p notavirus-app` also works from the development checkout. The bundle identifier is the specification's local placeholder `app.notavirus.NotAVirus`; replace it with a controlled identifier before distribution. This local build is not Developer ID signed or notarized.
 
-Click **‽** in the menu bar. Choose Pause/Resume, Packs, Size, About, or Quit. Small/Medium/Large are 1×/1.5×/2×; the first launch uses Small. Click-through stays enabled. Scale changes artwork, not chase speed. The selected pack, size, and pause state persist in UserDefaults. Reopening the bundle brings attention to the existing menu instead of creating another pet.
+Click the **paw icon** in the menu bar. Choose Pause/Resume, Packs, Size, About, or Quit. Small/Medium/Large are 1×/1.5×/2×; the first launch uses Small. Click-through stays enabled. Scale changes artwork, not chase speed. The selected pack, size, and pause state persist in UserDefaults. Reopening the bundle brings attention to the existing menu instead of creating another pet.
 
 Paco gets up, jogs after the pointer, sits with relief, wipes his brow, and dozes. His pack uses a transparent 16-frame atlas and slower acceleration. gatita accelerates quickly, crouches into a bounding chase, settles with a tail flick, plays and rolls while idle, and curls up to sleep. Her smooth 24-frame atlas uses linear filtering. [Preview gatita](art/gatita/preview.html) or see her [source, prompts and rebuilding instructions](art/gatita/README.md).
 
@@ -34,7 +34,7 @@ Use **Packs → Open packs folder…** to open:
 
 Place each folder containing `pack.toml` and its atlas there and restart the app. Or choose **Import .petpack…**, select a zip with `pack.toml` at its root or exactly one directory deep, and the validated pack is installed and selected immediately. Automatic watching/hot reload is deferred to v1.1.
 
-Bundled packs have priority, followed by user folders in sorted order. The first valid pack with a given ID wins; duplicate and invalid candidates are disabled in the menu. Imports never overwrite an existing ID. A failed import or pack switch leaves the current character running. If the saved pack is unavailable on launch, the bundled Default loads.
+Bundled packs have priority, followed by user folders in sorted order. The first valid pack with a given ID wins; duplicate and invalid candidates are disabled in the menu. Imports never overwrite an existing ID. A failed import or pack switch leaves the current character running. If the saved pack is unavailable on launch, the bundled gatita Default loads. Existing explicitly selected packs remain selected after an update.
 
 Packs are data, never code. The loader accepts schema 1 TOML and a static 8-bit RGBA PNG, with an optional named-region JSON. APNG, GIF, rotated/trimmed regions, unsafe paths and escaped symlinks are rejected. Archives have a 32 MiB compressed and extracted limit, at most 4096 entries, and no symlinks or executable payloads. Atlases are at most 4096×4096. Smaller sheets reduce memory use.
 

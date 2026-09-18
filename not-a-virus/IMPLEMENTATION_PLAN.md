@@ -8,15 +8,15 @@ All paths below are relative to `not-a-virus/`. Keep the project in this directo
 
 | Field | Current value |
 |---|---|
-| Last updated | 2026-09-18 — gatita runtime animation integrated and native checks passed |
+| Last updated | 2026-09-18 — paw menu icon and gatita default integrated |
 | Specification baseline | Revision 0.3, pack `schema = 1` |
-| Overall implementation | `in_progress` — native app, Paco default and gatita implemented; full desktop release acceptance pending |
+| Overall implementation | `in_progress` — native app, gatita default and Paco implemented; full desktop release acceptance pending |
 | Active task | None — T12 gatita implementation complete; remaining acceptance deferred |
-| Next task | User live review of gatita; T10/T11 acceptance remains pending at user request |
-| Next concrete action | Restart the rebuilt bundle and select Packs → gatita for user review. Repeat performance with an awake display when deferred acceptance resumes. |
+| Next task | T10/T11 performance and desktop acceptance remain pending at user request |
+| Next concrete action | Repeat gatita performance with an awake display when deferred acceptance resumes, then complete the physical desktop and hardware/OS matrix. |
 | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
-| v1 release | `not_ready` — Paco art is integrated and accepted by the user; physical desktop release acceptance remains pending |
-| Character assets | Default/Paco share a 16-frame 512×512 pixel-art atlas and Paco icon. gatita has a 24-frame 512×768 smooth RGBA atlas. Sources, prompts, compilers and offline previews are in art/paco/ and art/gatita/. |
+| v1 release | `not_ready` — Both character animations are implemented and accepted by the user; performance and physical desktop release acceptance remain pending |
+| Character assets | Default/gatita share a 24-frame 512×768 smooth RGBA atlas. Paco retains his 16-frame 512×512 pixel-art atlas and bundle icon. The menu bar uses a native template paw. Sources, prompts, compilers and offline previews are in art/paco/ and art/gatita/. |
 | Blocker to starting software work | None; software is implemented. |
 | Checks performed for this plan | 25 portable tests plus native controls, import/reconstruction scenarios and 240 frame/size/facing comparisons passed; formatting/strict Clippy/signed bundle passed. Paco benchmark passed (59.85 Hz, 0.751% CPU, 45.96 MB). gatita measured 59.71 Hz / 1.148% CPU / 47.86 MB; repeat had zero callbacks, so gatita CPU acceptance remains pending. User launched the bundle and confirmed that it works brilliantly; app may remain running. |
 
@@ -55,9 +55,9 @@ Implementation should continue through all available v1 software tasks. A workin
 | T07 | Renderer, cursor, and simulation integration | T02, T05, T06 | `blocked` | Renderer, main-thread 60 Hz display link/timer, monitors, display geometry and pause complete; native checks pass. Mixed-display and physical click-through checks pending. |
 | T08 | Pack management, menu controls, persistence, and logs | T07 | `blocked` | Native post-chooser import/reconstruction checks pass, including failures and recovery; physical chooser and process-restart acceptance remain pending. |
 | T09 | Release bundle and documentation | T08 | `done` | Rebuilt 3.0 MiB bundle with Paco icon and both character atlases, LICENSE/plist/PkgInfo and verified ad-hoc signature; README/art docs updated. |
-| T10 | Automated, desktop, and performance verification | T09 | `blocked` | Controlled idle benchmark and native import/reconstruction checks passed; desktop automation failed to start, and physical/hardware checks remain pending. |
-| T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | Paco animation/default/icon implemented; native pixel/performance checks pass. User accepted the live Paco result; full desktop release acceptance remains. |
-| T12 | Finished gatita animation pack | T03, T07, gatita pose studies | `done` | 24-frame pack, preview/source/compiler, behavior simulation and 144 native comparisons pass; signed bundle rebuilt. Live/performance acceptance remains under T10/T11. |
+| T10 | Automated, desktop, and performance verification | T09 | `blocked` | Paco idle benchmark and native import/reconstruction checks passed; gatita CPU target, physical desktop and hardware checks remain pending. |
+| T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | Both animations and gatita default implemented; native pixel checks pass, gatita performance remains pending. User accepted both live animations; full desktop release acceptance remains. |
+| T12 | Finished gatita animation pack | T03, T07, gatita pose studies | `done` | 24-frame pack, preview/source/compiler, behavior simulation and 144 native comparisons pass; signed bundle rebuilt. User accepted live animation; performance/desktop acceptance remains under T10/T11. |
 
 Default execution order is T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11. If one task is blocked, the dependency column determines which other tasks can proceed. T06 can be completed before T04/T05 if fixtures are needed for their tests.
 
@@ -262,16 +262,16 @@ Linux CI must explicitly select portable crates and avoid building the macOS app
 | G02 — Native window, input, rendering, lifecycle | Software prototype | `pending_environment` | Native flags/rendering/selectors passed; physical input and desktop lifecycle checks remain. |
 | G03 — Reproducible relocatable bundle and docs | Software prototype | `passed` | Relocatable signed bundle and developer documentation verified. |
 | G04 — Full desktop checklist and performance | Verified software prototype / v1 | `pending_environment` | Paco controlled idle passed; gatita first run was 1.148% CPU and 47.86 MB, and repeat had no display callbacks. gatita performance plus physical/mixed-display checks remain pending. |
-| G05 — Finished original/licensed bundled default | v1 release | `passed` | Original AI-assisted Paco animation integrated as default; source, prompts, compiler and provenance preserved. |
-| G06 — Final-art regression checks and §15 success | v1 release | `pending_environment` | Native frame/scale/flip, controls, asset and performance checks passed. User accepted live Paco; physical desktop acceptance remains. |
+| G05 — Finished original/licensed bundled default | v1 release | `passed` | Original AI-assisted gatita animation integrated as default; both characters' sources, prompts, compilers and provenance preserved. |
+| G06 — Final-art regression checks and §15 success | v1 release | `pending_environment` | Native frame/scale/flip, controls and asset checks passed; user accepted both live animations. gatita performance and physical desktop acceptance remain. |
 
 Gate states: `not_run`, `passed`, `failed`, `pending_assets`, or `pending_environment`. Do not equate `pending_environment` with passed.
 
 | Asset | Reference | Runtime manifest/atlas | Visual review | Next step |
 |---|---|---|---|---|
-| Default | Paco reference and authored source in art/paco/ | 512×512 RGBA, 16 frames, six clips; id default retained | Native source silhouettes verified at all sizes/facings | User accepted live motion; complete physical desktop acceptance |
+| Default | gatita reference and authored source in art/gatita/ | 512×768 RGBA, 24 frames, seven clips; id default retained, version 3 | Shares verified gatita pixels and behavior | User accepted live motion; complete physical desktop acceptance |
 | Paco | [Original](specs/example-character/paco.jpeg), [authored animation](art/paco/README.md) | Real runtime atlas/preview and six clips; version 2 | Warm identity/poses inspected; 96 native silhouette comparisons pass | User accepted live motion; physical desktop acceptance remains; no missing runtime roles |
-| gatita | [Original](specs/example-character/gatita.jpeg), [authored animation](art/gatita/README.md) | 24-frame 512×768 RGBA atlas, preview, seven clips and chained stop; version 2 | Compiled atlas and native Small/right + Large/left contact sheets inspected; all 144 native alpha comparisons pass | Human live-motion and deferred physical desktop acceptance |
+| gatita | [Original](specs/example-character/gatita.jpeg), [authored animation](art/gatita/README.md) | 24-frame 512×768 RGBA atlas, preview, seven clips and chained stop; version 2 | Compiled atlas and native Small/right + Large/left contact sheets inspected; all 144 native alpha comparisons pass | User accepted live motion; performance and deferred physical desktop acceptance |
 
 ## 8. Blockers, risks, and open decisions
 
@@ -281,7 +281,7 @@ Gate states: `not_run`, `passed`, `failed`, `pending_assets`, or `pending_enviro
 | R01 | Native API signatures and display-link availability depend on selected crate/SDK versions | Potential T02/T07 integration issue | Verify actual APIs early; keep the documented timer fallback and avoid changing deployment target casually |
 | R02 | External-display, mixed-scale, or fullscreen test environment may be unavailable | May leave a specific manual check pending | Determine in T10; record real availability rather than assuming a blocker now |
 | R03 | Large final atlases may exceed the RSS target despite meeting the 4096-side file limit | Performance/release risk | Measure representative and final packs; document supported budgets and resolve before claiming the performance gate passed |
-| O01 | Which finished character becomes the bundled default | Does not block engine or fixtures | Resolved: Paco, as proposed and approved by the user. Preserve stable pack IDs and existing user selection. |
+| O01 | Which finished character becomes the bundled default | Does not block engine or fixtures | Updated by user request: gatita. Preserve stable pack IDs and existing user selection. |
 
 Add new items with a stable ID, affected task, concrete next step, and resolution evidence. Record routine technical decisions directly; seek user input only when a material unresolved product choice prevents correct progress.
 
@@ -406,3 +406,16 @@ Before handing back, update the current-state table, task ledger, completed chec
 - Final packaging passed: `./scripts/bundle.sh` built and strictly verified the ad-hoc signed 3.0 MiB bundle; plist lint and diff checks passed. No launch, active-pack change, commit or staging changes were performed.
 - gatita benchmark: first release run measured 901 callbacks / 15.091 s = 59.71 Hz, 1.148% CPU, 47.86 MB peak RSS. The CPU assertion failed; frequency/memory passed. After build/test completion, a repeat measured zero display callbacks (15.099 s, 0.127% CPU, 47.50 MB); this is not a valid performance sample and failed the clock-rate assertion. No renderer/simulation change was made to bypass these checks. Both runs clean up their temporary panel/status before assertions. Leave gatita performance acceptance pending for an awake display, as part of the deferred T10 checks.
 - Review: `.impeccable/review/gatita-animation.md` records the implementation evidence and limits. T12 is complete for authored pack implementation; T10/T11 and full v1 release acceptance remain pending.
+
+### 2026-09-18 — User accepted both animations
+- User confirmed “both animations works.” Record human live-result acceptance for Paco and gatita. No missing character implementation remains.
+- This feedback does not specifically establish click-through, chooser/import, Quit/restart, display/OS coverage or the CPU target. Those checks remain pending as previously requested.
+- Remaining implementation work is conditional on failures found during acceptance, particularly gatita CPU (1.148% versus <1%). v1.1 hot reload, petting and authoring conveniences remain outside v1.
+
+### 2026-09-18 — Paw menu icon and gatita default
+- User requested a small paw in place of the question/exclamation mark and gatita as the default animation. The status item uses an 18-point native `pawprint.fill` template image with a NotAVirus accessibility description/tooltip; native appearance handles tinting.
+- The stable `default` id now contains gatita's atlas, preview and full behavior manifest, displayed as “gatita (Default)” and versioned 3. Paco remains a separate selectable pack. Saved explicit pack choices remain respected.
+- Gatita's compiler now writes both gatita/default and synchronizes the fallback manifest; Paco's compiler only writes Paco. Updated shared-default regression assertions, spec and user/developer documentation.
+- Existing physical desktop and performance acceptance stays pending; no preferences reset or running-app replacement was requested.
+- Validation: 25 portable tests and all native rendering/control/import checks passed with the new default and native paw creation. Strict Clippy, formatting and diff checks passed.
+- Rebuilt `dist/NotAVirus.app`; ad-hoc signing and strict signature verification passed. Restart the app to load the paw icon and updated default resources.

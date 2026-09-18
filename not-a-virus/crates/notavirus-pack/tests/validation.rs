@@ -45,11 +45,9 @@ fn real_packs_and_both_atlas_layouts() {
     assert_eq!(p.pack.clips[1].frames[0].uv.origin.y, 0.);
 }
 #[test]
-fn paco_runtime_art_is_transparent_registered_and_shared_with_default() {
+fn paco_runtime_art_is_transparent_and_registered() {
     let p = load(&root().join("resources/packs/paco")).unwrap();
-    let default = load(&root().join("resources/packs/default")).unwrap();
     assert_eq!((p.width, p.height), (512, 512));
-    assert_eq!(p.rgba, default.rgba);
     for frame in 0..16 {
         let mut occupied = 0;
         let mut bottom = 0;
@@ -82,6 +80,14 @@ fn paco_runtime_art_is_transparent_registered_and_shared_with_default() {
 fn gatita_art_has_smooth_alpha_padding_and_authored_motion() {
     use notavirus_core::*;
     let loaded = load(&root().join("resources/packs/gatita")).unwrap();
+    let default = load(&root().join("resources/packs/default")).unwrap();
+    assert_eq!(default.rgba, loaded.rgba);
+    assert_eq!(default.pack.filter, loaded.pack.filter);
+    assert_eq!(default.pack.name, "gatita (Default)");
+    assert_eq!(
+        default.pack.clips[default.pack.behavior.idle].name,
+        "play_roll_purr"
+    );
     assert_eq!((loaded.width, loaded.height), (512, 768));
     assert_eq!(loaded.pack.filter, Filter::Linear);
     for frame in 0..24 {

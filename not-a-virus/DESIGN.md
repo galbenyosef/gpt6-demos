@@ -26,7 +26,7 @@ components:
 
 The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.
 
-The default and Paco packs now use an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. gatita uses a smooth 24-frame atlas documented in `art/gatita/`. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.
+Paco uses an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. The default and gatita packs share a smooth 24-frame atlas documented in `art/gatita/`. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.
 
 **Key Characteristics:**
 
@@ -50,7 +50,7 @@ The application defines a clear sprite ground and delegates control colors to ma
 
 Menu items, the status button, the file chooser, and alerts inherit AppKit typography. The code sets no font family, font size, weight, tracking, line height, or custom type scale. There is no display typography role.
 
-The status button title is the explicitly pinned `‽` mark, with tooltip “Not a virus.” It uses the native status item's variable width. Numbered diagnostic frames are raster test labels, not a reusable text style.
+The status button uses the native `pawprint.fill` SF Symbol as an 18-point template image, with the accessible image description and tooltip “NotAVirus.” macOS supplies light/dark and menu-highlight tinting. It uses the native status item's variable width. Numbered diagnostic frames are raster test labels, not a reusable text style.
 
 **The Native Controls Rule.** Keep typography, selection, spacing, focus, disabled states, and checkmarks in AppKit's control system; do not infer fixed design tokens from one macOS appearance.
 
@@ -76,13 +76,13 @@ The viewport follows the tile rectangle; the atlas alpha defines the visible sil
 
 ### Sprite panel
 
-An unobtrusive moving image. The panel is borderless, nonactivating, nonopaque, and always click-through. It is not draggable or user-resizable. The renderer maps the current atlas frame into one `CALayer`; the layer anchor is (0.5, 0.5), with position at half the panel width and height. Both minification and magnification filtering follow the pack: nearest for Default and Paco, linear for gatita. Those settings describe the supplied packs, not a global requirement for future art.
+An unobtrusive moving image. The panel is borderless, nonactivating, nonopaque, and always click-through. It is not draggable or user-resizable. The renderer maps the current atlas frame into one `CALayer`; the layer anchor is (0.5, 0.5), with position at half the panel width and height. Both minification and magnification filtering follow the pack: nearest for Paco, linear for Default and gatita. Those settings describe the supplied packs, not a global requirement for future art.
 
 Movement and animation are data-driven. The clock requests 60 Hz, with a 1/60-second timer fallback; simulation subdivisions are at most 1/120 second and elapsed time is capped at 100 ms per tick. Core Animation implicit actions are disabled. Pause removes the clock and freezes motion and animation; a size change while paused updates geometry with zero elapsed time. Resume resets cursor sampling. Clip rates and chase speeds remain pack configuration, not app-wide animation tokens.
 
 ### Status menu
 
-The native `‽` status item opens this order: disabled NotAVirus title; separator; Pause or Resume; checked, disabled Click-through; separator; Packs; Size; optional disabled pack error; separator; About NotAVirus; Quit. Quit uses the native `q` key equivalent.
+The native paw status item opens this order: disabled NotAVirus title; separator; Pause or Resume; checked, disabled Click-through; separator; Packs; Size; optional disabled pack error; separator; About NotAVirus; Quit. Quit uses the native `q` key equivalent.
 
 Packs shows the active valid pack checked. Invalid packs are disabled with the first line of their failure reason, limited to 70 characters. The submenu ends with Open packs folder… and Import .petpack…. Size checks one of Small, Medium, or Large. A failed switch or import keeps the previous usable pack and exposes a disabled “Pack error:” row with its first-line reason limited to 75 characters. These are native menu states, not custom badges or notifications.
 

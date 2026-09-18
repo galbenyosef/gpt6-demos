@@ -83,15 +83,13 @@ fn main() {
             "frame {frame:02}: source=({left},{top})..({right},{bottom}) tile=({ox},{oy}) {dw}x{dh}"
         );
     }
-    for id in ["paco", "default"] {
-        let folder = root.join("resources/packs").join(id);
-        write(&folder.join("atlas.png"), SIDE, SIDE, &atlas);
-        let mut preview = vec![0; TILE * TILE * 4];
-        // Standing pose, row 2 col 3, uses exactly the shipped frame pixels.
-        for y in 0..TILE {
-            let src = ((2 * TILE + y) * SIDE + 3 * TILE) * 4;
-            preview[y * TILE * 4..(y + 1) * TILE * 4].copy_from_slice(&atlas[src..src + TILE * 4]);
-        }
-        write(&folder.join("preview.png"), TILE, TILE, &preview);
+    let folder = root.join("resources/packs/paco");
+    write(&folder.join("atlas.png"), SIDE, SIDE, &atlas);
+    let mut preview = vec![0; TILE * TILE * 4];
+    // Standing pose, row 2 col 3, uses exactly the shipped frame pixels.
+    for y in 0..TILE {
+        let src = ((2 * TILE + y) * SIDE + 3 * TILE) * 4;
+        preview[y * TILE * 4..(y + 1) * TILE * 4].copy_from_slice(&atlas[src..src + TILE * 4]);
     }
+    write(&folder.join("preview.png"), TILE, TILE, &preview);
 }

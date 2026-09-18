@@ -147,12 +147,21 @@ fn main() {
             "frame {frame:02}: source=({left},{top})..({right},{bottom}) tile=({ox},{oy}) {dw}x{dh}, lift={lift}"
         );
     }
-    let folder = root.join("resources/packs/gatita");
-    write(&folder.join("atlas.png"), COLS * TILE, ROWS * TILE, &atlas);
     let mut preview = vec![0; TILE * TILE * 4];
     for y in 0..TILE {
         preview[y * TILE * 4..(y + 1) * TILE * 4]
             .copy_from_slice(&atlas[y * COLS * TILE * 4..(y * COLS + 1) * TILE * 4]);
     }
-    write(&folder.join("preview.png"), TILE, TILE, &preview);
+    for id in ["gatita", "default"] {
+        let folder = root.join("resources/packs").join(id);
+        write(&folder.join("atlas.png"), COLS * TILE, ROWS * TILE, &atlas);
+        write(&folder.join("preview.png"), TILE, TILE, &preview);
+    }
+    // Keep the fallback pack's behavior and art in sync with gatita.
+    let manifest = std::fs::read_to_string(root.join("resources/packs/gatita/pack.toml")).unwrap();
+    let default = manifest
+        .replace("id = \"gatita\"", "id = \"default\"")
+        .replace("name = \"gatita\"", "name = \"gatita (Default)\"")
+        .replace("version = 2", "version = 3");
+    std::fs::write(root.join("resources/packs/default/pack.toml"), default).unwrap();
 }

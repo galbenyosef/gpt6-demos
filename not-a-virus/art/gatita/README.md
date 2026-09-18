@@ -1,6 +1,6 @@
 # gatita animation pack
 
-A sweet brown tabby with green eyes, cream markings and smooth cartoon outlines. The `gatita` pack now ships 24 authored drawings in a transparent 512×768 RGBA atlas. Tiles are 128×128 with linear filtering and a virtual ground anchor at (64,116). Paco remains the default.
+A sweet brown tabby with green eyes, cream markings and smooth cartoon outlines. The `gatita` pack now ships 24 authored drawings in a transparent 512×768 RGBA atlas. Tiles are 128×128 with linear filtering and a virtual ground anchor at (64,116). gatita is also the bundled `default` pack, shown as “gatita (Default)”; Paco remains selectable.
 
 [Open the animation preview](preview.html) to inspect each shipped clip, size and facing against light, dark or blue. The offline page embeds the runtime atlas and manifest; it respects reduced motion on load and pauses advancement while hidden. It previews individual clips; the native app also chains `settle` into `tail_flick`.
 
@@ -28,6 +28,6 @@ cargo test -p notavirus-app --test native --locked -- --capture
 cargo test -p notavirus-app --test native --release --locked -- --benchmark --pack gatita
 ```
 
-The compiler guards the source dimensions and 24-silhouette count. Review source registration when replacing artwork. The original diagnostic pack is preserved under `tests/fixtures/diagnostic/gatita/`; the fixture generator only writes test fixtures.
+The compiler updates both gatita and default artwork and synchronizes the default manifest. It guards the source dimensions and 24-silhouette count. Review source registration when replacing artwork. The original diagnostic pack is preserved under `tests/fixtures/diagnostic/gatita/`; the fixture generator only writes test fixtures.
 
 Native captures check all 24 frames at three sizes and both facings against source alpha. Smooth filtering is compared with a bilinear reference using a mean error budget below one alpha level out of 255; Paco retains exact nearest-filter silhouette checks. Static native inspection verifies poses, transparency, facing and clipping. Human live-motion review and the other deferred desktop checks remain separate in [IMPLEMENTATION_PLAN.md](../../IMPLEMENTATION_PLAN.md).
