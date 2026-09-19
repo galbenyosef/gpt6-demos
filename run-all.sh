@@ -1,21 +1,46 @@
 #!/usr/bin/env bash
-# Run every demo and both portals with labelled logs and shared Ctrl+C cleanup.
+# Run every demo and one server for both portal pages with labelled logs and shared Ctrl+C cleanup.
 set -euo pipefail
 # Give each background job its own process group, including Bun's children.
 set -m
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
-DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas assemblavatar one-more-match)
+DEMOS=(edificio-europa infinicave tonada tarot-spead orbital-mechanics-laboratory digital-logic-laboratory flip-slop codexcanvas assemblavatar one-more-match tracework)
 # Europa imports shared Crosstalk source, whose dependencies live in cross-talk/.
 INSTALL_PROJECTS=(cross-talk "${DEMOS[@]}")
-PORTS=(3001 3002 3003 3004 3005 3006 3007 3008 3009 3010)
-PORTAL_PORT=3000
-# Plain original portal: http://localhost:3000/
-# New preview gallery:   http://localhost:3090/portal/
-PREVIEW_PORT=3090
-SERVICES=("${DEMOS[@]}" portal portal-preview)
-SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT" "$PREVIEW_PORT")
+usage() {
+  echo 'Usage: ./run-all.sh [BASE_PORT]'
+  echo 'Default base port: 3000. Both portals share it at / and /portal/.'
+  echo "Demo ports run from BASE_PORT + 1 through BASE_PORT + ${#DEMOS[@]}."
+}
+if [[ $# -eq 1 && ( "$1" == --help || "$1" == -h ) ]]; then
+  usage
+  exit 0
+fi
+if [[ $# -gt 1 ]]; then
+  usage >&2
+  exit 1
+fi
+BASE_PORT_INPUT="${1-3000}"
+if [[ ! "$BASE_PORT_INPUT" =~ ^[0-9]{1,5}$ ]]; then
+  echo 'BASE_PORT must be a decimal integer.' >&2
+  usage >&2
+  exit 1
+fi
+BASE_PORT=$((10#$BASE_PORT_INPUT))
+MAX_BASE_PORT=$((65535 - ${#DEMOS[@]}))
+if (( BASE_PORT < 1 || BASE_PORT > MAX_BASE_PORT )); then
+  echo "BASE_PORT must be between 1 and $MAX_BASE_PORT so every demo fits below port 65536." >&2
+  exit 1
+fi
+command -v bun >/dev/null 2>&1 || { echo 'Bun is required: https://bun.sh' >&2; exit 1; }
+PORTS=()
+for i in "${!DEMOS[@]}"; do
+  PORTS+=("$((BASE_PORT + i + 1))")
+done
+PORTAL_PORT="$BASE_PORT"
+SERVICES=("${DEMOS[@]}" portal)
+SERVICE_PORTS=("${PORTS[@]}" "$PORTAL_PORT")
 for project in "${INSTALL_PROJECTS[@]}"; do
   if [[ ! -f "$ROOT_DIR/$project/package.json" ]]; then
     echo "Missing project: $ROOT_DIR/$project" >&2
@@ -44,13 +69,20 @@ for project in "${INSTALL_PROJECTS[@]}"; do
   fi
 done
 
+# Tracework serves its built interface and API on one assigned port.
+# Complete this build before starting any servers.
+if ! (cd -- "$ROOT_DIR/tracework" && bun run build); then
+  echo '[tracework] Build failed; no servers started.' >&2
+  exit 1
+fi
+
 LOG_DIR="$(mktemp -d "${TMPDIR:-/tmp}/gpt6-demos.XXXXXX")"
 SERVER_PIDS=()
 LOGGER_PIDS=()
 cleanup() {
   trap '' INT TERM
   echo
-  echo 'Stopping all demos and both portals…'
+  echo 'Stopping all demos and the portal server…'
   for pid in "${SERVER_PIDS[@]}"; do
     kill -TERM -- "-$pid" 2>/dev/null || true
   done
@@ -77,13 +109,16 @@ for i in "${!SERVICES[@]}"; do
   LOGGER_PIDS+=("$!")
   (
     export PORT="$port"
-    if [[ "$demo" == portal || "$demo" == portal-preview ]]; then
+    if [[ "$demo" == portal ]]; then
       cd -- "$ROOT_DIR"
       exec bun run portal-server.ts
     else
       cd -- "$ROOT_DIR/$demo"
       if [[ "$demo" == assemblavatar ]]; then
         export ASSEMBLAVATAR_PORT="$port"
+        exec bun run start
+      fi
+      if [[ "$demo" == tracework ]]; then
         exec bun run start
       fi
       if [[ "$demo" == one-more-match ]]; then
@@ -95,7 +130,6 @@ for i in "${!SERVICES[@]}"; do
   SERVER_PIDS+=("$!")
   if [[ "$demo" == portal ]]; then
     printf '%-28s http://localhost:%s/\n' 'Plain portal (original)' "$port"
-  elif [[ "$demo" == portal-preview ]]; then
     printf '%-28s http://localhost:%s/portal/\n' 'Preview portal (new)' "$port"
   else
     printf '%-28s http://localhost:%s\n' "$demo" "$port"
@@ -104,10 +138,10 @@ done
 printf '\nPortal summary:\n'
 printf '  Plain, original portal: http://localhost:%s/\n' "$PORTAL_PORT"
 printf '    Simple gallery; cards link directly to the demo apps.\n'
-printf '  New preview portal:    http://localhost:%s/portal/\n' "$PREVIEW_PORT"
+printf '  New preview portal:    http://localhost:%s/portal/\n' "$PORTAL_PORT"
 printf '    Cards open descriptions and in-page YouTube previews.\n'
 printf '    Demo titles and Open demo links launch apps in a new tab.\n'
-printf '\nPress Ctrl+C to stop all %s demos and both portals.\n\n' "${#DEMOS[@]}"
+printf '\nPress Ctrl+C to stop all %s demos and the portal server.\n\n' "${#DEMOS[@]}"
 
 # Bash 3.2 (included with macOS) has no wait -n.
 while true; do
@@ -123,8 +157,6 @@ while true; do
   wait "$!" || true
 done
 
-# Portal quick reference:
-# http://localhost:3000/        — plain, original gallery with direct app links.
-# http://localhost:3090/portal/ — new gallery with descriptions and YouTube previews.
-# In the new gallery, demo titles and Open demo links open apps in a new tab.
-# Both portals start with this script; Ctrl+C stops them and all ten demos.
+# Both portal pages share BASE_PORT: / and /portal/.
+# Demo titles and Open demo links use the assigned BASE_PORT + offset.
+# Ctrl+C stops all demos and the single portal server.

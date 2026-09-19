@@ -24,7 +24,40 @@ const assets = new Map([
   ].map((name) => [`/images/${name}`, `images/${name}`]),
 ]);
 
-export async function servePortal(request: Request): Promise<Response> {
+const demoCount = 11;
+export function validateBasePort(port: number): number {
+  if (!Number.isInteger(port) || port < 1 || port > 65535 - demoCount) {
+    throw new Error(`Base port must be an integer between 1 and ${65535 - demoCount}`);
+  }
+  return port;
+}
+
+// Keep on-disk links useful at the default ports; rewrite only demo links
+// in served HTML so both galleries follow the actual portal port.
+async function portalHtml(file: ReturnType<typeof Bun.file>, basePort: number): Promise<Response> {
+  const demoUrl = (offset: number) => {
+    if (!Number.isInteger(offset) || offset < 1 || offset > demoCount) throw new Error("Invalid demo port offset");
+    return `http://localhost:${basePort + offset}/`;
+  };
+  const html = (await file.text()).replace(
+    /(<script id="demo-data" type="application\/json">)([\s\S]*?)(<\/script>)/,
+    (_match, start, json, end) => {
+      const demos = JSON.parse(json);
+      for (const demo of demos) demo.url = demoUrl(demo.portOffset);
+      return start + JSON.stringify(demos).replace(/</g, "\\u003c") + end;
+    },
+  );
+  return new HTMLRewriter().on("a[data-port-offset]", {
+    element(element) {
+      element.setAttribute("href", demoUrl(Number(element.getAttribute("data-port-offset"))));
+    },
+  }).transform(new Response(html, {
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
+  }));
+}
+
+export async function servePortal(request: Request, basePort = Number(process.env.PORT || 3000)): Promise<Response> {
+  validateBasePort(basePort);
   if (request.method !== "GET" && request.method !== "HEAD") {
     return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, HEAD" } });
   }
@@ -41,6 +74,7 @@ export async function servePortal(request: Request): Promise<Response> {
   if (!asset) return new Response("Not found", { status: 404 });
   const file = Bun.file(resolve(root, asset));
   if (!(await file.exists())) return new Response("Not found", { status: 404 });
+  if (asset.endsWith(".html") && request.method === "GET") return portalHtml(file, basePort);
   return new Response(request.method === "HEAD" ? null : file, {
     headers: { "Content-Type": file.type, "Cache-Control": "no-cache" },
   });
@@ -49,8 +83,8 @@ export async function servePortal(request: Request): Promise<Response> {
 if (import.meta.main) {
   const server = Bun.serve({
     hostname: "127.0.0.1",
-    port: Number(process.env.PORT || 3000),
-    fetch: servePortal,
+    port: validateBasePort(Number(process.env.PORT || 3000)),
+    fetch: (request, server) => servePortal(request, server.port),
   });
   console.log(`GPT6 Demos portal server listening on port ${server.port}`);
 }

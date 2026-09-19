@@ -22,25 +22,46 @@ The demos are tested to run on **macOS and Linux**. They should also work on **W
 
 ## Run all demos
 
-With [Bun](https://bun.sh/) installed, run from the repository root:
+With [Bun](https://bun.sh/) installed (Bun 1.4.0 for One More Match and Tracework), run from the repository root:
 
 ```sh
-./run-all.sh
+./run-all.sh           # Base port 3000 (default)
+./run-all.sh 30000     # Base port 30000
+./run-all.sh --help
 ```
 
-Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and its ten managed demos to install missing dependencies while preserving the checked-in versions. Assemblavatar uses production dependencies and run mode; Playwright is only a development test dependency. If an installation fails, no servers are started.
+The base port serves **both portals from one server**: the original gallery at `/` and the preview gallery at `/portal/`. Each demo uses the next port in the order below. For example, `./run-all.sh 30000` serves the portals at [http://localhost:30000/](http://localhost:30000/) and [http://localhost:30000/portal/](http://localhost:30000/portal/), with demo apps on ports **30001–30011**. Both portals automatically link to the assigned demo ports.
 
-The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). Two separate portal processes run alongside the demos: the **plain, original portal** at [http://localhost:3000/](http://localhost:3000/) and the **new preview portal** at [http://localhost:3090/portal/](http://localhost:3090/portal/). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and both portals; if any process exits, the launcher stops the others too. The assigned ports must be free.
+| Service | Port assignment | Default port |
+| --- | --- | --- |
+| Both portals | Base | 3000 |
+| Edificio Europa | Base + 1 | 3001 |
+| InfiniCave | Base + 2 | 3002 |
+| Tonada | Base + 3 | 3003 |
+| Tarot Spread | Base + 4 | 3004 |
+| Orbital Mechanics Laboratory | Base + 5 | 3005 |
+| Digital Logic Laboratory | Base + 6 | 3006 |
+| Flip-slop | Base + 7 | 3007 |
+| Codex Canvas | Base + 8 | 3008 |
+| Assemblavatar | Base + 9 | 3009 |
+| One More Match | Base + 10 | 3010 |
+| Tracework | Base + 11 | 3011 |
 
-Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`. The launcher assigns port 3007, overriding the standalone default.
+Choose a base port from **1 to 65524**, with the entire twelve-port range available. Invalid arguments are rejected before installation or startup. Low ports may require system privileges; the default and the example above avoid them.
 
-For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). The launcher assigns port 3008, overriding the standalone default of 3030.
+Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and all eleven demos, then builds Tracework. Assemblavatar installs production dependencies and runs in production mode; Playwright is only a development test dependency. Tracework serves its built interface and API together on its assigned port. If an installation or the build fails, no servers are started.
 
-For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run) for server-side `.env` configuration. Rendering uses the open Assemblavatar browser tab; no Playwright or separate Chromium installation is needed. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
+Logs are labelled by service. Press **Ctrl+C** to stop all eleven demos and the single portal server; if any service exits, the launcher stops the others too. Individual applications' launch scripts and standalone default ports are unchanged.
 
-For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-more-match/README.md#run). The launcher runs `dev:web` on port 3010, overriding the standalone browser default of 3210. To open its Electrobun desktop window separately, run `bun run dev` from `one-more-match/`.
+Before starting Flip-slop, follow its [environment setup](./flip-slop/README.md#run): copy `flip-slop/example.env` to `flip-slop/.env` and set the OpenAI API key only in `.env`.
 
-For Tracework, use **Bun 1.4.0** and follow its [setup instructions](./tracework/README.md#run). Start it separately on [port 60000](http://localhost:60000/); the shared launcher remains unchanged:
+For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run).
+
+For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run) for server-side `.env` configuration. Rendering uses the open Assemblavatar browser tab; no Playwright or separate Chromium installation is needed. The launcher sets `ASSEMBLAVATAR_PORT` to base + 9. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
+
+For One More Match, follow its [setup instructions](./one-more-match/README.md#run). The launcher runs `dev:web`. To open its Electrobun desktop window separately, run `bun run dev` from `one-more-match/`.
+
+For Tracework, follow its [setup instructions](./tracework/README.md#run). It is included in the shared launcher. To run it separately on port 60000:
 
 ```sh
 cd tracework
@@ -53,30 +74,30 @@ For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [se
 
 ### Demo portals
 
-`./run-all.sh` starts both portals:
+`./run-all.sh` serves these two pages on the same base port:
 
-| Portal | Address | Behavior |
+| Portal | Default address | Behavior |
 | --- | --- | --- |
 | Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; cards link directly to the apps. |
-| New preview portal | [http://localhost:3090/portal/](http://localhost:3090/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. |
+| New preview portal | [http://localhost:3000/portal/](http://localhost:3000/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. |
 
-The original [index.html](./index.html) uses a four-column desktop grid, two columns on tablets, and one on phones. It uses plain HTML, inline CSS, and relative image paths, so it needs no build or JavaScript and can also be opened directly from disk.
+The original [index.html](./index.html) uses a four-column desktop grid, two columns on tablets, and one on phones. It uses plain HTML, inline CSS, and relative image paths, so it needs no build or JavaScript and can also be opened directly from disk. Directly opened files use the default demo ports.
 
 ![Plain, original GPT6 Demos portal screenshot](./images/portal.png)
 
 The new [portal/index.html](./portal/index.html) uses a light, two-column desktop gallery and one column on phones, with plain HTML, CSS, and JavaScript. Closing a preview stops its video. Embedded YouTube playback requires internet access and an HTTP address; when opening the file directly from disk, use **Watch on YouTube** instead.
 
-To serve either portal separately from the repository root:
+To serve both portal pages without starting the apps, run one server from the repository root:
 
 ```sh
-# Plain, original portal: http://localhost:3000/
+# Both http://localhost:3000/ and http://localhost:3000/portal/
 bun run portal-server.ts
 
-# New preview portal: http://localhost:3090/portal/
-PORT=3090 bun run portal-server.ts
+# Alternatively, both pages on port 30000; demo links use 30001–30011
+PORT=30000 bun run portal-server.ts
 ```
 
-The demo servers must still be running for app links to work. Ports 3000 and 3090 must be free before starting `./run-all.sh`; stop any separately running portal servers first. If you change a demo port in `run-all.sh`, update its links in both `index.html` and `portal/index.html`.
+The demo servers must still be running on the corresponding ports for app links to work. Stop a separately running portal server before starting the shared launcher on the same base port.
 
 Browser saves are specific to each address and port. Export existing projects or saves before moving a demo to a different port, then import them at its new address.
 

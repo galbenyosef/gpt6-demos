@@ -34,63 +34,63 @@
   <main>
     <header><h1>GPT6 Demos<span aria-hidden="true">.</span></h1><p>Eleven interactive experiments. Open one and explore.</p></header>
     <nav class="demos" aria-label="Local demos">
-      <a class="demo" href="http://localhost:3001/">
+      <a class="demo" href="http://localhost:3001/" data-port-offset="1">
         <div class="preview"><img src="images/edificio-europa.png" alt="3D reconstruction of Edificio Europa" width="1870" height="929"></div>
         <div class="title"><h2>Edificio Europa</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Explore a Valencia landmark in 3D. Orbit the building, change the light, and find your favorite view.</p>
       </a>
-      <a class="demo" href="http://localhost:3002/">
+      <a class="demo" href="http://localhost:3002/" data-port-offset="2">
         <div class="preview"><img src="images/infinicave.png" alt="InfiniCave helicopter expedition" width="1870" height="929"></div>
         <div class="title"><h2>InfiniCave</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Pilot a helicopter through underground caverns. Explore ruins, activate relays, and survive the journey.</p>
       </a>
-      <a class="demo" href="http://localhost:3003/">
+      <a class="demo" href="http://localhost:3003/" data-port-offset="3">
         <div class="preview"><img src="images/tonada.png" alt="Tonada music composition workspace" width="1899" height="900"></div>
         <div class="title"><h2>Tonada</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Make music with a piano roll, drum patterns, and synthesizers. Arrange a song and mix it in a 3D room.</p>
       </a>
-      <a class="demo" href="http://localhost:3004/">
+      <a class="demo" href="http://localhost:3004/" data-port-offset="4">
         <div class="preview"><img src="images/tarot-spread.png" alt="Arcana tarot reading room" width="1870" height="929"></div>
         <div class="title"><h2>Arcana</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Enter an Art Deco tarot room. Choose a deck and spread, turn the cards, and explore their meanings.</p>
       </a>
-      <a class="demo" href="http://localhost:3005/">
+      <a class="demo" href="http://localhost:3005/" data-port-offset="5">
         <div class="preview"><img src="images/orbital-mechanics.png" alt="Orbital spacecraft trajectory workspace" width="3448" height="1802"></div>
         <div class="title"><h2>Orbital</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Plan spacecraft maneuvers and watch trajectories evolve. Explore orbits, lunar transfers, and mission time.</p>
       </a>
-      <a class="demo" href="http://localhost:3006/">
+      <a class="demo" href="http://localhost:3006/" data-port-offset="6">
         <div class="preview"><img src="images/digital-logic%20laboratory.png" alt="Digital Logic Laboratory circuit and computer workbench" width="3448" height="1740"></div>
         <div class="title"><h2>Digital Logic Laboratory</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Build circuits from NAND gates. Follow a 16-bit computer through each instruction, from addition to Pong.</p>
       </a>
-      <a class="demo" href="http://localhost:3007/">
+      <a class="demo" href="http://localhost:3007/" data-port-offset="7">
         <div class="preview"><img src="images/flip-slop.png" alt="Flip-slop image editing and stop-motion studio" width="3420" height="1732"></div>
         <div class="title"><h2>Flip-slop</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Create images, guide edits with sketches and motion arrows, and bring your ideas to life one stop-motion frame at a time.</p>
       </a>
-      <a class="demo" href="http://localhost:3008/">
+      <a class="demo" href="http://localhost:3008/" data-port-offset="8">
         <div class="preview"><img src="images/codexcanvas.png" alt="Codex Canvas conversation, plans, changes, and activity workspace" width="3432" height="1776"></div>
         <div class="title"><h2>Codex Canvas</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Work with Codex on a spatial canvas. Follow plans, review changes and activity, and keep useful results in view.</p>
       </a>
-      <a class="demo" href="http://localhost:3009/">
+      <a class="demo" href="http://localhost:3009/" data-port-offset="9">
         <div class="preview"><img src="images/assemblavatar.png" alt="Assemblavatar procedural 3D modelling studio with avatar drafts and reference photos" width="3456" height="1762"></div>
         <div class="title"><h2>Assemblavatar</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Build editable 3D objects and avatars from descriptions and photos. Inspect each draft, refine the geometry, and export your model.</p>
       </a>
-      <a class="demo" href="http://localhost:3010/">
+      <a class="demo" href="http://localhost:3010/" data-port-offset="10">
         <div class="preview"><img src="images/one-more-match.png" alt="One More Match 3D football game with Spain playing France" width="1976" height="1280"></div>
         <div class="title"><h2>One More Match</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Play 7-a-side football against the computer. Choose your country, pass and shoot, then go straight into another match.</p>
       </a>
-      <a class="demo" href="http://localhost:60000/">
+      <a class="demo" href="http://localhost:3011/" data-port-offset="11">
         <div class="preview"><img src="images/tracework.png" alt="Tracework accepted solution model and architecture canvas" width="1841" height="944"></div>
         <div class="title"><h2>Tracework</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Turn source documents into a reviewed solution model. Trace decisions to evidence, explore architecture on a canvas, and generate engineering artifacts.</p>
       </a>
     </nav>
-    <footer>Start the other demos with <code>./run-all.sh</code> from the repository root. Start Tracework separately from <code>tracework/</code> with <code>bun run build</code>, then <code>PORT=60000 bun run start</code>. Each link opens a local app.</footer>
+    <footer>Start all demos with <code>./run-all.sh [BASE_PORT]</code> from the repository root (default: 3000). Both galleries share the base port at <a href="./">/</a> and <a href="portal/">/portal/</a>; demo links use consecutive ports above it.</footer>
   </main>
 </body>
 </html>
