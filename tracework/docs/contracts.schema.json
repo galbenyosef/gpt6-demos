@@ -1,0 +1,5272 @@
+{
+  "description": "Generated from packages/contracts/index.ts; refresh with bun scripts/api-schema.ts",
+  "schemas": {
+    "AcceptInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "expectedContextVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "selectedOperationIds": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "evidenceExceptions": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        }
+      },
+      "required": [
+        "expectedContextVersionId",
+        "idempotencyKey",
+        "reason",
+        "evidenceExceptions"
+      ],
+      "additionalProperties": false
+    },
+    "ArtifactKind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "enum": [
+        "specification",
+        "architecture-report",
+        "openapi",
+        "json-schema",
+        "test-plan",
+        "implementation-package",
+        "service-module",
+        "validation-report"
+      ]
+    },
+    "Assertion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "enum": [
+        "source-stated",
+        "inferred",
+        "human-assumed"
+      ]
+    },
+    "Classification": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string",
+      "enum": [
+        "public",
+        "internal",
+        "restricted"
+      ]
+    },
+    "Command": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "expectedContextVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "operations": {
+          "minItems": 1,
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "action": {
+                    "type": "string",
+                    "const": "create"
+                  },
+                  "localId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "value": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "element"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "actor",
+                              "capability",
+                              "requirement",
+                              "user-story",
+                              "domain-concept",
+                              "domain-event",
+                              "policy",
+                              "invariant",
+                              "bounded-context",
+                              "quality-attribute",
+                              "constraint",
+                              "software-system",
+                              "container",
+                              "component",
+                              "interface",
+                              "risk",
+                              "assumption",
+                              "open-question"
+                            ]
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "aliases": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "definition": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "owner": {
+                                "type": "string"
+                              },
+                              "acceptanceCriteria": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "priority": {
+                                "type": "string",
+                                "enum": [
+                                  "must",
+                                  "should",
+                                  "could"
+                                ]
+                              },
+                              "technology": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              },
+                              "responsibilities": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "metric": {
+                                "type": "string"
+                              },
+                              "threshold": {
+                                "type": "string"
+                              },
+                              "question": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "resolution": {
+                                "type": "string",
+                                "maxLength": 40000
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "relationship"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "contains",
+                              "depends-on",
+                              "uses",
+                              "realizes",
+                              "constrains",
+                              "communicates-with",
+                              "produces",
+                              "consumes",
+                              "conflicts-with"
+                            ]
+                          },
+                          "from": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "from",
+                          "to",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "decision"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "context": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "alternatives": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "chosen": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "consequences": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "elementIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "risks": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "author": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "context",
+                          "alternatives",
+                          "chosen",
+                          "consequences",
+                          "elementIds",
+                          "risks",
+                          "author"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "guardrail"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "evaluator": {
+                            "type": "string",
+                            "enum": [
+                              "require-evidence",
+                              "interface-change-needs-decision",
+                              "require-requirement-mapping",
+                              "forbid-context-dependency",
+                              "require-quality-attribute",
+                              "advisory-architecture-review"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "warn",
+                              "approval-required",
+                              "block"
+                            ]
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "to": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "quality": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "scope": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "evaluator",
+                          "enabled",
+                          "severity",
+                          "parameters",
+                          "scope"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "action",
+                  "localId",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "action": {
+                    "type": "string",
+                    "const": "update"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "value": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "element"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "actor",
+                              "capability",
+                              "requirement",
+                              "user-story",
+                              "domain-concept",
+                              "domain-event",
+                              "policy",
+                              "invariant",
+                              "bounded-context",
+                              "quality-attribute",
+                              "constraint",
+                              "software-system",
+                              "container",
+                              "component",
+                              "interface",
+                              "risk",
+                              "assumption",
+                              "open-question"
+                            ]
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "aliases": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "definition": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "owner": {
+                                "type": "string"
+                              },
+                              "acceptanceCriteria": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "priority": {
+                                "type": "string",
+                                "enum": [
+                                  "must",
+                                  "should",
+                                  "could"
+                                ]
+                              },
+                              "technology": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              },
+                              "responsibilities": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "metric": {
+                                "type": "string"
+                              },
+                              "threshold": {
+                                "type": "string"
+                              },
+                              "question": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "resolution": {
+                                "type": "string",
+                                "maxLength": 40000
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "relationship"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "contains",
+                              "depends-on",
+                              "uses",
+                              "realizes",
+                              "constrains",
+                              "communicates-with",
+                              "produces",
+                              "consumes",
+                              "conflicts-with"
+                            ]
+                          },
+                          "from": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "from",
+                          "to",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "decision"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "context": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "alternatives": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "chosen": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "consequences": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "elementIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "risks": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "author": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "context",
+                          "alternatives",
+                          "chosen",
+                          "consequences",
+                          "elementIds",
+                          "risks",
+                          "author"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "guardrail"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "evaluator": {
+                            "type": "string",
+                            "enum": [
+                              "require-evidence",
+                              "interface-change-needs-decision",
+                              "require-requirement-mapping",
+                              "forbid-context-dependency",
+                              "require-quality-attribute",
+                              "advisory-architecture-review"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "warn",
+                              "approval-required",
+                              "block"
+                            ]
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "to": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "quality": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "scope": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "evaluator",
+                          "enabled",
+                          "severity",
+                          "parameters",
+                          "scope"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "action",
+                  "targetId",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "action": {
+                    "type": "string",
+                    "const": "supersede"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "id",
+                  "action",
+                  "targetId"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "expectedContextVersionId",
+        "idempotencyKey",
+        "reason",
+        "operations"
+      ],
+      "additionalProperties": false
+    },
+    "Decision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "decision"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted"
+          ]
+        },
+        "assertion": {
+          "type": "string",
+          "enum": [
+            "source-stated",
+            "inferred",
+            "human-assumed"
+          ]
+        },
+        "evidenceIds": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "evidenceException": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "context": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "alternatives": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 40000
+          }
+        },
+        "chosen": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "consequences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 40000
+          }
+        },
+        "elementIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 40000
+          }
+        },
+        "author": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "description",
+        "classification",
+        "assertion",
+        "evidenceIds",
+        "context",
+        "alternatives",
+        "chosen",
+        "consequences",
+        "elementIds",
+        "risks",
+        "author"
+      ],
+      "additionalProperties": false
+    },
+    "Element": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "element"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "actor",
+            "capability",
+            "requirement",
+            "user-story",
+            "domain-concept",
+            "domain-event",
+            "policy",
+            "invariant",
+            "bounded-context",
+            "quality-attribute",
+            "constraint",
+            "software-system",
+            "container",
+            "component",
+            "interface",
+            "risk",
+            "assumption",
+            "open-question"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted"
+          ]
+        },
+        "assertion": {
+          "type": "string",
+          "enum": [
+            "source-stated",
+            "inferred",
+            "human-assumed"
+          ]
+        },
+        "evidenceIds": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "evidenceException": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "aliases": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "definition": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "owner": {
+              "type": "string"
+            },
+            "acceptanceCriteria": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 40000
+              }
+            },
+            "priority": {
+              "type": "string",
+              "enum": [
+                "must",
+                "should",
+                "could"
+              ]
+            },
+            "technology": {
+              "type": "string"
+            },
+            "protocol": {
+              "type": "string"
+            },
+            "responsibilities": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 40000
+              }
+            },
+            "metric": {
+              "type": "string"
+            },
+            "threshold": {
+              "type": "string"
+            },
+            "question": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "resolution": {
+              "type": "string",
+              "maxLength": 40000
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "type",
+        "name",
+        "description",
+        "classification",
+        "assertion",
+        "evidenceIds",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "GeneratedFiles": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minItems": 1,
+      "maxItems": 40,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 150000
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "Guardrail": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "guardrail"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted"
+          ]
+        },
+        "assertion": {
+          "type": "string",
+          "enum": [
+            "source-stated",
+            "inferred",
+            "human-assumed"
+          ]
+        },
+        "evidenceIds": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "evidenceException": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "evaluator": {
+          "type": "string",
+          "enum": [
+            "require-evidence",
+            "interface-change-needs-decision",
+            "require-requirement-mapping",
+            "forbid-context-dependency",
+            "require-quality-attribute",
+            "advisory-architecture-review"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "warn",
+            "approval-required",
+            "block"
+          ]
+        },
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "to": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "quality": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "description",
+        "classification",
+        "assertion",
+        "evidenceIds",
+        "evaluator",
+        "enabled",
+        "severity",
+        "parameters",
+        "scope"
+      ],
+      "additionalProperties": false
+    },
+    "Operation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "action": {
+              "type": "string",
+              "const": "create"
+            },
+            "localId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "value": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "element"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "actor",
+                        "capability",
+                        "requirement",
+                        "user-story",
+                        "domain-concept",
+                        "domain-event",
+                        "policy",
+                        "invariant",
+                        "bounded-context",
+                        "quality-attribute",
+                        "constraint",
+                        "software-system",
+                        "container",
+                        "component",
+                        "interface",
+                        "risk",
+                        "assumption",
+                        "open-question"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "properties": {
+                        "aliases": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "definition": {
+                          "type": "string",
+                          "maxLength": 40000
+                        },
+                        "owner": {
+                          "type": "string"
+                        },
+                        "acceptanceCriteria": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "maxLength": 40000
+                          }
+                        },
+                        "priority": {
+                          "type": "string",
+                          "enum": [
+                            "must",
+                            "should",
+                            "could"
+                          ]
+                        },
+                        "technology": {
+                          "type": "string"
+                        },
+                        "protocol": {
+                          "type": "string"
+                        },
+                        "responsibilities": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "maxLength": 40000
+                          }
+                        },
+                        "metric": {
+                          "type": "string"
+                        },
+                        "threshold": {
+                          "type": "string"
+                        },
+                        "question": {
+                          "type": "string",
+                          "maxLength": 40000
+                        },
+                        "resolution": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "type",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "attributes"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "relationship"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "contains",
+                        "depends-on",
+                        "uses",
+                        "realizes",
+                        "constrains",
+                        "communicates-with",
+                        "produces",
+                        "consumes",
+                        "conflicts-with"
+                      ]
+                    },
+                    "from": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "to": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "protocol": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "type",
+                    "from",
+                    "to",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "attributes"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "decision"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "context": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "alternatives": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "chosen": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "consequences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "elementIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "risks": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "author": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "context",
+                    "alternatives",
+                    "chosen",
+                    "consequences",
+                    "elementIds",
+                    "risks",
+                    "author"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "guardrail"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "evaluator": {
+                      "type": "string",
+                      "enum": [
+                        "require-evidence",
+                        "interface-change-needs-decision",
+                        "require-requirement-mapping",
+                        "forbid-context-dependency",
+                        "require-quality-attribute",
+                        "advisory-architecture-review"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "warn",
+                        "approval-required",
+                        "block"
+                      ]
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "to": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "quality": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "scope": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "evaluator",
+                    "enabled",
+                    "severity",
+                    "parameters",
+                    "scope"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "localId",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "action": {
+              "type": "string",
+              "const": "update"
+            },
+            "targetId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "value": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "element"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "actor",
+                        "capability",
+                        "requirement",
+                        "user-story",
+                        "domain-concept",
+                        "domain-event",
+                        "policy",
+                        "invariant",
+                        "bounded-context",
+                        "quality-attribute",
+                        "constraint",
+                        "software-system",
+                        "container",
+                        "component",
+                        "interface",
+                        "risk",
+                        "assumption",
+                        "open-question"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "properties": {
+                        "aliases": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "definition": {
+                          "type": "string",
+                          "maxLength": 40000
+                        },
+                        "owner": {
+                          "type": "string"
+                        },
+                        "acceptanceCriteria": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "maxLength": 40000
+                          }
+                        },
+                        "priority": {
+                          "type": "string",
+                          "enum": [
+                            "must",
+                            "should",
+                            "could"
+                          ]
+                        },
+                        "technology": {
+                          "type": "string"
+                        },
+                        "protocol": {
+                          "type": "string"
+                        },
+                        "responsibilities": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "maxLength": 40000
+                          }
+                        },
+                        "metric": {
+                          "type": "string"
+                        },
+                        "threshold": {
+                          "type": "string"
+                        },
+                        "question": {
+                          "type": "string",
+                          "maxLength": 40000
+                        },
+                        "resolution": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "type",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "attributes"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "relationship"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "contains",
+                        "depends-on",
+                        "uses",
+                        "realizes",
+                        "constrains",
+                        "communicates-with",
+                        "produces",
+                        "consumes",
+                        "conflicts-with"
+                      ]
+                    },
+                    "from": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "to": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "protocol": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "type",
+                    "from",
+                    "to",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "attributes"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "decision"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "context": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "alternatives": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "chosen": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "consequences": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "elementIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "risks": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 40000
+                      }
+                    },
+                    "author": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "context",
+                    "alternatives",
+                    "chosen",
+                    "consequences",
+                    "elementIds",
+                    "risks",
+                    "author"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "guardrail"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 240
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 40000
+                    },
+                    "classification": {
+                      "type": "string",
+                      "enum": [
+                        "public",
+                        "internal",
+                        "restricted"
+                      ]
+                    },
+                    "assertion": {
+                      "type": "string",
+                      "enum": [
+                        "source-stated",
+                        "inferred",
+                        "human-assumed"
+                      ]
+                    },
+                    "evidenceIds": {
+                      "maxItems": 100,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "evidenceException": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "evaluator": {
+                      "type": "string",
+                      "enum": [
+                        "require-evidence",
+                        "interface-change-needs-decision",
+                        "require-requirement-mapping",
+                        "forbid-context-dependency",
+                        "require-quality-attribute",
+                        "advisory-architecture-review"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "severity": {
+                      "type": "string",
+                      "enum": [
+                        "warn",
+                        "approval-required",
+                        "block"
+                      ]
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "to": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "quality": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "scope": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "name",
+                    "description",
+                    "classification",
+                    "assertion",
+                    "evidenceIds",
+                    "evaluator",
+                    "enabled",
+                    "severity",
+                    "parameters",
+                    "scope"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "targetId",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "action": {
+              "type": "string",
+              "const": "supersede"
+            },
+            "targetId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "targetId"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Operations": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "minItems": 1,
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "action": {
+                "type": "string",
+                "const": "create"
+              },
+              "localId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "element"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "actor",
+                          "capability",
+                          "requirement",
+                          "user-story",
+                          "domain-concept",
+                          "domain-event",
+                          "policy",
+                          "invariant",
+                          "bounded-context",
+                          "quality-attribute",
+                          "constraint",
+                          "software-system",
+                          "container",
+                          "component",
+                          "interface",
+                          "risk",
+                          "assumption",
+                          "open-question"
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "properties": {
+                          "aliases": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "definition": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "owner": {
+                            "type": "string"
+                          },
+                          "acceptanceCriteria": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "priority": {
+                            "type": "string",
+                            "enum": [
+                              "must",
+                              "should",
+                              "could"
+                            ]
+                          },
+                          "technology": {
+                            "type": "string"
+                          },
+                          "protocol": {
+                            "type": "string"
+                          },
+                          "responsibilities": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "metric": {
+                            "type": "string"
+                          },
+                          "threshold": {
+                            "type": "string"
+                          },
+                          "question": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "resolution": {
+                            "type": "string",
+                            "maxLength": 40000
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "type",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "attributes"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "relationship"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "contains",
+                          "depends-on",
+                          "uses",
+                          "realizes",
+                          "constrains",
+                          "communicates-with",
+                          "produces",
+                          "consumes",
+                          "conflicts-with"
+                        ]
+                      },
+                      "from": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "to": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "protocol": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "type",
+                      "from",
+                      "to",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "attributes"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "decision"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "context": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "alternatives": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "chosen": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "consequences": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "elementIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "risks": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "author": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "context",
+                      "alternatives",
+                      "chosen",
+                      "consequences",
+                      "elementIds",
+                      "risks",
+                      "author"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "guardrail"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "evaluator": {
+                        "type": "string",
+                        "enum": [
+                          "require-evidence",
+                          "interface-change-needs-decision",
+                          "require-requirement-mapping",
+                          "forbid-context-dependency",
+                          "require-quality-attribute",
+                          "advisory-architecture-review"
+                        ]
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "warn",
+                          "approval-required",
+                          "block"
+                        ]
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "properties": {
+                          "from": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "quality": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "scope": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "evaluator",
+                      "enabled",
+                      "severity",
+                      "parameters",
+                      "scope"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "action",
+              "localId",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "action": {
+                "type": "string",
+                "const": "update"
+              },
+              "targetId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "element"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "actor",
+                          "capability",
+                          "requirement",
+                          "user-story",
+                          "domain-concept",
+                          "domain-event",
+                          "policy",
+                          "invariant",
+                          "bounded-context",
+                          "quality-attribute",
+                          "constraint",
+                          "software-system",
+                          "container",
+                          "component",
+                          "interface",
+                          "risk",
+                          "assumption",
+                          "open-question"
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "properties": {
+                          "aliases": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "definition": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "owner": {
+                            "type": "string"
+                          },
+                          "acceptanceCriteria": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "priority": {
+                            "type": "string",
+                            "enum": [
+                              "must",
+                              "should",
+                              "could"
+                            ]
+                          },
+                          "technology": {
+                            "type": "string"
+                          },
+                          "protocol": {
+                            "type": "string"
+                          },
+                          "responsibilities": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "metric": {
+                            "type": "string"
+                          },
+                          "threshold": {
+                            "type": "string"
+                          },
+                          "question": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "resolution": {
+                            "type": "string",
+                            "maxLength": 40000
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "type",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "attributes"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "relationship"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "contains",
+                          "depends-on",
+                          "uses",
+                          "realizes",
+                          "constrains",
+                          "communicates-with",
+                          "produces",
+                          "consumes",
+                          "conflicts-with"
+                        ]
+                      },
+                      "from": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "to": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "properties": {
+                          "label": {
+                            "type": "string"
+                          },
+                          "protocol": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "type",
+                      "from",
+                      "to",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "attributes"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "decision"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "context": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "alternatives": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "chosen": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "consequences": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "elementIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "risks": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "maxLength": 40000
+                        }
+                      },
+                      "author": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "context",
+                      "alternatives",
+                      "chosen",
+                      "consequences",
+                      "elementIds",
+                      "risks",
+                      "author"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "guardrail"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "description": {
+                        "type": "string",
+                        "maxLength": 40000
+                      },
+                      "classification": {
+                        "type": "string",
+                        "enum": [
+                          "public",
+                          "internal",
+                          "restricted"
+                        ]
+                      },
+                      "assertion": {
+                        "type": "string",
+                        "enum": [
+                          "source-stated",
+                          "inferred",
+                          "human-assumed"
+                        ]
+                      },
+                      "evidenceIds": {
+                        "maxItems": 100,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "evidenceException": {
+                        "type": "string",
+                        "maxLength": 2000
+                      },
+                      "evaluator": {
+                        "type": "string",
+                        "enum": [
+                          "require-evidence",
+                          "interface-change-needs-decision",
+                          "require-requirement-mapping",
+                          "forbid-context-dependency",
+                          "require-quality-attribute",
+                          "advisory-architecture-review"
+                        ]
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "warn",
+                          "approval-required",
+                          "block"
+                        ]
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "properties": {
+                          "from": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "quality": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "scope": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "name",
+                      "description",
+                      "classification",
+                      "assertion",
+                      "evidenceIds",
+                      "evaluator",
+                      "enabled",
+                      "severity",
+                      "parameters",
+                      "scope"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "action",
+              "targetId",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "action": {
+                "type": "string",
+                "const": "supersede"
+              },
+              "targetId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "id",
+              "action",
+              "targetId"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "ProposalInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "interpretation",
+            "architecture",
+            "remediation",
+            "revision"
+          ]
+        },
+        "baseVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "operations": {
+          "minItems": 1,
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "action": {
+                    "type": "string",
+                    "const": "create"
+                  },
+                  "localId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "value": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "element"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "actor",
+                              "capability",
+                              "requirement",
+                              "user-story",
+                              "domain-concept",
+                              "domain-event",
+                              "policy",
+                              "invariant",
+                              "bounded-context",
+                              "quality-attribute",
+                              "constraint",
+                              "software-system",
+                              "container",
+                              "component",
+                              "interface",
+                              "risk",
+                              "assumption",
+                              "open-question"
+                            ]
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "aliases": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "definition": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "owner": {
+                                "type": "string"
+                              },
+                              "acceptanceCriteria": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "priority": {
+                                "type": "string",
+                                "enum": [
+                                  "must",
+                                  "should",
+                                  "could"
+                                ]
+                              },
+                              "technology": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              },
+                              "responsibilities": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "metric": {
+                                "type": "string"
+                              },
+                              "threshold": {
+                                "type": "string"
+                              },
+                              "question": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "resolution": {
+                                "type": "string",
+                                "maxLength": 40000
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "relationship"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "contains",
+                              "depends-on",
+                              "uses",
+                              "realizes",
+                              "constrains",
+                              "communicates-with",
+                              "produces",
+                              "consumes",
+                              "conflicts-with"
+                            ]
+                          },
+                          "from": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "from",
+                          "to",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "decision"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "context": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "alternatives": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "chosen": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "consequences": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "elementIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "risks": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "author": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "context",
+                          "alternatives",
+                          "chosen",
+                          "consequences",
+                          "elementIds",
+                          "risks",
+                          "author"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "guardrail"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "evaluator": {
+                            "type": "string",
+                            "enum": [
+                              "require-evidence",
+                              "interface-change-needs-decision",
+                              "require-requirement-mapping",
+                              "forbid-context-dependency",
+                              "require-quality-attribute",
+                              "advisory-architecture-review"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "warn",
+                              "approval-required",
+                              "block"
+                            ]
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "to": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "quality": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "scope": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "evaluator",
+                          "enabled",
+                          "severity",
+                          "parameters",
+                          "scope"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "action",
+                  "localId",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "action": {
+                    "type": "string",
+                    "const": "update"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "value": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "element"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "actor",
+                              "capability",
+                              "requirement",
+                              "user-story",
+                              "domain-concept",
+                              "domain-event",
+                              "policy",
+                              "invariant",
+                              "bounded-context",
+                              "quality-attribute",
+                              "constraint",
+                              "software-system",
+                              "container",
+                              "component",
+                              "interface",
+                              "risk",
+                              "assumption",
+                              "open-question"
+                            ]
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "aliases": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "definition": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "owner": {
+                                "type": "string"
+                              },
+                              "acceptanceCriteria": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "priority": {
+                                "type": "string",
+                                "enum": [
+                                  "must",
+                                  "should",
+                                  "could"
+                                ]
+                              },
+                              "technology": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              },
+                              "responsibilities": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 40000
+                                }
+                              },
+                              "metric": {
+                                "type": "string"
+                              },
+                              "threshold": {
+                                "type": "string"
+                              },
+                              "question": {
+                                "type": "string",
+                                "maxLength": 40000
+                              },
+                              "resolution": {
+                                "type": "string",
+                                "maxLength": 40000
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "relationship"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "contains",
+                              "depends-on",
+                              "uses",
+                              "realizes",
+                              "constrains",
+                              "communicates-with",
+                              "produces",
+                              "consumes",
+                              "conflicts-with"
+                            ]
+                          },
+                          "from": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "to": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string"
+                              },
+                              "protocol": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "type",
+                          "from",
+                          "to",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "attributes"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "decision"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "context": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "alternatives": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "chosen": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "consequences": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "elementIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "risks": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 40000
+                            }
+                          },
+                          "author": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "context",
+                          "alternatives",
+                          "chosen",
+                          "consequences",
+                          "elementIds",
+                          "risks",
+                          "author"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "guardrail"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 240
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 40000
+                          },
+                          "classification": {
+                            "type": "string",
+                            "enum": [
+                              "public",
+                              "internal",
+                              "restricted"
+                            ]
+                          },
+                          "assertion": {
+                            "type": "string",
+                            "enum": [
+                              "source-stated",
+                              "inferred",
+                              "human-assumed"
+                            ]
+                          },
+                          "evidenceIds": {
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          },
+                          "evidenceException": {
+                            "type": "string",
+                            "maxLength": 2000
+                          },
+                          "evaluator": {
+                            "type": "string",
+                            "enum": [
+                              "require-evidence",
+                              "interface-change-needs-decision",
+                              "require-requirement-mapping",
+                              "forbid-context-dependency",
+                              "require-quality-attribute",
+                              "advisory-architecture-review"
+                            ]
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "warn",
+                              "approval-required",
+                              "block"
+                            ]
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "to": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "quality": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          "scope": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "name",
+                          "description",
+                          "classification",
+                          "assertion",
+                          "evidenceIds",
+                          "evaluator",
+                          "enabled",
+                          "severity",
+                          "parameters",
+                          "scope"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "action",
+                  "targetId",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "action": {
+                    "type": "string",
+                    "const": "supersede"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "id",
+                  "action",
+                  "targetId"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "critic": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 40000
+          }
+        }
+      },
+      "required": [
+        "title",
+        "kind",
+        "baseVersionId",
+        "operations",
+        "rationale",
+        "critic"
+      ],
+      "additionalProperties": false
+    },
+    "Relationship": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "relationship"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "contains",
+            "depends-on",
+            "uses",
+            "realizes",
+            "constrains",
+            "communicates-with",
+            "produces",
+            "consumes",
+            "conflicts-with"
+          ]
+        },
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 40000
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted"
+          ]
+        },
+        "assertion": {
+          "type": "string",
+          "enum": [
+            "source-stated",
+            "inferred",
+            "human-assumed"
+          ]
+        },
+        "evidenceIds": {
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "evidenceException": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "protocol": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "kind",
+        "type",
+        "from",
+        "to",
+        "name",
+        "description",
+        "classification",
+        "assertion",
+        "evidenceIds",
+        "attributes"
+      ],
+      "additionalProperties": false
+    },
+    "SceneInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "projection": {
+          "default": "semantic",
+          "type": "string",
+          "enum": [
+            "semantic",
+            "context-map",
+            "c4-context",
+            "c4-container"
+          ]
+        },
+        "expectedSceneRevision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "contextVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "elements": {
+          "maxItems": 5000,
+          "type": "array",
+          "items": {}
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "hiddenIds": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
+      "required": [
+        "projection",
+        "expectedSceneRevision",
+        "contextVersionId",
+        "elements",
+        "name",
+        "hiddenIds"
+      ],
+      "additionalProperties": false
+    },
+    "Semantic": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "element"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "actor",
+                "capability",
+                "requirement",
+                "user-story",
+                "domain-concept",
+                "domain-event",
+                "policy",
+                "invariant",
+                "bounded-context",
+                "quality-attribute",
+                "constraint",
+                "software-system",
+                "container",
+                "component",
+                "interface",
+                "risk",
+                "assumption",
+                "open-question"
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "public",
+                "internal",
+                "restricted"
+              ]
+            },
+            "assertion": {
+              "type": "string",
+              "enum": [
+                "source-stated",
+                "inferred",
+                "human-assumed"
+              ]
+            },
+            "evidenceIds": {
+              "maxItems": 100,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "evidenceException": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "aliases": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "definition": {
+                  "type": "string",
+                  "maxLength": 40000
+                },
+                "owner": {
+                  "type": "string"
+                },
+                "acceptanceCriteria": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 40000
+                  }
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": [
+                    "must",
+                    "should",
+                    "could"
+                  ]
+                },
+                "technology": {
+                  "type": "string"
+                },
+                "protocol": {
+                  "type": "string"
+                },
+                "responsibilities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "maxLength": 40000
+                  }
+                },
+                "metric": {
+                  "type": "string"
+                },
+                "threshold": {
+                  "type": "string"
+                },
+                "question": {
+                  "type": "string",
+                  "maxLength": 40000
+                },
+                "resolution": {
+                  "type": "string",
+                  "maxLength": 40000
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "type",
+            "name",
+            "description",
+            "classification",
+            "assertion",
+            "evidenceIds",
+            "attributes"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "relationship"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "contains",
+                "depends-on",
+                "uses",
+                "realizes",
+                "constrains",
+                "communicates-with",
+                "produces",
+                "consumes",
+                "conflicts-with"
+              ]
+            },
+            "from": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "to": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "public",
+                "internal",
+                "restricted"
+              ]
+            },
+            "assertion": {
+              "type": "string",
+              "enum": [
+                "source-stated",
+                "inferred",
+                "human-assumed"
+              ]
+            },
+            "evidenceIds": {
+              "maxItems": 100,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "evidenceException": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "protocol": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "kind",
+            "type",
+            "from",
+            "to",
+            "name",
+            "description",
+            "classification",
+            "assertion",
+            "evidenceIds",
+            "attributes"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "decision"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "public",
+                "internal",
+                "restricted"
+              ]
+            },
+            "assertion": {
+              "type": "string",
+              "enum": [
+                "source-stated",
+                "inferred",
+                "human-assumed"
+              ]
+            },
+            "evidenceIds": {
+              "maxItems": 100,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "evidenceException": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "context": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "alternatives": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 40000
+              }
+            },
+            "chosen": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "consequences": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 40000
+              }
+            },
+            "elementIds": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "risks": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 40000
+              }
+            },
+            "author": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "description",
+            "classification",
+            "assertion",
+            "evidenceIds",
+            "context",
+            "alternatives",
+            "chosen",
+            "consequences",
+            "elementIds",
+            "risks",
+            "author"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "guardrail"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 40000
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "public",
+                "internal",
+                "restricted"
+              ]
+            },
+            "assertion": {
+              "type": "string",
+              "enum": [
+                "source-stated",
+                "inferred",
+                "human-assumed"
+              ]
+            },
+            "evidenceIds": {
+              "maxItems": 100,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "evidenceException": {
+              "type": "string",
+              "maxLength": 2000
+            },
+            "evaluator": {
+              "type": "string",
+              "enum": [
+                "require-evidence",
+                "interface-change-needs-decision",
+                "require-requirement-mapping",
+                "forbid-context-dependency",
+                "require-quality-attribute",
+                "advisory-architecture-review"
+              ]
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "warn",
+                "approval-required",
+                "block"
+              ]
+            },
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "quality": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "scope": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "description",
+            "classification",
+            "assertion",
+            "evidenceIds",
+            "evaluator",
+            "enabled",
+            "severity",
+            "parameters",
+            "scope"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "TaskInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "interpretation",
+            "question",
+            "architecture",
+            "revision",
+            "remediation",
+            "artifact",
+            "code"
+          ]
+        },
+        "sourceVersionIds": {
+          "default": [],
+          "maxItems": 100,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "elementIds": {
+          "default": [],
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "question": {
+          "default": "",
+          "type": "string",
+          "maxLength": 10000
+        },
+        "proposalId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "findingIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "artifactKind": {
+          "type": "string",
+          "enum": [
+            "specification",
+            "architecture-report",
+            "openapi",
+            "json-schema",
+            "test-plan",
+            "implementation-package",
+            "service-module",
+            "validation-report"
+          ]
+        },
+        "inputArtifactIds": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "expectedContextVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "kind",
+        "sourceVersionIds",
+        "elementIds",
+        "question",
+        "inputArtifactIds",
+        "expectedContextVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "WorkspaceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "description": {
+          "default": "",
+          "type": "string",
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "name",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "WorkspaceSettings": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "allowInternalAI": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "allowInternalAI",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

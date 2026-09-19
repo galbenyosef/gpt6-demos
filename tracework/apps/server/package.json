@@ -1,0 +1,5 @@
+{
+  "name": "@tracework/server",
+  "private": true,
+  "type": "module"
+}

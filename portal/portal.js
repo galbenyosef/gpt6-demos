@@ -80,7 +80,7 @@ function openPreview(index, trigger) {
     ? demo.note + (location.protocol === 'file:' ? ' Serve the portal over HTTP for embedded video, or use Watch on YouTube.' : '')
     : location.protocol === 'file:'
     ? 'For embedded YouTube playback, serve this page with bun run portal-server.ts and open localhost:3000/portal/. Start the apps with ./run-all.sh.'
-    : 'The demo runs locally. Start the apps with ./run-all.sh before opening.';
+    : `The demo runs locally. Start the apps with ./run-all.sh ${location.port || (location.protocol === 'https:' ? '443' : '80')} before opening.`;
   dialog.showModal();
   dialog.scrollTop = 0;
   closeButton.focus({ preventScroll: true });
