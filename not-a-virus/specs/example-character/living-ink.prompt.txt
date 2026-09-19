@@ -1,0 +1,11 @@
+Generated using the built-in image_gen tool.
+
+Use case: stylized-concept.
+Asset type: Single example-character portrait for the NotAVirus desktop companion project.
+Primary request: Create a living drop of ink, a mysterious but appealing desktop companion whose personality comes from fluid motion.
+Reference context: Follow the presentation pattern of the project's Paco, Gatita and jellyfish UFO examples: square composition, one full character centered on a pure white background, polished standalone game-character illustration, comfortable margins. This is a new subject; do not include those other characters.
+Subject: One glossy jet-black living ink droplet with a plump asymmetrical teardrop body, a gently swept curved tip, and a soft pooled base. It appears to have just flowed to a stop, with a slight sideways lean, one small fluid lobe reaching outward in curiosity, and two small detached satellite droplets nearby that clearly belong to the same liquid character. Two simple small pale ivory eyes peek out from the upper body; subtle black pupils glance toward the reaching lobe. Expression is quietly curious and a little mischievous. No mouth, smile, limbs, hands, feet, clothing, or accessories. Keep it unmistakably liquid ink, not a furry creature, slime monster, ghost, or humanoid.
+Style/medium: Polished stylized game-character concept illustration, smooth rich shading and a crisp bold silhouette. Deep black body with restrained charcoal gradients, glossy white reflections following the liquid curves, a subtle cool reflected sheen. Strong visual readability at small desktop size; the black mass is the main attraction. No outline around the white background.
+Composition/framing: Square image, one complete character filling approximately 80 percent of canvas height, centered with all droplets fully visible and ample white space around the silhouette. Slight three-quarter view. Clean pure white backdrop, only a faint soft contact shadow under its pooled base.
+Lighting/mood: Soft studio light, wet glossy surface, tactile surface tension, curious and charming without an exaggerated cartoon face.
+Constraints: Single example portrait only, no sprite sheet or multiple poses. No text, labels, captions, logos, border, watermark, scenery, cursor, UI, pens, ink bottles, splattered background, or additional characters.
