@@ -59,6 +59,7 @@ import type {
   Version,
 } from "../../../packages/contracts";
 const CanvasScreen = lazy(() => import("./Canvas"));
+const SourceReader = lazy(() => import("./SourceReader"));
 export type Page =
   | "sources"
   | "model"
@@ -75,6 +76,7 @@ export type Page =
 type InspectorState = {
   kind:
     | "source"
+    | "document"
     | "object"
     | "artifact"
     | "run"
@@ -697,14 +699,26 @@ export function App() {
           </main>
         ) : (
           <WorkbenchContext.Provider value={context!}>
-            <div className={`work-area ${inspector ? "with-inspector" : ""}`}>
+            <div
+              className={`work-area ${inspector && inspector.kind !== "document" ? "with-inspector" : ""}`}
+            >
               <main
                 id="main"
                 className={`main-pane ${page === "canvas" ? "canvas-main" : ""}`}
               >
-                {content()}
+                {inspector?.kind === "document" ? (
+                  <Suspense fallback={<p role="status">Opening source…</p>}>
+                    <SourceReader
+                      key={inspector.id}
+                      sourceId={inspector.id!}
+                      initialVersionId={inspector.sourceVersionId}
+                    />
+                  </Suspense>
+                ) : (
+                  content()
+                )}
               </main>
-              {inspector && (
+              {inspector && inspector.kind !== "document" && (
                 <Inspector
                   key={`${inspector.kind}-${inspector.id ?? inspector.objectKind ?? inspector.taskKind ?? ""}`}
                   title={

@@ -3052,3 +3052,390 @@ textarea::placeholder {
     width: 0 !important;
   }
 }
+
+/* Source documents share the workbench's paper, ink and review controls. */
+.source-reader {
+  min-width: 0;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+.reader-back {
+  margin-bottom: 24px;
+}
+.reader-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.reader-heading > div {
+  min-width: 0;
+}
+.reader-heading h1 {
+  font-size: 26px;
+  overflow-wrap: anywhere;
+  margin: 0 0 9px;
+}
+.reader-heading h1:focus {
+  outline: none;
+}
+.reader-metadata,
+.reader-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.reader-metadata {
+  color: var(--muted);
+  font-size: 12px;
+}
+.reader-metadata > span + span {
+  border-left: 1px solid var(--line);
+  padding-left: 12px;
+}
+.reader-toolbar,
+.pdf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.reader-toolbar {
+  margin-bottom: 24px;
+}
+.reader-version {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.reader-version select {
+  max-width: 230px;
+  color: var(--ink);
+}
+.reader-edit-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.reader-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: none;
+  font-size: 12px;
+  color: var(--muted);
+  margin: -8px 0 20px;
+  line-height: 1.6;
+}
+.reader-error {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--red);
+  margin-bottom: 20px;
+}
+.reader-error p {
+  margin-top: 0;
+  overflow-wrap: anywhere;
+}
+.reader-loading {
+  padding: 64px 24px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  min-height: 360px;
+}
+.document-sheet {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-height: 62vh;
+  padding: 44px 48px 64px;
+}
+.document-prose {
+  max-width: 72ch;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+.document-prose > :first-child {
+  margin-top: 0;
+}
+.document-prose h1 {
+  font-size: 30px;
+  margin: 0 0 24px;
+}
+.document-prose h2 {
+  font-size: 23px;
+  margin: 36px 0 12px;
+}
+.document-prose h3 {
+  font-size: 19px;
+  margin: 28px 0 10px;
+}
+.document-prose h4,
+.document-prose h5,
+.document-prose h6 {
+  font-size: 16px;
+  margin: 24px 0 8px;
+}
+.document-prose p {
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0 0 20px;
+}
+.document-prose li {
+  margin: 5px 0;
+}
+.document-prose a {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.document-prose blockquote {
+  margin: 24px 0;
+  padding: 16px 24px;
+  background: var(--paper);
+  border-left: 1px solid var(--line);
+}
+.document-prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+.document-prose pre {
+  padding: 20px;
+  background: var(--paper);
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.document-prose code {
+  font-size: 0.85em;
+  background: var(--paper);
+  padding: 2px 4px;
+}
+.document-prose pre code {
+  padding: 0;
+}
+.document-prose table {
+  display: block;
+  overflow: auto;
+  font-size: 14px;
+  margin: 24px 0;
+}
+.document-prose th,
+.document-prose td {
+  padding: 12px;
+  white-space: normal;
+}
+.document-prose hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 32px 0;
+}
+.document-image-placeholder {
+  display: inline-block;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  border: 1px solid var(--line);
+}
+.document-plain {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0 auto;
+  max-width: 80ch;
+  font:
+    14px/1.8 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+}
+.document-editor {
+  display: block;
+  width: 100%;
+  min-height: 60vh;
+  resize: vertical;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  font:
+    14px/1.8 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  tab-size: 2;
+  caret-color: var(--green);
+}
+.source-reader ::selection {
+  background: #dbe7cf;
+  color: var(--ink);
+}
+.pdf-reader {
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.pdf-toolbar {
+  border-top: 0;
+  padding: 12px 18px;
+}
+.pdf-page-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-page-label input {
+  width: 60px;
+  padding: 7px;
+  text-align: center;
+}
+.pdf-viewport {
+  position: relative;
+  overflow: auto;
+  padding: 20px;
+  min-height: 480px;
+  max-height: 76vh;
+  background: #e9ede5;
+  scrollbar-color: #a2aea0 #e9ede5;
+}
+.pdf-page {
+  position: relative;
+  margin: 0 auto;
+  background: white;
+}
+.pdf-page canvas {
+  display: block;
+}
+.pdf-page .textLayer {
+  position: absolute;
+  inset: 0;
+}
+.pdf-status {
+  position: absolute;
+  left: 24px;
+  top: 16px;
+  color: var(--muted);
+}
+@media (max-width: 760px) {
+  .reader-back {
+    margin-bottom: 20px;
+  }
+  .reader-heading {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .reader-heading h1 {
+    font-size: 22px;
+  }
+  .reader-metadata {
+    gap: 8px;
+  }
+  .reader-metadata > span + span {
+    padding-left: 8px;
+  }
+  .reader-toolbar {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .reader-controls {
+    gap: 8px;
+  }
+  .reader-version select {
+    max-width: 205px;
+  }
+  .reader-details-label {
+    display: none;
+  }
+  .document-sheet {
+    padding: 26px 20px 40px;
+  }
+  .document-prose {
+    font-size: 15px;
+  }
+  .document-prose h1 {
+    font-size: 26px;
+  }
+  .document-prose h2 {
+    font-size: 21px;
+  }
+  .document-prose pre {
+    padding: 12px;
+  }
+  .document-editor {
+    min-height: 55vh;
+    font-size: 14px;
+  }
+  .pdf-toolbar {
+    padding: 10px;
+    gap: 10px;
+  }
+  .pdf-toolbar .reader-controls {
+    gap: 4px;
+  }
+  .pdf-viewport {
+    min-height: 360px;
+  }
+}
+.document-table {
+  overflow-x: auto;
+  margin: 24px 0;
+}
+.document-table table {
+  display: table;
+  width: 100%;
+  margin: 0;
+}
+/* PDF.js text positioning, scoped to the reader (Apache-2.0, Mozilla Foundation).
+   Keep the selectable text aligned with the canvas without importing viewer-shell styles. */
+.pdf-page .textLayer {
+  color-scheme: only light;
+  text-align: initial;
+  overflow: clip;
+  line-height: 1;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 0;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+.pdf-page .textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+}
+.pdf-page .textLayer > :not(.markedContent),
+.pdf-page .textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x))
+    scale(var(--min-font-size-inv));
+}
+.pdf-page .textLayer .markedContent {
+  display: contents;
+}
+.pdf-page .textLayer ::selection {
+  color: transparent;
+  background: #dbe7cf80;
+}

@@ -20,6 +20,7 @@ export async function ingest(
     classification?: ClassificationType;
     authority?: Source["authority"];
     metadata?: Record<string, unknown>;
+    expectedVersionId?: string;
   } = {},
 ) {
   ensure(
@@ -44,6 +45,24 @@ export async function ingest(
     let source = opts.sourceId
       ? s.get<Source>("source", w, opts.sourceId)
       : null;
+    if (opts.expectedVersionId && source) {
+      const newest = s
+        .list<SourceVersion>("source-version", w)
+        .filter((v) => v.sourceId === source!.id)
+        .sort((a, b) => b.ordinal - a.ordinal)[0];
+      ensure(
+        source.status === "active",
+        "ARCHIVED",
+        "Unarchive the source before editing",
+        409,
+      );
+      ensure(
+        newest?.id === opts.expectedVersionId,
+        "SOURCE_CONFLICT",
+        "A newer source version exists. Your draft is preserved; open the newest version before editing.",
+        409,
+      );
+    }
     if (source) {
       const existing = s
         .list<SourceVersion>("source-version", w)
@@ -56,7 +75,11 @@ export async function ingest(
             v.extractorVersion === extractorVersion &&
             v.status === "ready",
         );
-      if (existing) return { source, version: existing, reused: true };
+      if (
+        existing &&
+        (!opts.expectedVersionId || existing.id === opts.expectedVersionId)
+      )
+        return { source, version: existing, reused: true };
     }
     if (!source) {
       source = {

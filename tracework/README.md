@@ -34,13 +34,13 @@ New sources default to **internal**. Public sources may be sent to the model; in
 
 ## Workflows
 
-- **Discover:** upload PDF, DOCX, Markdown/text, JSON, YAML, CSV or HTML; inspect immutable versions and locators; search evidence; ask scoped, cited questions.
+- **Discover:** upload PDF, DOCX, Markdown/text, JSON, YAML, CSV or HTML; click a source name to open its document. PDFs support page navigation, zoom, rotation and text selection. Markdown has formatted and source views; Markdown/text can be edited and saved as new immutable versions. The row's inspector action retains evidence, policy and citation details. Search evidence or ask scoped, cited questions.
 - **Model:** create typed objects through forms, or run interpretation and review proposals. Accept a dependency-complete subset, reject with a reason, edit into a derived proposal, or request revision. Accepted changes create immutable context versions with optimistic concurrency and idempotency.
 - **Design:** inspect semantic, bounded-context, C4 system and container projections in Excalidraw. Moving/hiding shapes changes layouts only. Proposal overlays remain drafts; semantic edits use reviewed forms. Decisions and executable/advisory guardrails have historical revisions.
 - **Build:** generate specifications, architecture/ADR documents, OpenAPI 3.1, JSON Schema 2020-12, mapped test plans and implementation packages. Preview, inspect provenance, download, and review artifact versions separately from model acceptance. Register a local Git root to import committed text without modifying its checkout.
 - **Validate:** introduce source replacements, inspect dependency paths and selective staleness, run deterministic checks, review advisory findings and request remediation. Dismissing a failed check never makes it pass.
 
-Model and artifact edit drafts persist in browser storage; canvas drafts survive view conflicts. Accepted records live on disk, independently of the browser. Recorded runs are explicitly labelled and replay saved events without inference or execution.
+Source, model and artifact edit drafts persist in browser storage; canvas drafts survive view conflicts. Source edits require the newest version, preserve earlier originals and citations, and queue fresh evidence extraction. Markdown HTML stays inert and image references are shown as placeholders without external requests. Accepted records live on disk, independently of the browser. Recorded runs are explicitly labelled and replay saved events without inference or execution.
 
 ## Data and recovery
 

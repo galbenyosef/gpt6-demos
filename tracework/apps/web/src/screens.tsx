@@ -276,7 +276,7 @@ export function SourcesScreen() {
                           <button
                             className="source-name"
                             onClick={() =>
-                              inspect({ kind: "source", id: source.id })
+                              inspect({ kind: "document", id: source.id })
                             }
                           >
                             <SourceIcon kind={source.kind} />
@@ -571,6 +571,18 @@ export function SourceDetail({
         </p>
       ))}
       <div className="button-row">
+        <button
+          className="primary"
+          onClick={() =>
+            inspect({
+              kind: "document",
+              id: source.id,
+              sourceVersionId: version?.id,
+            })
+          }
+        >
+          <BookOpen size={14} /> Open document
+        </button>
         <a
           className="button"
           href={`/api/workspaces/${source.workspaceId}/sources/${source.id}/original?version=${version?.id}`}

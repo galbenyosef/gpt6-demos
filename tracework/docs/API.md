@@ -17,6 +17,9 @@ In the table below, `W` means `/api/workspaces/:workspaceId`.
 | `W/sources/:id/versions` | POST replacement original, asynchronous extraction |
 | `W/sources/:id?version=:id` | GET immutable version/evidence; PATCH current policy |
 | `W/sources/:id/original?version=:id` | GET exact original bytes |
+| `W/sources/:id/content?version=:id` | GET `{text}` for Markdown, text, JSON, YAML, CSV or HTML; HTML stays inert |
+| `W/sources/:id/content` | POST `{expectedVersionId,text}` to save Markdown/text as a new immutable version and queue extraction; 409 if a newer version exists, including queued uploads |
+| `/api/pdf-assets/:group/:file` | GET local PDF.js character maps, standard fonts or WASM assets; session required |
 | `W/evidence?q=:query` | GET lexical FTS5 matches, including historical revisions |
 | `W/evidence/catalog?offset=:n` | GET 200 citation choices plus total |
 | `W/evidence/:id` | GET verified citation, source and dependents |

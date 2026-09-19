@@ -746,3 +746,149 @@ test("HTTP local Host, Origin, session, CSRF, and missing AI key are enforced", 
   expect(ai.status).toBe(412);
   await app.jobs.stop();
 });
+
+test("source content edits preserve originals, evidence and policy and reject stale versions", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "tracework-reader-"));
+  dirs.push(dir);
+  const app = createApp(dir, { port: 4310 });
+  stores.push(app.s);
+  const session = await app.fetch(
+    new Request("http://localhost:4310/api/session", {
+      headers: { host: "localhost:4310" },
+    }),
+  );
+  const cookie = session.headers.get("set-cookie")!.split(";")[0]!;
+  const csrf = (await session.json()).csrf;
+  const w = createWorkspace(app.s, { name: "Reader test" });
+  const original = "# Original\nA source-stated requirement.\n";
+  const upload = await ingest(
+    app.s,
+    w.id,
+    "brief.md",
+    new TextEncoder().encode(original),
+    { classification: "restricted", authority: "authoritative" },
+  );
+  await extractVersion(
+    app.s,
+    w.id,
+    upload.version.id,
+    new AbortController().signal,
+    () => {},
+  );
+  const evidenceBefore = app.s.list<Evidence>("evidence", w.id);
+  const req = (path: string, method = "GET", value?: unknown) =>
+    app.fetch(
+      new Request(
+        `http://localhost:4310/api/workspaces/${w.id}/sources/${path}`,
+        {
+          method,
+          headers: {
+            host: "localhost:4310",
+            cookie,
+            origin: "http://localhost:4310",
+            "x-tracework-csrf": csrf,
+            "content-type": "application/json",
+          },
+          body: value === undefined ? undefined : JSON.stringify(value),
+        },
+      ),
+    );
+  expect(
+    (
+      await (
+        await req(`${upload.source.id}/content?version=${upload.version.id}`)
+      ).json()
+    ).text,
+  ).toBe(original);
+  const changed = "# Revised\nA reviewed change.\n";
+  const response = await req(`${upload.source.id}/content`, "POST", {
+    expectedVersionId: upload.version.id,
+    text: changed,
+  });
+  expect(response.status).toBe(202);
+  const edited = await response.json();
+  expect(edited.version.ordinal).toBe(2);
+  expect(edited.source.classification).toBe("restricted");
+  expect(edited.source.authority).toBe("authoritative");
+  expect(
+    await (
+      await req(`${upload.source.id}/original?version=${upload.version.id}`)
+    ).text(),
+  ).toBe(original);
+  expect(
+    (
+      await (
+        await req(`${upload.source.id}/content?version=${edited.version.id}`)
+      ).json()
+    ).text,
+  ).toBe(changed);
+  expect(app.s.list<Evidence>("evidence", w.id)).toEqual(evidenceBefore);
+  // Even a queued newer version fences concurrent editors.
+  expect(
+    (
+      await req(`${upload.source.id}/content`, "POST", {
+        expectedVersionId: upload.version.id,
+        text: "stale",
+      })
+    ).status,
+  ).toBe(409);
+  const other = await ingest(
+    app.s,
+    w.id,
+    "other.txt",
+    new TextEncoder().encode("Other"),
+  );
+  expect(
+    (await req(`${other.source.id}/content?version=${upload.version.id}`))
+      .status,
+  ).toBe(404);
+  expect(
+    (
+      await req(`${other.source.id}/content`, "POST", {
+        expectedVersionId: edited.version.id,
+        text: "wrong source",
+      })
+    ).status,
+  ).toBe(404);
+  const binary = await ingest(
+    app.s,
+    w.id,
+    "document.pdf",
+    new TextEncoder().encode("%PDF"),
+  );
+  expect(
+    (
+      await req(`${binary.source.id}/content`, "POST", {
+        expectedVersionId: binary.version.id,
+        text: "not pdf",
+      })
+    ).status,
+  ).toBe(415);
+  const reverted = await (
+    await req(`${upload.source.id}/content`, "POST", {
+      expectedVersionId: edited.version.id,
+      text: original,
+    })
+  ).json();
+  expect(reverted.version.ordinal).toBe(3);
+  expect(reverted.reused).toBe(false);
+  expect(reverted.version.id).not.toBe(upload.version.id);
+  const font = await app.fetch(
+    new Request(
+      "http://localhost:4310/api/pdf-assets/standard_fonts/LiberationSans-Regular.ttf",
+      { headers: { host: "localhost:4310", cookie } },
+    ),
+  );
+  expect(font.status).toBe(200);
+  expect((await font.arrayBuffer()).byteLength).toBeGreaterThan(0);
+  app.s.putWorkspace({ ...w, status: "archived" });
+  expect(
+    (
+      await req(`${upload.source.id}/content`, "POST", {
+        expectedVersionId: edited.version.id,
+        text: "archived",
+      })
+    ).status,
+  ).toBe(409);
+  await app.jobs.stop();
+});

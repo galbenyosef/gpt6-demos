@@ -105,14 +105,19 @@ export function createApp(
   );
   const json = (data: unknown, status = 200) =>
     Response.json(data, { status, headers: { "Cache-Control": "no-store" } });
-  async function body(req: Request) {
+  async function body(req: Request, limit = 1024 * 1024) {
     const len = Number(req.headers.get("content-length") || 0);
-    ensure(len <= 1024 * 1024, "BODY_TOO_LARGE", "Request exceeds 1 MiB", 413);
+    ensure(
+      len <= limit,
+      "BODY_TOO_LARGE",
+      "Request exceeds the size limit",
+      413,
+    );
     const text = await req.text();
     ensure(
-      text.length <= 1024 * 1024,
+      text.length <= limit,
       "BODY_TOO_LARGE",
-      "Request exceeds 1 MiB",
+      "Request exceeds the size limit",
       413,
     );
     try {
@@ -230,6 +235,35 @@ export function createApp(
       });
     }
     session(req, !["GET", "HEAD"].includes(method));
+    const pdfAsset = path.match(
+      /^\/api\/pdf-assets\/(cmaps|standard_fonts|wasm)\/([\w.-]+)$/,
+    );
+    if (pdfAsset && method === "GET") {
+      ensure(
+        !pdfAsset[2]!.startsWith("."),
+        "NOT_FOUND",
+        "PDF asset not found",
+        404,
+      );
+      const file = Bun.file(
+        join(
+          import.meta.dir,
+          "../../../node_modules/pdfjs-dist",
+          pdfAsset[1]!,
+          pdfAsset[2]!,
+        ),
+      );
+      ensure(await file.exists(), "NOT_FOUND", "PDF asset not found", 404);
+      return new Response(file, {
+        headers: {
+          "Content-Type": pdfAsset[2]!.endsWith(".wasm")
+            ? "application/wasm"
+            : "application/octet-stream",
+          "Cache-Control": "private, max-age=86400",
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    }
     if (path === "/api/workspaces") {
       if (method === "GET") return json(s.workspaces());
       if (method === "POST")
@@ -382,6 +416,42 @@ export function createApp(
         validations: s.list("validation", w),
       });
     if (resource === "sources") {
+      if (key && action === "content" && method === "POST") {
+        const c = z
+          .object({
+            expectedVersionId: z.string(),
+            text: z.string().max(25 * 1024 * 1024),
+          })
+          .strict()
+          .parse(await body(req, 26 * 1024 * 1024));
+        const source = s.get<Source>("source", w, key);
+        const version = s.get<SourceVersion>(
+          "source-version",
+          w,
+          c.expectedVersionId,
+        );
+        ensure(
+          version.sourceId === key,
+          "NOT_FOUND",
+          "Source version does not belong to this source",
+          404,
+        );
+        const name = String(version.metadata.originalName ?? source.name);
+        ensure(
+          /\.(md|markdown|txt|text)$/i.test(name),
+          "NOT_EDITABLE",
+          "Only Markdown and text sources can be edited",
+          415,
+        );
+        return json(
+          await ingest(s, w, name, new TextEncoder().encode(c.text), {
+            sourceId: key,
+            expectedVersionId: c.expectedVersionId,
+            metadata: { editedFromVersionId: version.id },
+          }),
+          202,
+        );
+      }
       if (method === "GET" && !key) return json(s.list<Source>("source", w));
       if (method === "POST" && (!key || action === "versions")) {
         const len = Number(req.headers.get("content-length") || 0);
@@ -421,7 +491,7 @@ export function createApp(
           u.searchParams.get("version") ??
           source.latestVersionId ??
           versions[0]?.id;
-        if (action === "original") {
+        if (action === "original" || action === "content") {
           const v = s.get<SourceVersion>("source-version", w, vid!);
           ensure(
             v.sourceId === key,
@@ -429,10 +499,21 @@ export function createApp(
             "Source version does not belong to this source",
             404,
           );
+          const name = String(v.metadata.originalName ?? source.name);
+          if (action === "content") {
+            ensure(
+              /\.(md|markdown|txt|text|json|ya?ml|csv|html?)$/i.test(name),
+              "NOT_TEXT",
+              "Use the original download for this file type",
+              415,
+            );
+            return json({ text: await s.blobFile(v.hash).text() });
+          }
           return new Response(s.blobFile(v.hash), {
             headers: {
               "Content-Type": "application/octet-stream",
-              "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(source.name)}`,
+              "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(name)}`,
+              "X-Content-Type-Options": "nosniff",
             },
           });
         }
