@@ -26,7 +26,7 @@ components:
 
 The character occupies a small, transparent, nonactivating panel over the user's desktop. The interface recedes into a native macOS status menu; the desktop remains the visual ground. Character identity and animation belong to the selected pack, while AppKit owns the control language.
 
-Paco uses an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. The default and gatita packs share a smooth 24-frame atlas documented in `art/gatita/`. Native view snapshots verify all Paco silhouettes, sizes and facings; `.impeccable/review/paco-animation.md` records the art/rendering review and its live-motion/desktop limitations. The earlier prototype review remains historical. Neither review is v1 release approval.
+Paco uses an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. The default and gatita packs share a smooth 24-frame atlas documented in `art/gatita/`. Jellyfish UFO and Living Ink each add a smooth 16-frame atlas, with source/prompt provenance and rebuilding instructions in their respective `art/` folders. Native view snapshots check sizes, facings and silhouettes; `.impeccable/review/` records the bounded art/rendering reviews and their live-motion/desktop limitations. The earlier prototype review remains historical. These reviews are not v1 release approval.
 
 **Key Characteristics:**
 
@@ -34,6 +34,7 @@ Paco uses an AI-assisted 16-frame pixel-art atlas, documented in `art/paco/`. Th
 - AppKit status menu, file chooser, and alerts with native control states.
 - Pack-defined artwork, filtering, facing, and animation timing.
 - Warm, effortful Paco animation and sweet, playful gatita animation.
+- Quiet jellyfish pulses and liquid ink stretch/squash supply distinct additional personalities.
 
 ## Colors
 
@@ -88,7 +89,7 @@ Packs shows the active valid pack checked. Invalid packs are disabled with the f
 
 ### Native dialogs
 
-Import uses a single-file `NSOpenPanel` for `.petpack` files. About uses `NSAlert` and explicitly identifies “v0.1 · Paco and gatita.” A startup failure uses `NSAlert` to name the default-pack problem and show its reason before termination. AppKit supplies dialog typography, layout, buttons, focus, and accessibility behavior; no custom visual variants are implemented.
+Import uses a single-file `NSOpenPanel` for `.petpack` files. About uses `NSAlert` and identifies gatita, Paco, Jellyfish UFO and Living Ink. A startup failure uses `NSAlert` to name the default-pack problem and show its reason before termination. AppKit supplies dialog typography, layout, buttons, focus, and accessibility behavior; no custom visual variants are implemented.
 
 Source evidence: `crates/notavirus-app/src/{panel,status,bridge,app,tick}.rs`, `crates/notavirus-core/src/{brain,pack}.rs`, `resources/packs/*/pack.toml`, `PRODUCT.md`, and `.impeccable/review/{direction,finish-review}.md`. Source verification does not establish perceived motion quality, final-art readability, or cross-display visual acceptance.
 

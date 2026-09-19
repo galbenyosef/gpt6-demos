@@ -8,7 +8,7 @@ import tomllib
 
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('pack', nargs='?', default='paco', choices=['paco', 'gatita'])
+parser.add_argument('pack', nargs='?', default='paco', choices=['paco', 'gatita', 'jellyfish-ufo', 'living-ink'])
 pack_id = parser.parse_args().pack
 pack = root / 'resources/packs' / pack_id
 manifest = tomllib.loads((pack / 'pack.toml').read_text())
@@ -40,6 +40,7 @@ canvas{image-rendering:__FILTER__}small{display:block;margin:12px 0;color:#4e544
 const pack=__PACK__, img=new Image(), canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');
 const clip=document.querySelector('#clip'),size=document.querySelector('#size'),face=document.querySelector('#face'),play=document.querySelector('#play');
 const labels={sit_and_wipe:'Sit and wipe',huffing_run:'Huffing run',stand_up:'Stand up',sit_down:'Sit down',turn_around:'Turn around',doze:'Doze',play_roll_purr:'Play, roll and purr',bound:'Bound',crouch:'Crouch',settle:'Settle',tail_flick:'Tail flick',curl_up_asleep:'Curl up asleep',stretch:'Stretch'};
+Object.assign(labels,{hover:'Hover',pulse_glide:'Pulse glide',gather:'Gather',drift:'Drift to rest',dim_rest:'Quiet sleeping hover',unfurl:'Wake and unfurl',curious_wobble:'Curious wobble',slither:'Slither',pool:'Pool and settle',puddle_sleep:'Sleeping mound',reform:'Wake and reform'});
 for(const key of Object.keys(pack.states)){let o=document.createElement('option');o.value=key;o.textContent=labels[key]||key;clip.append(o)}
 let elapsed=0,last=0,playing=!matchMedia('(prefers-reduced-motion: reduce)').matches;
 function state(){const s=pack.states[clip.value], d=s.durations_ms||s.frames.map(()=>1000/s.fps),total=d.reduce((a,b)=>a+b,0);let t=s.loop===false?Math.min(elapsed,total-0.001):elapsed%total,i=0;while(i<d.length-1&&t>=d[i]){t-=d[i++]}return [s.frames[i],i,total]}
@@ -52,7 +53,12 @@ play.onclick=()=>{playing=!playing;sync()};document.querySelector('#restart').on
 sync();img.onload=()=>requestAnimationFrame(tick);img.src='data:image/png;base64,__ATLAS__';
 </script></html>'''
 output = root / 'art' / pack_id / 'preview.html'
-name = 'Paco' if pack_id == 'paco' else 'gatita'
-description = ('Idle includes a sweat wipe; start and stop show the effort of getting up and sitting down. Turns use a brief front view. Dozing is silent.' if pack_id == 'paco' else 'Paw play leads into a roll and quiet breathing. A quick crouch starts the bounding chase; landing leads into a tail flick. Curled sleep wakes with a stretch. Purring is visual and silent. This page previews each clip separately; the app chains Settle into Tail flick.')
+name = manifest['name']
+description = {
+    'paco': 'Idle includes a sweat wipe; start and stop show the effort of getting up and sitting down. Turns use a brief front view. Dozing is silent.',
+    'gatita': 'Paw play leads into a roll and quiet breathing. A quick crouch starts the bounding chase; landing leads into a tail flick. Curled sleep wakes with a stretch. Purring is visual and silent. This page previews each clip separately; the app chains Settle into Tail flick.',
+    'jellyfish-ufo': 'A quiet hover pulses into a rightward glide with trailing tendrils. Arrival opens the bell before it settles; the sleeping core dims and wakes with an unfurl. Hovering stays inside the sprite tile. Each clip is previewed separately.',
+    'living-ink': 'Curious wobbling and a blink give way to a fluid stretch-and-squash chase. The ink pools on arrival, sleeps as a low mound and reforms when the pointer moves away. Each clip is previewed separately.',
+}[pack_id]
 output.write_text(page.replace('__PACK__', json.dumps(manifest)).replace('__ATLAS__', atlas).replace('__NAME__', name).replace('__FILTER__', 'auto' if manifest['filter'] == 'linear' else 'pixelated').replace('__DESCRIPTION__', description))
 print(output)

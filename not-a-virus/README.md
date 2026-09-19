@@ -4,7 +4,7 @@ A macOS menu bar sprite. No network. No extra permissions.
 
 It follows the mouse. That is the entire product.
 
-**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco remains available as a pixel-art character. gatita is a smooth animated tabby with play, roll, visual purr, bounding chase, sleep and stretch clips. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco, Jellyfish UFO and Living Ink are also available from **Packs** in the paw menu. Each has its own artwork, movement settings and idle/chase/rest transitions. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
 Open the [Paco animation preview](art/paco/preview.html) to inspect the shipped clips without opening the desktop app. [Artwork provenance and rebuilding instructions](art/paco/README.md) include the generated source, prompts and asset compiler. The original JPEGs and [static pose studies](specs/pose-studies/README.md) are preserved.
 
@@ -23,6 +23,10 @@ The script builds the locked release workspace, assembles `NotAVirus.app`, ad-ho
 Click the **paw icon** in the menu bar. Choose Pause/Resume, Packs, Size, About, or Quit. Small/Medium/Large are 1×/1.5×/2×; the first launch uses Small. Click-through stays enabled. Scale changes artwork, not chase speed. The selected pack, size, and pause state persist in UserDefaults. Reopening the bundle brings attention to the existing menu instead of creating another pet.
 
 Paco gets up, jogs after the pointer, sits with relief, wipes his brow, and dozes. His pack uses a transparent 16-frame atlas and slower acceleration. gatita accelerates quickly, crouches into a bounding chase, settles with a tail flick, plays and rolls while idle, and curls up to sleep. Her smooth 24-frame atlas uses linear filtering. [Preview gatita](art/gatita/preview.html) or see her [source, prompts and rebuilding instructions](art/gatita/README.md).
+
+Jellyfish UFO hovers with swaying tendrils, gathers into a pulsing glide, opens its bell on arrival and rests with its tendrils tucked in. [Preview Jellyfish UFO](art/jellyfish-ufo/preview.html) · [artwork and rebuilding](art/jellyfish-ufo/README.md).
+
+Living Ink wobbles and blinks when curious, stretches and squashes into a fluid chase, then pools, sleeps and reforms. [Preview Living Ink](art/living-ink/preview.html) · [artwork and rebuilding](art/living-ink/README.md). Both new packs use smooth transparent 16-frame atlases; their motion stays within the existing chase behavior and neither produces sound or leaves a trail. Quit and reopen the rebuilt app to discover newly bundled packs; saved explicit choices are preserved.
 
 ## Packs
 
@@ -71,7 +75,7 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 
 The workspace test command includes a main-thread AppKit integration executable and therefore needs access to the macOS window server. It checks native rendering and controls plus the production import path: valid archives, failure preservation, error recovery, startup reconstruction and removed-pack fallback. Its files and preferences are isolated; it does not change the app’s saved settings. File chooser interaction and physical desktop behavior remain manual checks. On a headless or sandboxed host, run the portable tests separately.
 
-Run the opt-in native idle benchmark on a Mac with an awake display (add `--pack gatita` after `--benchmark` to measure gatita):
+Run the opt-in native idle benchmark on a Mac with an awake display (add `--pack gatita`, `--pack jellyfish-ufo`, or `--pack living-ink` after `--benchmark` to select a pack):
 
 ```sh
 cargo test -p notavirus-app --test native --release --locked -- --benchmark
@@ -87,4 +91,4 @@ cargo test --locked -p notavirus-core -p notavirus-pack
 
 `notavirus-core` owns plain point geometry, validated pack types, the clip player, and behavior/movement. `notavirus-pack` owns untrusted TOML/JSON/PNG decoding and bounded zip installation. `notavirus-app` owns all AppKit objects on the main thread. The window display link targets 60 Hz on supported macOS versions; macOS 13 uses a main-run-loop timer. Each simulation tick is capped at 100 ms and subdivided to at most 1/120 s. Pausing invalidates the tick source.
 
-`python3 scripts/generate-fixtures.py` regenerates diagnostic PNGs/manifests only under `tests/fixtures/`, so it cannot overwrite runtime artwork. Rebuilding instructions are in `art/paco/README.md` and `art/gatita/README.md`. `cargo test -p notavirus-app --test native --locked -- --capture` also writes offscreen native snapshots at all three sizes and both facings under `target/native-captures/`; it leaves no desktop overlay. Current checks and hardware/art gaps are recorded in the implementation plan.
+`python3 scripts/generate-fixtures.py` regenerates diagnostic PNGs/manifests only under `tests/fixtures/`, so it cannot overwrite runtime artwork. Each character's `art/<pack-id>/README.md` documents its source and rebuilding instructions. `cargo test -p notavirus-app --test native --locked -- --capture` also writes offscreen native snapshots for all four characters at all three sizes and both facings under `target/native-captures/`; it leaves no desktop overlay. Current checks and hardware/art gaps are recorded in the implementation plan.

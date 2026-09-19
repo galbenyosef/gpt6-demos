@@ -37,7 +37,7 @@ fn main() {
             .windows(2)
             .find(|a| a[0] == "--pack")
             .map_or("default", |a| a[1].as_str());
-        assert!(["default", "paco", "gatita"].contains(&selected));
+        assert!(["default", "paco", "gatita", "jellyfish-ufo", "living-ink"].contains(&selected));
         app::benchmark::idle(mtm, root, selected);
         return;
     }
@@ -66,7 +66,7 @@ fn main() {
             | NSWindowCollectionBehavior::FullScreenAuxiliary
             | NSWindowCollectionBehavior::Stationary
     ));
-    for id in ["paco", "gatita"] {
+    for id in ["paco", "gatita", "jellyfish-ufo", "living-ink"] {
         capture::pack(
             &panel,
             &root,
@@ -74,7 +74,7 @@ fn main() {
             std::env::args().any(|arg| arg == "--capture"),
         );
     }
-    for id in ["default", "paco", "gatita"] {
+    for id in ["default", "paco", "gatita", "jellyfish-ufo", "living-ink"] {
         let mut loaded = notavirus_pack::load(&root.join(id)).unwrap();
         let renderer = bridge::Renderer::prepare(&mut loaded).unwrap();
         renderer.attach(&panel);
@@ -112,7 +112,7 @@ fn main() {
     app::verify_controls(mtm, root.clone());
     app::import_acceptance::verify(mtm, root);
     println!(
-        "native: accessory policy, all panel flags, three pack images, 1×/1.5×/2× size, Retina scale, frame UVs, mirroring and failed-load resource preservation passed"
+        "native: accessory policy, all panel flags, five pack images, 1×/1.5×/2× size, Retina scale, frame UVs, mirroring and failed-load resource preservation passed"
     );
 }
 #[cfg(not(target_os = "macos"))]

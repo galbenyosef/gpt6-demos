@@ -1,0 +1,63 @@
+schema = 1
+id = "jellyfish-ufo"
+name = "Jellyfish UFO"
+author = "NotAVirus — original AI-assisted artwork; see art/jellyfish-ufo/"
+version = 1
+tile = [128, 128]
+anchor = [64, 116]
+filter = "linear"
+
+[atlas]
+file = "atlas.png"
+grid = [4, 4]
+
+[behavior]
+preset = "chase"
+idle = "hover"
+moving = "pulse_glide"
+start_moving = "gather"
+stop_moving = "drift"
+sleep = "dim_rest"
+wake = "unfurl"
+idle_delay_ms = 240
+sleep_after_ms = 16000
+
+[motion]
+max_speed = 230
+acceleration = 620
+stop_distance = 26
+start_distance = 44
+
+[states.hover]
+frames = [0, 1, 2, 3]
+durations_ms = [360, 320, 360, 320]
+loop = true
+
+[states.pulse_glide]
+frames = [4, 5, 6, 7]
+durations_ms = [150, 100, 130, 180]
+loop = true
+flip = "velocity"
+
+[states.gather]
+frames = [8, 9]
+durations_ms = [100, 140]
+loop = false
+interrupt = "finish"
+
+[states.drift]
+frames = [10, 11]
+durations_ms = [160, 200]
+loop = false
+interrupt = "on_move"
+
+[states.dim_rest]
+frames = [12, 13]
+durations_ms = [1100, 1300]
+loop = true
+
+[states.unfurl]
+frames = [14, 15]
+durations_ms = [180, 180]
+loop = false
+interrupt = "finish"

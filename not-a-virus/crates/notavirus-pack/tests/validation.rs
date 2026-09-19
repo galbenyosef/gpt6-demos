@@ -33,7 +33,7 @@ fn archive(path: &Path, entries: &[(&str, &[u8])]) {
 }
 #[test]
 fn real_packs_and_both_atlas_layouts() {
-    for name in ["default", "paco", "gatita"] {
+    for name in ["default", "paco", "gatita", "jellyfish-ufo", "living-ink"] {
         let p = load(&root().join("resources/packs").join(name)).unwrap();
         assert_eq!(p.pack.id, name);
         assert_eq!(p.rgba.len(), p.width as usize * p.height as usize * 4);
@@ -179,6 +179,156 @@ fn gatita_art_has_smooth_alpha_padding_and_authored_motion() {
     brain.tick(input(Vec2::new(1200., 112.)));
     assert_eq!(brain.phase, Phase::Waking);
     assert_eq!(brain.pack.clips[brain.player.clip].name, "stretch");
+}
+
+#[test]
+fn new_companions_are_discoverable_and_have_complete_transparent_art() {
+    use notavirus_core::Filter;
+    let folder = root().join("resources/packs");
+    let candidates = discover(std::slice::from_ref(&folder));
+    for (id, name) in [
+        ("jellyfish-ufo", "Jellyfish UFO"),
+        ("living-ink", "Living Ink"),
+    ] {
+        assert!(
+            candidates
+                .iter()
+                .any(|p| p.id.as_deref() == Some(id) && p.failure.is_none())
+        );
+        let loaded = load(&folder.join(id)).unwrap();
+        assert_eq!(loaded.pack.name, name);
+        assert_eq!((loaded.width, loaded.height), (512, 512));
+        assert_eq!(loaded.pack.filter, Filter::Linear);
+        let mut drawings = std::collections::HashSet::new();
+        for frame in 0..16 {
+            let (mut visible, mut soft) = (0, 0);
+            let mut drawing = Vec::new();
+            for y in 0..128 {
+                for x in 0..128 {
+                    let offset = ((frame / 4 * 128 + y) * 512 + frame % 4 * 128 + x) * 4;
+                    let pixel = &loaded.rgba[offset..offset + 4];
+                    drawing.extend_from_slice(pixel);
+                    if pixel[3] > 0 {
+                        assert!(
+                            (8..120).contains(&x) && (8..116).contains(&y),
+                            "{id} frame {frame} clips its tile padding at {x},{y}"
+                        );
+                        visible += usize::from(pixel[3] >= 128);
+                        soft += usize::from(pixel[3] < 255);
+                    }
+                }
+            }
+            assert!(
+                visible > 900 && soft > 80,
+                "{id} frame {frame} lacks readable art/smooth alpha"
+            );
+            assert!(
+                drawings.insert(drawing),
+                "{id} frame {frame} duplicates another drawing"
+            );
+        }
+        // Every authored pose is reachable through a configured role, with no dead frames.
+        let frames = loaded
+            .pack
+            .clips
+            .iter()
+            .flat_map(|c| &c.frames)
+            .map(|f| {
+                (
+                    (f.uv.origin.x * 4.).round() as usize,
+                    ((1. - f.uv.origin.y) * 4.).round() as usize,
+                )
+            })
+            .collect::<std::collections::HashSet<_>>();
+        assert_eq!(frames.len(), 16);
+    }
+}
+
+#[test]
+fn new_companions_chase_settle_sleep_wake_and_interrupt() {
+    use notavirus_core::*;
+    for (id, idle, moving, stop, sleep, wake) in [
+        (
+            "jellyfish-ufo",
+            "hover",
+            "pulse_glide",
+            "drift",
+            "dim_rest",
+            "unfurl",
+        ),
+        (
+            "living-ink",
+            "curious_wobble",
+            "slither",
+            "pool",
+            "puddle_sleep",
+            "reform",
+        ),
+    ] {
+        let pack = load(&root().join("resources/packs").join(id)).unwrap().pack;
+        let origin = Vec2::new(100., 100.);
+        let resting_cursor = origin + pack.anchor_offset(1.);
+        let input = |cursor| TickInput {
+            dt: 1. / 120.,
+            cursor,
+            scale: 1.,
+            paused: false,
+            screen: ScreenGeometry {
+                id: 1,
+                backing_scale: 2.,
+                visible: Rect {
+                    origin: Vec2::ZERO,
+                    size: Vec2::new(1600., 1000.),
+                },
+            },
+        };
+        let mut brain = Brain::new(pack, origin);
+        brain.tick(input(resting_cursor));
+        assert_eq!(brain.pack.clips[brain.player.clip].name, idle);
+        let before = (brain.origin, brain.player.elapsed);
+        brain.tick(TickInput {
+            paused: true,
+            ..input(Vec2::new(900., 112.))
+        });
+        assert_eq!(before, (brain.origin, brain.player.elapsed));
+        let target = Vec2::new(900., 112.);
+        brain.tick(input(target));
+        assert_eq!(
+            brain.phase,
+            Phase::Starting,
+            "{id} must leave idle promptly"
+        );
+        assert_eq!(brain.pack.clips[brain.player.clip].name, "gather");
+        let mut seen = std::collections::HashSet::new();
+        for _ in 0..3600 {
+            brain.tick(input(target));
+            seen.insert(brain.pack.clips[brain.player.clip].name.clone());
+        }
+        for name in [moving, stop, idle, sleep] {
+            assert!(seen.contains(name), "{id} skipped {name}");
+        }
+        assert_eq!(brain.phase, Phase::Sleeping);
+        assert!(brain.target_distance <= brain.pack.motion.stop_distance + 1e-6);
+        let target = Vec2::new(1200., 112.);
+        brain.tick(input(target));
+        assert_eq!(brain.phase, Phase::Waking);
+        assert_eq!(brain.pack.clips[brain.player.clip].name, wake);
+        // A second chase reaches the real stop clip, which must yield if the mouse leaves.
+        for _ in 0..1200 {
+            if brain.phase == Phase::Stopping {
+                break;
+            }
+            brain.tick(input(target));
+        }
+        assert_eq!(brain.phase, Phase::Stopping);
+        brain.tick(input(Vec2::new(200., 112.)));
+        assert_eq!(
+            brain.phase,
+            Phase::Starting,
+            "{id} stop must be interruptible"
+        );
+        assert!(brain.facing_left);
+    }
 }
 
 #[test]

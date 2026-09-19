@@ -162,7 +162,7 @@ define_class!(
         fn about(&self, _: &NSMenuItem) {
             let alert = NSAlert::new(self.mtm());
             alert.setMessageText(ns_string!("NotAVirus"));
-            alert.setInformativeText(ns_string!("It follows the mouse.\nThat is the entire product.\n\nv0.1 · Paco and gatita\nMenu bar sprite. No network. No permissions."));
+            alert.setInformativeText(ns_string!("It follows the mouse.\nThat is the entire product.\n\nv0.1 · gatita, Paco, Jellyfish UFO and Living Ink\nMenu bar sprite. No network. No permissions."));
             alert.runModal();
         }
         #[unsafe(method(quit:))]
@@ -431,6 +431,7 @@ pub fn verify_controls(mtm: MainThreadMarker, root: PathBuf) {
     )
     .unwrap();
     assert_eq!(app.preferences.active, "default");
+    assert_eq!(app.brain.pack.name, "gatita (Default)");
     *delegate.ivars().state.borrow_mut() = Some(app);
     delegate.menu();
     delegate.start_clock();
@@ -454,19 +455,26 @@ pub fn verify_controls(mtm: MainThreadMarker, root: PathBuf) {
     unsafe {
         let _: () = msg_send![&*delegate, size: &*sender];
     }
-    let index = delegate
-        .ivars()
-        .state
-        .borrow()
-        .as_ref()
-        .unwrap()
-        .packs
-        .iter()
-        .position(|p| p.id.as_deref() == Some("paco"))
-        .unwrap();
-    sender.setTag(index as isize);
-    unsafe {
-        let _: () = msg_send![&*delegate, selectPack: &*sender];
+    for id in ["jellyfish-ufo", "living-ink", "paco"] {
+        let index = delegate
+            .ivars()
+            .state
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .packs
+            .iter()
+            .position(|p| p.id.as_deref() == Some(id))
+            .unwrap();
+        sender.setTag(index as isize);
+        unsafe {
+            let _: () = msg_send![&*delegate, selectPack: &*sender];
+        }
+        let state = delegate.ivars().state.borrow();
+        let app = state.as_ref().unwrap();
+        assert_eq!(app.preferences.active, id);
+        assert_eq!(app.brain.pack.id, id);
+        assert_eq!(Preferences::from_defaults(defaults.clone()).active, id);
     }
     {
         let mut state = delegate.ivars().state.borrow_mut();

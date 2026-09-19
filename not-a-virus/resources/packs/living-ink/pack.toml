@@ -1,0 +1,63 @@
+schema = 1
+id = "living-ink"
+name = "Living Ink"
+author = "NotAVirus — original AI-assisted artwork; see art/living-ink/"
+version = 1
+tile = [128, 128]
+anchor = [64, 116]
+filter = "linear"
+
+[atlas]
+file = "atlas.png"
+grid = [4, 4]
+
+[behavior]
+preset = "chase"
+idle = "curious_wobble"
+moving = "slither"
+start_moving = "gather"
+stop_moving = "pool"
+sleep = "puddle_sleep"
+wake = "reform"
+idle_delay_ms = 180
+sleep_after_ms = 14000
+
+[motion]
+max_speed = 320
+acceleration = 1100
+stop_distance = 20
+start_distance = 36
+
+[states.curious_wobble]
+frames = [0, 1, 2, 3, 0]
+durations_ms = [800, 360, 120, 300, 450]
+loop = true
+
+[states.slither]
+frames = [4, 5, 6, 7]
+durations_ms = [100, 80, 100, 120]
+loop = true
+flip = "velocity"
+
+[states.gather]
+frames = [8, 9]
+durations_ms = [80, 120]
+loop = false
+interrupt = "finish"
+
+[states.pool]
+frames = [10, 11]
+durations_ms = [140, 180]
+loop = false
+interrupt = "on_move"
+
+[states.puddle_sleep]
+frames = [12, 13]
+durations_ms = [1000, 1200]
+loop = true
+
+[states.reform]
+frames = [14, 15]
+durations_ms = [140, 160]
+loop = false
+interrupt = "finish"

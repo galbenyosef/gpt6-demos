@@ -8,17 +8,17 @@ All paths below are relative to `not-a-virus/`. Keep the project in this directo
 
 | Field | Current value |
 |---|---|
-| Last updated | 2026-09-18 — paw menu icon and gatita default integrated |
+| Last updated | 2026-09-20 — Jellyfish UFO and Living Ink implemented and bundled |
 | Specification baseline | Revision 0.3, pack `schema = 1` |
-| Overall implementation | `in_progress` — native app, gatita default and Paco implemented; full desktop release acceptance pending |
-| Active task | None — T12 gatita implementation complete; remaining acceptance deferred |
-| Next task | T10/T11 performance and desktop acceptance remain pending at user request |
-| Next concrete action | Repeat gatita performance with an awake display when deferred acceptance resumes, then complete the physical desktop and hardware/OS matrix. |
+| Overall implementation | `in_progress` — native app and four character packs implemented, gatita remains default; full desktop release acceptance pending |
+| Active task | None — T13 implementation complete; live review and previously deferred acceptance remain |
+| Next task | User live review of the new packs; T10/T11 performance and desktop acceptance remain deferred |
+| Next concrete action | Quit/reopen dist/NotAVirus.app and select either new pack from the paw menu. Resume the deferred performance/hardware checklist only when requested. |
 | Software prototype | `not_ready` for full acceptance — working implementation and signed bundle available; G02/G04 remain pending |
-| v1 release | `not_ready` — Both character animations are implemented and accepted by the user; performance and physical desktop release acceptance remain pending |
-| Character assets | Default/gatita share a 24-frame 512×768 smooth RGBA atlas. Paco retains his 16-frame 512×512 pixel-art atlas and bundle icon. The menu bar uses a native template paw. Sources, prompts, compilers and offline previews are in art/paco/ and art/gatita/. |
+| v1 release | `not_ready` — Paco/gatita were accepted by the user; Jellyfish UFO and Living Ink are implemented and await live user review. Previously deferred performance and physical desktop release acceptance remain pending. |
+| Character assets | Default/gatita share a 24-frame 512×768 smooth RGBA atlas. Paco retains his 16-frame 512×512 pixel-art atlas and bundle icon. Jellyfish UFO and Living Ink each have a 16-frame 512×512 smooth RGBA atlas. The menu bar uses a native template paw. Sources, exact prompts, compiler instructions and offline previews are in each character's art/ folder. |
 | Blocker to starting software work | None; software is implemented. |
-| Checks performed for this plan | 25 portable tests plus native controls, import/reconstruction scenarios and 240 frame/size/facing comparisons passed; formatting/strict Clippy/signed bundle passed. Paco benchmark passed (59.85 Hz, 0.751% CPU, 45.96 MB). gatita measured 59.71 Hz / 1.148% CPU / 47.86 MB; repeat had zero callbacks, so gatita CPU acceptance remains pending. User launched the bundle and confirmed that it works brilliantly; app may remain running. |
+| Checks performed for this plan | 27 portable tests plus native controls, import/reconstruction and 432 frame/size/facing comparisons passed; formatting/strict Clippy/signed bundle passed. All five bundled pack folders match source resources byte-for-byte; prompt JSON and preview JavaScript checks pass. Earlier Paco benchmark passed (59.85 Hz, 0.751% CPU, 45.96 MB); gatita CPU remains pending (1.148%, then invalid zero-callback repeat). No new performance claim. |
 
 Historical starting point (before implementation):
 
@@ -48,16 +48,17 @@ Implementation should continue through all available v1 software tasks. A workin
 |---|---|---|---|---|
 | T01 | Workspace and dependency boundaries | — | `done` | Workspace compiles; Rust 1.97.1 / SDK 27.0; target-scoped objc2 0.6.4 / frameworks 0.3.2; macOS floor 13.0 |
 | T02 | Native macOS shell and early bundle smoke test | T01 | `blocked` | Implemented; native flags/lifecycle checks and live launch/reopen pass. Full manual click-through/Quit acceptance not established by CUA. |
-| T03 | Pack schema, atlas loading, and validation | T01 | `done` | 11 loader/import/art tests pass; strict schema, static RGBA PNG, named/grid geometry and contained asset paths |
+| T03 | Pack schema, atlas loading, and validation | T01 | `done` | 13 loader/import/art tests pass; strict schema, static RGBA PNG, named/grid geometry and contained asset paths |
 | T04 | Deterministic clip player | T03 | `done` | Runtime tests pass for exact boundaries, variable durations, chain carry, flip modes and pause |
 | T05 | Movement and behavior state machine | T04 | `done` | 13 deterministic runtime tests pass, including full cycle, interruptions, edges, zero radius and 60/120 Hz |
 | T06 | Default, Paco, and gatita diagnostic packs | T03 | `done` | Historical diagnostic atlases preserved under tests/fixtures; minimal/named fixtures and authored runtime packs pass the real loader |
 | T07 | Renderer, cursor, and simulation integration | T02, T05, T06 | `blocked` | Renderer, main-thread 60 Hz display link/timer, monitors, display geometry and pause complete; native checks pass. Mixed-display and physical click-through checks pending. |
 | T08 | Pack management, menu controls, persistence, and logs | T07 | `blocked` | Native post-chooser import/reconstruction checks pass, including failures and recovery; physical chooser and process-restart acceptance remain pending. |
-| T09 | Release bundle and documentation | T08 | `done` | Rebuilt 3.0 MiB bundle with Paco icon and both character atlases, LICENSE/plist/PkgInfo and verified ad-hoc signature; README/art docs updated. |
+| T09 | Release bundle and documentation | T08 | `done` | Rebuilt 3.4 MiB bundle with Paco icon, four characters/five pack IDs, LICENSE/plist/PkgInfo and verified ad-hoc signature; README/art docs updated. |
 | T10 | Automated, desktop, and performance verification | T09 | `blocked` | Paco idle benchmark and native import/reconstruction checks passed; gatita CPU target, physical desktop and hardware checks remain pending. |
 | T11 | Finished default artwork and release acceptance | T10, final artwork | `blocked` | Both animations and gatita default implemented; native pixel checks pass, gatita performance remains pending. User accepted both live animations; full desktop release acceptance remains. |
 | T12 | Finished gatita animation pack | T03, T07, gatita pose studies | `done` | 24-frame pack, preview/source/compiler, behavior simulation and 144 native comparisons pass; signed bundle rebuilt. User accepted live animation; performance/desktop acceptance remains under T10/T11. |
+| T13 | Jellyfish UFO and Living Ink animation packs | T03, T07, supplied character references | `done` | Six clips/16 authored poses per pack, source/prompts/compiler/previews, real-manifest behavior tests and 192 additional native comparisons pass. Signed bundle rebuilt; gatita/default/Paco resources and saved preferences preserved. Live user review remains distinct from implementation verification. |
 
 Default execution order is T01 → T02 → T03 → T04 → T05 → T06 → T07 → T08 → T09 → T10 → T11. If one task is blocked, the dependency column determines which other tasks can proceed. T06 can be completed before T04/T05 if fixtures are needed for their tests.
 
@@ -70,6 +71,7 @@ Default execution order is T01 → T02 → T03 → T04 → T05 → T06 → T07 �
 - Static transparent PNG atlases, TOML schema 1, optional named-region JSON, and `.petpack` zip import. No GIF/APNG playback, video, scripting, or executable pack extensions.
 - Preserve the phase/clip separation, timing, chase hysteresis, interruption policies, coordinate conventions, and defaults in spec §§3.3 and 4.2–4.4. Do not replace them with pointer-speed-only idle/run switching or generic ordered rules.
 - Character names are `Paco` / id `paco` and `gatita` / id `gatita`. Paco is exhausted but friendly and willing, not anxious or unhappy. gatita is sweet and playful; rolling and visual purring belong in her idle sequence. No audio in v1.
+- User-authorized additional packs are `Jellyfish UFO` / id `jellyfish-ufo` and `Living Ink` / id `living-ink`, derived from their PNG/prompt references. Preserve gatita as the default and do not reset saved selections.
 - v1.1 work stays out of the v1 completion path: hot reload, optional interactive petting/pixel hit-testing, and import/authoring conveniences. Physical orbiting/jumping paths and custom behavior rules are later extensions.
 
 ### Working decisions — revise only with a recorded reason
@@ -419,3 +421,14 @@ Before handing back, update the current-state table, task ledger, completed chec
 - Existing physical desktop and performance acceptance stays pending; no preferences reset or running-app replacement was requested.
 - Validation: 25 portable tests and all native rendering/control/import checks passed with the new default and native paw creation. Strict Clippy, formatting and diff checks passed.
 - Rebuilt `dist/NotAVirus.app`; ad-hoc signing and strict signature verification passed. Restart the app to load the paw icon and updated default resources.
+
+### 2026-09-20 — T13: Jellyfish UFO and Living Ink
+- User requested implementing both supplied PNG/prompt characters while retaining gatita as default. Authored sixteen poses per pack with built-in imagegen; exact prompts and selected source PNGs are in `art/jellyfish-ufo/` and `art/living-ink/`. Original references remain unchanged.
+- Added schema-1 manifests, 512×512 transparent atlases and previews. Each maps idle, chase, start, stop, sleep and wake. Jellyfish uses a slower pulsing glide and compact sleeping hover; ink uses faster stretch/squash pursuit, pooling and reformation. Stop clips yield to renewed chase. The engine, renderer and native controls require no production changes beyond About copy; discovery/bundling already load additional pack directories.
+- Added a reproducible Rust compiler with connected-silhouette extraction, shared alpha-weighted sampling and natural pose proportions. Jellyfish registration follows bell height; ink follows its pooled base. A source-grid overlap initially assigned one small ink satellite to the adjacent body; a right-side ownership constraint corrected it before final atlas generation. Runtime atlases have no detached background speckles.
+- Passed: `cargo test --locked -p notavirus-core -p notavirus-pack` (14 core + 13 pack tests); `cargo test -p notavirus-app --test native --locked -- --capture` (432 frame/size/facing comparisons across four characters plus controls and import/reconstruction scenarios). New checks cover transparent padding, sixteen distinct reachable drawings, real-manifest chase/rest/wake/pause/interruption, new menu selections/persistence and gatita fallback.
+- Failed/resolved: the native bilinear reference's previous mean-only <1/255 bound rejected Jellyfish at 1.06495/255 despite correct alignment and identical alpha coverage. Resampling diagnostics confirmed a kernel difference. The harness now bounds mean error below 1.5/255 AND every pixel below 64/255; deliberate wrong-frame, vertical-flip and one-source-pixel-shift controls fail. Final worst mean errors: Jellyfish 1.1184/255, Ink 0.7392/255, gatita 0.8262/255; Paco exact silhouette checks remain passing. Production rendering was not changed to satisfy tests.
+- Visually inspected references, source sheets, compiled tiles and native Large/left captures. Sources, prompt provenance, frame maps, compiler instructions and self-contained offline previews are saved per character. `.impeccable/review/additional-companions.md` records the bounded implementing-agent review and its limits. Preview JavaScript syntax and prompt JSON validate; browser interaction was not rerun under the earlier restriction.
+- Passed: `cargo fmt --all -- --check`; strict workspace/all-target Clippy; `./scripts/bundle.sh` including strict signature verification; plist lint; byte-for-byte verification of every bundled pack asset; `git diff --check`. Bundle size is 3,605,248 bytes (about 3.4 MiB).
+- Checksums confirm gatita/default/Paco atlas, preview and manifest files, and both supplied PNG/prompt references, are unchanged. Test preferences/files are isolated. No live app was launched, quit or reconfigured; no commit or staging changes were made. Restart the rebuilt bundle to discover the new menu entries.
+- T13 implementation is complete. Human live-motion review of the two new packs remains; the previously deferred performance/physical desktop/hardware gates were not resumed or marked passed.

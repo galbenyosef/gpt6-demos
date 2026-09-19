@@ -10,7 +10,7 @@ Modes: Experience for the transparent sprite; Operate for the native menu contro
 
 **OWN-WORLD:** Transparent, shadowless sprite ground; pack-owned artwork; AppKit-owned menu and dialog typography, spacing, focus, and states. The user-selected paw is an 18-point native template SF Symbol.
 
-**STORY:** Launch to see one sprite; use the status menu to pause, change pack or size, import, and quit. gatita provides the default animated character with playful rolls and quick bounding chases; Paco remains selectable.
+**STORY:** Launch to see one sprite; use the status menu to pause, change pack or size, import, and quit. gatita provides the default animated character with playful rolls and quick bounding chases; Paco, Jellyfish UFO and Living Ink remain selectable.
 
 **FIRST VIEWPORT:** One small transparent sprite over the user's desktop, using the selected pack tile at Small, Medium, or Large scale; the status item is the control entry point.
 
@@ -29,3 +29,7 @@ The authored moment is Paco getting up willingly, jogging after the pointer, the
 ## gatita animation integration
 
 The focal moment is paw play → a playful roll → relaxed visual purring. A short crouch introduces a faster bounding chase; landing chains into an interruptible tail flick. Curled sleep wakes with a stretch. A 512×768 RGBA atlas supplies 24 drawings in 128px tiles with smooth alpha and linear filtering. Native controls, chase physics and saved user selection remain unchanged; gatita now also supplies the default pack. Source, prompts and compiler are documented in `art/gatita/`; the bounded visual review is `.impeccable/review/gatita-animation.md`. Physical desktop checks remain deferred by user instruction.
+
+## Jellyfish UFO and Living Ink integration
+
+The jellyfish's focal sequence is gathering its bell into rhythmic propulsion, then opening and settling into a quiet hover. The ink's focal sequence is a low stretch/squash chase that pools on arrival and reforms after sleep. Short start/wake clips explain the transition into movement; stop clips yield to renewed chase. Each pack uses sixteen authored drawings in one 512×512 atlas, smooth alpha, linear filtering and the existing 128px tile budget. Jellyfish registration follows bell height; ink registration follows its pooled base. No additional runtime effect, path, window, control or dependency is introduced. Native Pause is retained; offline previews start paused for reduced motion. Provenance is under `art/jellyfish-ufo/` and `art/living-ink/`.

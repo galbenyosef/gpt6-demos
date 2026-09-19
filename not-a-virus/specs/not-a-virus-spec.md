@@ -662,6 +662,8 @@ Click-through  ✓
 Packs ▸   Default
           Paco
           gatita
+          Jellyfish UFO
+          Living Ink
           Open packs folder…
           Import .petpack…
 ─────────
@@ -886,7 +888,7 @@ v1 ships at the end of D.
 
 ### 12.1 Shipping requirement
 
-Ship one character so the app is complete without a download. Per the user's selection, gatita supplies the bundled `default` pack; Paco remains available as a separate pack.
+Ship one character so the app is complete without a download. Per the user's selection, gatita supplies the bundled `default` pack. The current implementation also bundles separate Paco, gatita, Jellyfish UFO and Living Ink packs; existing explicit saved selections remain respected.
 
 Constraints:
 
@@ -899,12 +901,14 @@ Placeholder for A/B: a 2-frame blob is acceptable until art exists.
 
 ### 12.2 Character references and art direction
 
-The supplied images establish the appearance of two animation packs. Any new artwork at this stage should be **static character reference art or pose studies**, before creating animation frames or sprite sheets. Documenting both packs does not require shipping two finished packs in v1.
+The supplied images establish the appearance of the character packs. The original reference-art milestone called for static studies before animation; the user has since authorized runtime animation for Paco, gatita, Jellyfish UFO and Living Ink. Preserve reference files and generate separate transparent runtime drawings with source/prompt provenance.
 
 | Pack | Source reference | Visual identity to preserve |
 |---|---|---|
 | **Paco** (`paco`) | [paco.jpeg](example-character/paco.jpeg) | Short, round, overweight older middle-aged man; balding head with gray side hair, full gray beard, expressive face; bright blue tracksuit with white stripes, rounded exposed belly, matching blue-and-white trainers; pixel-art treatment |
 | **gatita** (`gatita`) | [gatita.jpeg](example-character/gatita.jpeg) | Small, sweet brown tabby kitten; dark stripes, large green eyes, pink nose and inner ears, cream muzzle/chest/paws, rounded striped tail, soft proportions; smooth outlined cartoon illustration |
+| **Jellyfish UFO** (`jellyfish-ufo`) | [jellyfish-ufo.png](example-character/jellyfish-ufo.png), [brief](example-character/jellyfish-ufo.prompt.txt) | Pearl-silver jellyfish bell, cyan core, restrained lavender reflections, biomechanical seams and five substantial curling tendrils; quietly curious, no face or conventional saucer |
+| **Living Ink** (`living-ink`) | [living-ink.png](example-character/living-ink.png), [brief](example-character/living-ink.prompt.txt) | Glossy black asymmetrical liquid drop, swept tip, pooled base, small ivory eyes and satellite droplets; curious and slightly mischievous, no mouth or limbs |
 
 The cat's character/display name and pack identifier are **gatita**, matching the reference file `gatita.jpeg`. The JPEGs are visual references, not transparent runtime atlases. Preserve their defining appearance and distinct art styles when producing further reference studies; a pack does not have to share another pack's rendering style.
 
@@ -921,7 +925,16 @@ The cat's character/display name and pack identifier are **gatita**, matching th
 - When the mouse is still, she plays nearby, rolls, and rests contentedly with a visual purr. When it moves, she gathers herself, scampers after it, and bounds playfully around its vicinity within the behavior limits in §4.7.
 - Useful static studies: the reference's alert sitting pose; a low playful crouch; a bounding pose with paws lifted; rolling onto her side/back; a relaxed, eyes-softly-closed purring pose. Keep her stripe pattern, green eyes, cream markings, and tail recognizable across poses.
 
-A useful reference sheet shows the full character against a clean background plus a few key pose or expression studies with consistent proportions. These are design references, not sequential animation frames. Keep silhouettes and faces readable at a small desktop size, and retain each source's visual identity before adapting it to runtime tiles. No GIF, APNG, animated sequence, or loadable pack is required for this reference-art step.
+A useful reference sheet shows the full character against a clean background plus a few key pose or expression studies with consistent proportions. These are design references, not sequential animation frames. Keep silhouettes and faces readable at a small desktop size, and retain each source's visual identity when adapting it to runtime tiles.
+
+### 12.3 Additional bundled companions
+
+Both additional packs use schema 1, a static transparent 512×512 RGBA PNG atlas, sixteen 128×128 tiles, linear filtering and the shared virtual tracking anchor (64,116). Their manifests, not application-specific code, define personality and animation timing. Each maps idle, moving, start, stop, sleep and wake roles. Stop clips may be interrupted by renewed chase; start and wake finish promptly before movement. Pause freezes both movement and frame playback.
+
+- **Jellyfish UFO:** gently pulse and sway tendrils while idle; gather the bell before following; glide with rhythmic contractions and trailing tendrils; open the bell and drift into rest on arrival; tuck tendrils for quiet sleep, then unfurl on waking. Hover offsets stay inside the sprite tile; no new orbital movement or physics is implied. Baseline motion: 230 pt/s maximum, 620 pt/s² acceleration, 44/26 pt start/stop radii, 240 ms arrival hold, sleep after 16 settled seconds.
+- **Living Ink:** wobble, reach and blink while idle; gather, then stretch and squash into a right-facing slither; pool and reform on arrival; sleep as a low mound, then rise when chasing resumes. Retain liquid continuity and the nearby satellites without adding limbs, a mouth, sound or persistent trails. Baseline motion: 320 pt/s maximum, 1100 pt/s² acceleration, 36/20 pt start/stop radii, 180 ms arrival hold, sleep after 14 settled seconds.
+
+Keep the complete silhouette and detached droplets inside each tile at every size and facing. Preserve smaller sleeping/pooled proportions rather than scaling every pose to the same height. Test real-manifest transitions, interruption, atlas padding, discovery, selection and native rendering. gatita remains the default; adding packs must not reset saved preferences or replace existing character artwork.
 
 ---
 
