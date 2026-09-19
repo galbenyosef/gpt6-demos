@@ -1,0 +1,37 @@
+{
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD Ryzen 9 5900HX with Radeon Graphics",
+    "logicalCpus": 16,
+    "memoryGiB": 30
+  },
+  "runtime": "1.4.0",
+  "sqlite": {
+    "version": "3.53.2"
+  },
+  "dataset": {
+    "sources": 100,
+    "elements": 500,
+    "relationships": 1500,
+    "contextVersions": 100
+  },
+  "p95Milliseconds": {
+    "snapshot": 5.902429000008851,
+    "fts": 0.3646490000101039
+  },
+  "target": "Indexed reads below 500 ms at p95",
+  "preparationMilliseconds": 111875.710555,
+  "browserInteraction": {
+    "browser": "151.0.7922.34",
+    "sampleCount": 25,
+    "action": "Fill model filter and await two rendered frames",
+    "p95Milliseconds": 33.93694800000003,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "includesPlaywrightTransport": true
+  },
+  "dataDirectory": "/tmp/tracework-benchmark-NVGgIK"
+}

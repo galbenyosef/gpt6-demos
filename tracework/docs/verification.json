@@ -1,0 +1,66 @@
+{
+  "recordedAt": "2026-09-19T17:22:07.057149+00:00",
+  "platform": "Linux x86_64",
+  "bun": "1.4.0",
+  "sqlite": "3.53.2",
+  "agentsSDK": "0.18.0",
+  "model": "gpt-6-astra",
+  "deterministic": {
+    "passed": 31,
+    "failed": 0,
+    "assertions": 129,
+    "strictTypecheck": "passed",
+    "productionBuild": "passed"
+  },
+  "browser": {
+    "playwright": "1.63.0",
+    "launcherRuntime": "Bun 1.4.0",
+    "chromium": "151.0.7922.34",
+    "workflowTestsPassed": 4,
+    "targetedFocusAndCaptureTestsPassed": 2,
+    "axe": {
+      "surface": "Sources, mobile 390px",
+      "tags": [
+        "wcag2a",
+        "wcag2aa",
+        "wcag21aa"
+      ],
+      "violations": 0
+    },
+    "finishReview": "Six original findings resolved across bounded verdict passes"
+  },
+  "live": {
+    "credentialSource": "ignored local .env; value omitted",
+    "sdk": {
+      "streamEvents": 25,
+      "typedToolCalls": 1,
+      "structuredOutput": true,
+      "sessionReopened": true,
+      "approvalResumed": true,
+      "cancelled": true
+    },
+    "passedPhases": [
+      "interpretation and critique",
+      "read-only cited question",
+      "two structural architecture alternatives",
+      "specification",
+      "validated OpenAPI 3.1",
+      "mapped test plan"
+    ],
+    "remediation": "passed",
+    "codeGenerationAndExport": "passed",
+    "priorFailures": [
+      "Sandboxed request timed out; network-authorized request succeeded",
+      "Coarse artifact assertions initially missed invalid formats; strict validators and format instructions corrected this",
+      "Manual extraction raced the worker in live fixture; waiting for the durable job and reusing ready extractions corrected this"
+    ],
+    "reproducibility": "All core phases passed in strict suite; corrected remediation passed in targeted rerun; code/export qualified separately. No single all-green full-suite rerun is claimed."
+  },
+  "execution": {
+    "status": "not-run",
+    "reason": "Docker unavailable",
+    "verifiedAcceptanceEnabled": false
+  },
+  "macOS": "not-run",
+  "benchmark": "../benchmark-results.json"
+}
