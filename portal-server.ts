@@ -20,6 +20,7 @@ const assets = new Map([
     "codexcanvas.png",
     "assemblavatar.png",
     "one-more-match.png",
+    "tracework.png",
   ].map((name) => [`/images/${name}`, `images/${name}`]),
 ]);
 

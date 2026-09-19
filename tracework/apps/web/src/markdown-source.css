@@ -1,0 +1,140 @@
+.markdown-source {
+  min-width: 0;
+  width: 100%;
+  --syntax-heading: #335b43;
+  --syntax-emphasis: #704c8a;
+  --syntax-link: #265e7a;
+  --syntax-code: #356548;
+  --syntax-marker: #87522c;
+}
+.markdown-source .cm-editor {
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 60vh;
+  height: 60vh;
+  font-size: 14px;
+}
+.markdown-source .cm-scroller {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  line-height: 1.8;
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+  scrollbar-color: var(--muted) var(--paper);
+}
+.markdown-source .cm-content {
+  padding: 12px 0;
+  caret-color: var(--green);
+}
+.markdown-source .cm-line {
+  padding: 0 16px;
+}
+.markdown-source .cm-gutters {
+  background: var(--paper);
+  color: var(--muted);
+  border-right: 1px solid var(--line);
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+.markdown-source .cm-lineNumbers .cm-gutterElement {
+  padding: 0 10px 0 12px;
+  min-width: 3ch;
+}
+.markdown-source .cm-activeLine,
+.markdown-source .cm-activeLineGutter {
+  background: var(--green-soft);
+}
+.markdown-source[data-readonly="true"] .cm-activeLine {
+  background: transparent;
+}
+.markdown-source .cm-editor.cm-focused {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.markdown-source .cm-content:focus-visible {
+  outline: none;
+}
+.markdown-source .cm-cursor {
+  border-left-color: var(--green);
+}
+.markdown-source .cm-selectionBackground,
+.markdown-source .cm-focused .cm-selectionBackground {
+  background: #dbe7cf;
+}
+.markdown-source .cm-searchMatch {
+  background: var(--amber-soft);
+  outline: 1px solid var(--amber);
+}
+.markdown-source .cm-searchMatch.cm-searchMatch-selected {
+  background: #dbe7cf;
+}
+.markdown-source .cm-panels {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.markdown-source .cm-search {
+  padding: 12px;
+  font:
+    13px/1.6 "IBM Plex Sans",
+    sans-serif;
+}
+.markdown-source .cm-search input,
+.markdown-source .cm-search button {
+  max-width: 100%;
+  font: inherit;
+}
+.markdown-source .cm-md-heading {
+  color: var(--syntax-heading);
+  font-weight: 700;
+}
+.markdown-source .cm-md-strong {
+  color: var(--syntax-emphasis);
+  font-weight: 700;
+}
+.markdown-source .cm-md-emphasis {
+  color: var(--syntax-emphasis);
+  font-style: italic;
+}
+.markdown-source .cm-md-strike {
+  text-decoration: line-through;
+}
+.markdown-source .cm-md-link {
+  color: var(--syntax-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.markdown-source .cm-md-code {
+  color: var(--syntax-code);
+}
+.markdown-source .cm-md-marker {
+  color: var(--syntax-marker);
+}
+.markdown-source .cm-md-keyword {
+  color: var(--syntax-emphasis);
+}
+.markdown-source .cm-md-property {
+  color: var(--syntax-link);
+}
+.markdown-source .cm-md-comment {
+  color: var(--muted);
+  font-style: italic;
+}
+.document-sheet:has(.markdown-source:not([hidden])) {
+  padding: 20px;
+}
+@media (max-width: 760px) {
+  .document-sheet:has(.markdown-source:not([hidden])) {
+    padding: 12px;
+  }
+  .markdown-source .cm-editor {
+    font-size: 13px;
+    min-height: 55vh;
+  }
+  .markdown-source .cm-line {
+    padding: 0 10px;
+  }
+  .markdown-source .cm-lineNumbers .cm-gutterElement {
+    padding: 0 6px;
+  }
+}

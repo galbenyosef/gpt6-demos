@@ -141,6 +141,9 @@ test("Markdown reading, draft recovery, versioned editing and mobile layout", as
   await page.getByRole("button", { name: "All sources", exact: true }).click();
   await page.locator(".source-name").click();
   await page.getByRole("button", { name: "Resume edits", exact: true }).click();
+  await page
+    .getByRole("textbox", { name: "Document text" })
+    .press("ControlOrMeta+End");
   await expect(
     page.getByRole("textbox", { name: "Document text" }),
   ).toContainText("Updated by the source owner.");
@@ -315,4 +318,110 @@ test("plain text opens literally and can be edited", async ({ page }) => {
   await expect(page.getByLabel("Document content")).toHaveText(
     "Revised plain text.",
   );
+});
+
+test("CodeMirror highlights Markdown and fenced code, with read-only source and persistent edit history", async ({
+  page,
+}) => {
+  await workspace(
+    page,
+    "syntax.md",
+    '# Markdown source\n\nSynthetic syntax-colouring fixture.\n\n**Bold**, *italic*, and a [reference](https://example.com).\n\n> Keep the original source.\n\n- A list item\n\n```json\n{ "status": "requested", "count": 2 }\n```\n\nCustomers can request a repair.\n',
+  );
+  await page.getByRole("button", { name: "Source", exact: true }).click();
+  const source = page.getByRole("textbox", {
+    name: "Document content",
+    exact: true,
+  });
+  await expect(source).toHaveAttribute("aria-readonly", "true");
+  await expect(source).toHaveAttribute("contenteditable", "false");
+  await expect(source.locator(".cm-md-heading").first()).toBeVisible();
+  await expect(source.locator(".cm-md-strong").first()).toBeVisible();
+  await expect(source.locator(".cm-md-link").first()).toBeVisible();
+  // JSON code fences load their own language support.
+  await expect(
+    source.locator(".cm-md-property").filter({ hasText: '"status"' }),
+  ).toBeVisible();
+  expect(
+    await source
+      .locator(".cm-md-heading")
+      .first()
+      .evaluate((e) => getComputedStyle(e).color),
+  ).not.toBe(await source.evaluate((e) => getComputedStyle(e).color));
+  const original = await source.textContent();
+  await source.focus();
+  await page.keyboard.press("x");
+  expect(await source.textContent()).toBe(original);
+  await page.keyboard.press("ControlOrMeta+f");
+  await expect(page.locator(".cm-search")).toBeVisible();
+  await page
+    .getByRole("textbox", { name: "Find", exact: true })
+    .pressSequentially("Customers");
+  await expect(page.locator(".cm-searchMatch").first()).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".cm-search")).toHaveCount(0);
+  await source.press("ControlOrMeta+Home");
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({
+    path: ".impeccable/review/codemirror-desktop.png",
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    path: ".impeccable/review/codemirror-mobile.png",
+    fullPage: true,
+  });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+  ).toBe(false);
+  const a11y = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .analyze();
+  expect(
+    a11y.violations.map((v) => ({
+      id: v.id,
+      nodes: v.nodes.map((n) => n.target),
+    })),
+  ).toEqual([]);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  const editor = page.getByRole("textbox", {
+    name: "Document text",
+    exact: true,
+  });
+  await expect(editor).toBeFocused();
+  await expect(editor).toHaveAttribute("aria-readonly", "false");
+  await editor.press("ControlOrMeta+End");
+  await page.keyboard.insertText("\nA syntax-coloured edit.");
+  await page.getByRole("button", { name: "Preview", exact: true }).click();
+  await expect(page.locator(".document-prose")).toContainText(
+    "A syntax-coloured edit.",
+  );
+  await expect(editor).toBeHidden();
+  await page.getByRole("button", { name: "Write", exact: true }).click();
+  await expect(editor).toBeFocused();
+  await editor.press("ControlOrMeta+z");
+  await expect(editor).not.toContainText("A syntax-coloured edit.");
+  await editor.press("ControlOrMeta+Shift+z");
+  await expect(editor).toContainText("A syntax-coloured edit.");
+  await editor.press("ControlOrMeta+Home");
+  await expect(editor.locator(".cm-md-heading").first()).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({
+    path: ".impeccable/review/codemirror-edit-desktop.png",
+    fullPage: true,
+  });
+  await editor.press("Tab");
+  await expect(editor).not.toBeFocused();
+  await page
+    .getByRole("button", { name: "Save new version", exact: true })
+    .click();
+  await expect(page.locator(".document-prose")).toContainText(
+    "A syntax-coloured edit.",
+  );
+  await page.getByRole("button", { name: "Source", exact: true }).click();
+  await expect(source).toContainText("A syntax-coloured edit.");
 });

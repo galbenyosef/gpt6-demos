@@ -13,6 +13,7 @@ import type { Source, SourceVersion } from "../../../packages/contracts";
 import { useWorkbench } from "./App";
 import { Badge, SourceIcon } from "./components";
 const PdfReader = lazy(() => import("./PdfReader"));
+const MarkdownSource = lazy(() => import("./MarkdownSource"));
 
 export default function SourceReader({
   sourceId,
@@ -388,7 +389,18 @@ function DocumentVersion({
               see its full formatting.
             </p>
           )}
-          {editing && !preview ? (
+          {isMarkdown && (editing || raw) && (
+            <Suspense fallback={<p role="status">Opening Markdown source…</p>}>
+              <MarkdownSource
+                value={editing ? draft : text}
+                readOnly={!editing || busy}
+                hidden={editing && preview}
+                label={editing ? "Document text" : "Document content"}
+                onChange={changeDraft}
+              />
+            </Suspense>
+          )}
+          {editing && !preview && !isMarkdown ? (
             <textarea
               className="document-editor"
               aria-label="Document text"
@@ -398,7 +410,7 @@ function DocumentVersion({
               autoFocus
               disabled={busy}
             />
-          ) : isMarkdown && (editing || !raw) ? (
+          ) : isMarkdown && ((editing && preview) || (!editing && !raw)) ? (
             <article className="document-prose" aria-label="Markdown document">
               <Markdown
                 remarkPlugins={[remarkGfm]}
@@ -432,9 +444,11 @@ function DocumentVersion({
               )}
             </article>
           ) : (
-            <pre className="document-plain" aria-label="Document content">
-              {text || "This document is empty."}
-            </pre>
+            !isMarkdown && (
+              <pre className="document-plain" aria-label="Document content">
+                {text || "This document is empty."}
+              </pre>
+            )
           )}
         </div>
       )}

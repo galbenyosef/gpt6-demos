@@ -62,7 +62,7 @@ function openPreview(index, trigger) {
   poster.className = 'video-poster';
   poster.setAttribute('aria-label', `Play ${demo.name} walkthrough on YouTube`);
   const thumbnail = document.createElement('img');
-  thumbnail.src = `https://i.ytimg.com/vi/${demo.video}/maxresdefault.jpg`;
+  thumbnail.src = demo.poster || `https://i.ytimg.com/vi/${demo.video}/maxresdefault.jpg`;
   thumbnail.alt = '';
   thumbnail.addEventListener('load', () => {
     // YouTube can return a tiny placeholder when a high-resolution poster is unavailable.
@@ -75,9 +75,9 @@ function openPreview(index, trigger) {
   poster.append(thumbnail, label);
   poster.addEventListener('click', () => playVideo(demo), { once: true });
   video.append(poster);
-  document.querySelector('#dialog-note').textContent = location.protocol === 'file:'
+  document.querySelector('#dialog-note').textContent = demo.launchNote || (location.protocol === 'file:'
     ? 'For embedded YouTube playback, serve this page with bun run portal-server.ts and open localhost:3000/portal/. Start the apps with ./run-all.sh.'
-    : 'The demo runs locally. Start the apps with ./run-all.sh before opening.';
+    : 'The demo runs locally. Start the apps with ./run-all.sh before opening.');
   dialog.showModal();
   dialog.scrollTop = 0;
   closeButton.focus({ preventScroll: true });

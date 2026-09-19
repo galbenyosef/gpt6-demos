@@ -8,7 +8,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, and a 7-a-side football game. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web demos exploring 3D graphics, visual design, and browser-based experiences. Built with Bun, TypeScript, and Three.js, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, a 7-a-side football game, and a solution-engineering workbench. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Here, “demos” means real applications that demonstrate GPT6's power to generate software and, in some cases, use GPT6 within the application itself. The apps conform to strictly defined use cases, documented in the `specs/` directory of most projects.
 
@@ -28,7 +28,7 @@ With [Bun](https://bun.sh/) installed, run from the repository root:
 ./run-all.sh
 ```
 
-Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and every demo to install missing dependencies while preserving the checked-in versions. Assemblavatar uses production dependencies and run mode; Playwright is only a development test dependency. If an installation fails, no servers are started.
+Before starting any servers, the launcher runs `bun install --frozen-lockfile` in `cross-talk/` and its ten managed demos to install missing dependencies while preserving the checked-in versions. Assemblavatar uses production dependencies and run mode; Playwright is only a development test dependency. If an installation fails, no servers are started.
 
 The launcher starts Edificio Europa on [port 3001](http://localhost:3001), InfiniCave on [port 3002](http://localhost:3002), Tonada on [port 3003](http://localhost:3003), Tarot Spread on [port 3004](http://localhost:3004), Orbital on [port 3005](http://localhost:3005), Digital Logic Laboratory on [port 3006](http://localhost:3006), Flip-slop on [port 3007](http://localhost:3007), Codex Canvas on [port 3008](http://localhost:3008), Assemblavatar on [port 3009](http://localhost:3009), and One More Match on [port 3010](http://localhost:3010). Two separate portal processes run alongside the demos: the **plain, original portal** at [http://localhost:3000/](http://localhost:3000/) and the **new preview portal** at [http://localhost:3090/portal/](http://localhost:3090/portal/). Logs are labelled by service. Press **Ctrl+C** to stop all ten demos and both portals; if any process exits, the launcher stops the others too. The assigned ports must be free.
 
@@ -39,6 +39,15 @@ For Codex Canvas, follow its [setup instructions](./codexcanvas/README.md#run). 
 For Assemblavatar, follow its [setup instructions](./assemblavatar/README.md#run) for server-side `.env` configuration. Rendering uses the open Assemblavatar browser tab; no Playwright or separate Chromium installation is needed. The launcher sets `ASSEMBLAVATAR_PORT=3009`, overriding the standalone default of 3000. See the [architecture guide](./assemblavatar/docs/architecture.md) for its generation, isolation and draft-feedback pipeline.
 
 For One More Match, use **Bun 1.4.0** and follow its [setup instructions](./one-more-match/README.md#run). The launcher runs `dev:web` on port 3010, overriding the standalone browser default of 3210. To open its Electrobun desktop window separately, run `bun run dev` from `one-more-match/`.
+
+For Tracework, use **Bun 1.4.0** and follow its [setup instructions](./tracework/README.md#run). Start it separately on [port 60000](http://localhost:60000/); the shared launcher remains unchanged:
+
+```sh
+cd tracework
+bun install --frozen-lockfile
+bun run build
+PORT=60000 bun run start
+```
 
 For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). The launcher installs Crosstalk's dependencies automatically. Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
@@ -196,6 +205,16 @@ A playable 7-a-side football game built with Three.js, React, and a Bun service 
 [One More Match — Football demo](https://youtu.be/AgoJbg8DOSA)
 
 [Source and setup](./one-more-match/README.md) · [Demo specification](./one-more-match/specs/one-more-match.md) · [Validation report](./one-more-match/VALIDATION.md)
+
+### Tracework — Solution-engineering workbench
+
+A local solution-engineering workbench built with Bun, TypeScript, React, and SQLite. Bring briefs, documents, and repository evidence together; read PDFs in the app and view or edit Markdown with syntax colouring. Turn source evidence into reviewed semantic models, explore architecture on a canvas, and record decisions and guardrails. Generate specifications, API contracts, and implementation packages, then inspect validation findings and trace changes back to their sources. Originals, citations, and accepted versions stay preserved. Manual workflows work without an API key; scoped AI tasks require an OpenAI API key configured on the server.
+
+[![Tracework — accepted solution model and architecture canvas](./images/tracework.png)](https://youtu.be/BVBlbm_zQL0)
+
+[Tracework — Solution-engineering workbench demo](https://youtu.be/BVBlbm_zQL0)
+
+[Source and setup](./tracework/README.md) · [Product specification](./tracework/specs/TRACEWORK-PRODUCT-SPEC.md) · [Demo walkthrough](./tracework/docs/DEMO.md)
 
 ---
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore ten local interactive demos: architecture, tarot, cave flight, music, orbital mechanics, digital logic, generative stop-motion, a spatial Codex workspace, procedural 3D modelling, and 7-a-side football.">
+  <meta name="description" content="Explore eleven local interactive demos: architecture, tarot, cave flight, music, orbital mechanics, digital logic, generative stop-motion, a spatial Codex workspace, procedural 3D modelling, 7-a-side football, and solution engineering.">
   <title>GPT6 Demos</title>
   <style>
     :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17191e; background: #fff; }
@@ -32,7 +32,7 @@
 </head>
 <body>
   <main>
-    <header><h1>GPT6 Demos<span aria-hidden="true">.</span></h1><p>Ten interactive experiments. Open one and explore.</p></header>
+    <header><h1>GPT6 Demos<span aria-hidden="true">.</span></h1><p>Eleven interactive experiments. Open one and explore.</p></header>
     <nav class="demos" aria-label="Local demos">
       <a class="demo" href="http://localhost:3001/">
         <div class="preview"><img src="images/edificio-europa.png" alt="3D reconstruction of Edificio Europa" width="1870" height="929"></div>
@@ -84,8 +84,13 @@
         <div class="title"><h2>One More Match</h2><span class="arrow" aria-hidden="true">↗</span></div>
         <p>Play 7-a-side football against the computer. Choose your country, pass and shoot, then go straight into another match.</p>
       </a>
+      <a class="demo" href="http://localhost:60000/">
+        <div class="preview"><img src="images/tracework.png" alt="Tracework accepted solution model and architecture canvas" width="1841" height="944"></div>
+        <div class="title"><h2>Tracework</h2><span class="arrow" aria-hidden="true">↗</span></div>
+        <p>Turn source documents into a reviewed solution model. Trace decisions to evidence, explore architecture on a canvas, and generate engineering artifacts.</p>
+      </a>
     </nav>
-    <footer>Start the demos with <code>./run-all.sh</code> from the repository root. Each link opens a local app.</footer>
+    <footer>Start the other demos with <code>./run-all.sh</code> from the repository root. Start Tracework separately from <code>tracework/</code> with <code>bun run build</code>, then <code>PORT=60000 bun run start</code>. Each link opens a local app.</footer>
   </main>
 </body>
 </html>
