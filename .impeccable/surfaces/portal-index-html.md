@@ -25,4 +25,4 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## NotAVirus entry
 
-User-supplied `images/not-a-virus.png` is the card screenshot and dialog poster; YouTube id `EVUgtcsgrEw` supplies the walkthrough. This native macOS entry links to project setup, with a “Source and setup” action and a note that it runs separately from the browser launcher. Existing browser entries retain their localhost links and “Open demo” action.
+User-supplied `images/not-a-virus.png` is the card screenshot and dialog poster; YouTube id `1tSwSbDjI2Q` supplies the walkthrough. The card and dialog name all four animation packs: gatita (default), Paco, Jellyfish UFO and Living Ink. This native macOS entry links to project setup, with a “Source and setup” action and a note that it runs separately from the browser launcher. Existing browser entries retain their localhost links and “Open demo” action.

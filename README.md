@@ -231,11 +231,13 @@ A playable 7-a-side football game built with Three.js, React, and a Bun service 
 
 ### NotAVirus — macOS desktop companion
 
-A native macOS desktop companion built with Rust and AppKit. Gatita, a playful tabby, follows the pointer, rolls and purrs visually while resting, and curls up to sleep. Switch to Paco for a slower, good-natured chase with pauses to catch his breath. The transparent character lets clicks pass through to the apps below. Use the paw menu to pause, change character or size, import PNG/TOML packs, and quit. No network access, keystroke reading, or extra permissions are required.
+A native macOS desktop companion built with Rust and AppKit. The default character, gatita, is a playful tabby that follows the pointer, rolls and purrs visually while resting, and curls up to sleep. Switch to Paco for a slower, good-natured chase, Jellyfish UFO for a pulsing glide with swaying tendrils, or Living Ink for a glossy stretch-and-squash chase. Each animation pack has its own idle, movement and rest sequences. The transparent character lets clicks pass through to the apps below. Use the paw menu to pause, change character or size, import PNG/TOML packs, and quit. No network access, keystroke reading, or extra permissions are required.
 
-[![NotAVirus — gatita following the pointer on the macOS desktop](./images/not-a-virus.png)](https://youtu.be/EVUgtcsgrEw)
+<a href="https://youtu.be/1tSwSbDjI2Q">
+  <img src="./images/not-a-virus.png" alt="NotAVirus — gatita following the pointer on the macOS desktop" width="480">
+</a>
 
-[NotAVirus — Desktop companion demo](https://youtu.be/EVUgtcsgrEw)
+[NotAVirus — Desktop companion demo](https://youtu.be/1tSwSbDjI2Q)
 
 [Source and setup](./not-a-virus/README.md) · [Pack authoring](./not-a-virus/PACK_AUTHORING.md) · [Demo specification](./not-a-virus/specs/not-a-virus-spec.md)
 
@@ -243,7 +245,9 @@ A native macOS desktop companion built with Rust and AppKit. Gatita, a playful t
 
 A local solution-engineering workbench built with Bun, TypeScript, React, and SQLite. Bring briefs, documents, and repository evidence together; read PDFs in the app and view or edit Markdown with syntax colouring. Turn source evidence into reviewed semantic models, explore architecture on a canvas, and record decisions and guardrails. Generate specifications, API contracts, and implementation packages, then inspect validation findings and trace changes back to their sources. Originals, citations, and accepted versions stay preserved. Manual workflows work without an API key; scoped AI tasks require an OpenAI API key configured on the server.
 
-[![Tracework — accepted solution model and architecture canvas](./images/tracework.png)](https://youtu.be/BVBlbm_zQL0)
+<a href="https://youtu.be/BVBlbm_zQL0">
+  <img src="./images/tracework.png" alt="Tracework — accepted solution model and architecture canvas" width="480">
+</a>
 
 [Tracework — Solution-engineering workbench demo](https://youtu.be/BVBlbm_zQL0)
 

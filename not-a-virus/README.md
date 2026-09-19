@@ -6,6 +6,8 @@ It follows the mouse. That is the entire product.
 
 **Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco, Jellyfish UFO and Living Ink are also available from **Packs** in the paw menu. Each has its own artwork, movement settings and idle/chase/rest transitions. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
 
+[Watch the NotAVirus demo on YouTube](https://youtu.be/1tSwSbDjI2Q).
+
 Open the [Paco animation preview](art/paco/preview.html) to inspect the shipped clips without opening the desktop app. [Artwork provenance and rebuilding instructions](art/paco/README.md) include the generated source, prompts and asset compiler. The original JPEGs and [static pose studies](specs/pose-studies/README.md) are preserved.
 
 ## Build and run
