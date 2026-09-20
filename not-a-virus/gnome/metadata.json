@@ -6,5 +6,5 @@
   "session-modes": ["user"],
   "settings-schema": "org.gnome.shell.extensions.notavirus",
   "version": 1,
-  "version-name": "0.1.0"
+  "version-name": "1.0.0"
 }

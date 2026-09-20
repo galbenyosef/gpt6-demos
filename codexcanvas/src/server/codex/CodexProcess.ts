@@ -30,7 +30,7 @@ export class CodexProcess {
         this.process = undefined;
         this.onState('disconnected', `Codex App Server exited (code ${code}). Restart Codex to resume your session.`);
       });
-      await rpc.request('initialize', { clientInfo: { name: 'codex_canvas', title: 'Codex Canvas', version: '0.1.0' } });
+      await rpc.request('initialize', { clientInfo: { name: 'codex_canvas', title: 'Codex Canvas', version: '1.0.0' } });
       rpc.notify('initialized');
       this.onState('ready');
     } catch (error) {

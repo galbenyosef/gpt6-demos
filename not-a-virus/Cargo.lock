@@ -233,7 +233,7 @@ dependencies = [
 
 [[package]]
 name = "notavirus-app"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "block2",
  "libc",
@@ -255,11 +255,11 @@ dependencies = [
 
 [[package]]
 name = "notavirus-core"
-version = "0.1.0"
+version = "1.0.0"
 
 [[package]]
 name = "notavirus-gnome"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "libc",
  "notavirus-core",
@@ -272,7 +272,7 @@ dependencies = [
 
 [[package]]
 name = "notavirus-pack"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "notavirus-core",
  "png",

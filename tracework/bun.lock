@@ -47,12 +47,15 @@
     },
     "apps/server": {
       "name": "@tracework/server",
+      "version": "1.0.0",
     },
     "apps/web": {
       "name": "@tracework/web",
+      "version": "1.0.0",
     },
     "packages/contracts": {
       "name": "@tracework/contracts",
+      "version": "1.0.0",
     },
   },
   "packages": {

@@ -25,5 +25,5 @@
     "test:e2e": "playwright test"
   },
   "description": "A local spatial client for Codex App Server",
-  "version": "0.1.0"
+  "version": "1.0.0"
 }

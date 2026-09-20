@@ -48,9 +48,9 @@ node tests/gnome/protocol.test.mjs
 ./scripts/build-gnome.sh
 python3 tests/gnome/process-test.py
 # These install only into the tool's temporary profile and use a separate compositor:
-dbus-run-session -- gnome-shell-test-tool --headless --extension dist/notavirus-0.1.0-gnome50-$(uname -m).zip "$PWD/tests/gnome/desktop-smoke.js"
+dbus-run-session -- gnome-shell-test-tool --headless --extension dist/notavirus-1.0.0-gnome50-$(uname -m).zip "$PWD/tests/gnome/desktop-smoke.js"
 python3 tests/gnome/check-captures.py # requires Pillow; compares 432 native renders
-dbus-run-session -- gnome-shell-test-tool --headless --extension dist/notavirus-0.1.0-gnome50-$(uname -m).zip "$PWD/tests/gnome/benchmark.js"
+dbus-run-session -- gnome-shell-test-tool --headless --extension dist/notavirus-1.0.0-gnome50-$(uname -m).zip "$PWD/tests/gnome/benchmark.js"
 ```
 
 The benchmark takes about six minutes (two 60-second baseline, idle, and chase rounds). It reports Shell and helper CPU/RSS, update rate, and sample-to-applied-frame latency. Headless measurements do not establish physical click-through, mixed-monitor/fractional-scale behavior, lock/unlock, suspend/resume, or an ordinary desktop performance pass.
