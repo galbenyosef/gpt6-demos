@@ -1,10 +1,12 @@
 # GPT6 Demos
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE.md)
+[![NotAVirus build](https://img.shields.io/github/actions/workflow/status/soyrochus/gpt6-demos/notavirus.yml?event=push&label=NotAVirus%20build)](https://github.com/soyrochus/gpt6-demos/actions/workflows/notavirus.yml)
 [![Linux](https://img.shields.io/badge/Linux-tested-FCC624?logo=linux&logoColor=black)](#platform-support)
 [![macOS](https://img.shields.io/badge/macOS-tested-000000?logo=apple&logoColor=white)](#platform-support)
 [![Bun](https://img.shields.io/badge/Runtime-Bun-14151a?logo=bun&logoColor=white)](https://bun.sh/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Rust](https://img.shields.io/badge/Language-Rust-DEA584?logo=rust&logoColor=black)](https://www.rust-lang.org/)
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
