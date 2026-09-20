@@ -1,10 +1,10 @@
 # NotAVirus
 
-A small desktop companion for macOS and Ubuntu GNOME 50. No runtime network access.
+A small desktop companion, tested on **macOS and Ubuntu**. Available as a native macOS app (macOS 13 or later) and a GNOME Shell 50 extension on Ubuntu with Wayland. No runtime network access.
 
 It follows the mouse. That is the entire product.
 
-**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco, Jellyfish UFO and Living Ink are also available from **Packs** in the paw menu. Each has its own artwork, movement settings and idle/chase/rest transitions. Release acceptance and the remaining desktop checks are tracked in [the Ubuntu implementation record](IMPLEMENTATION_PLAN_UBUNTU.md) and [the historical macOS record](IMPLEMENTATION_PLAN_MACOS.md).
+**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco, Jellyfish UFO and Living Ink are also available from **Packs** in the paw menu. Each has its own artwork, movement settings and idle/chase/rest transitions. Implementation details and recorded verification are tracked in [the Ubuntu implementation record](IMPLEMENTATION_PLAN_UBUNTU.md) and [the historical macOS record](IMPLEMENTATION_PLAN_MACOS.md).
 
 [Watch the NotAVirus demo on YouTube](https://youtu.be/1tSwSbDjI2Q).
 
@@ -12,7 +12,7 @@ Open the [Paco animation preview](art/paco/preview.html) to inspect the shipped 
 
 ## Ubuntu GNOME 50 build and run
 
-The Ubuntu frontend is a GNOME Shell extension with a private Rust helper. It targets **GNOME Shell 50 on Wayland**, tested in the isolated GNOME 50.1 compositor on Ubuntu 26.04.1. It does not support other compositors or GNOME versions. Physical desktop acceptance still has pending items; the original 1% CPU target is waived for now at the user’s request; see the [execution record](IMPLEMENTATION_PLAN_UBUNTU.md).
+The Ubuntu frontend is a GNOME Shell extension with a private Rust helper. It targets **GNOME Shell 50 on Wayland** and has been tested successfully on an Ubuntu desktop. Automated verification used the isolated GNOME 50.1 compositor on Ubuntu 26.04.1. It does not support other compositors or GNOME versions. The [execution record](IMPLEMENTATION_PLAN_UBUNTU.md) retains the detailed acceptance checklist and measurements; the original 1% CPU target is waived for now at the user’s request.
 
 Requires stable Rust (1.88+), Python 3, `glib-compile-schemas` (`libglib2.0-bin`), and `gnome-extensions`. Build on the architecture where you will run it:
 

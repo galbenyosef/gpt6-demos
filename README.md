@@ -8,7 +8,7 @@
 [![Three.js](https://img.shields.io/badge/3D-Three.js-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web and native desktop demos exploring 3D graphics, visual design, and playful experiences. Built with Bun, TypeScript, Three.js, and Rust, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, a 7-a-side football game, a macOS desktop companion, and a solution-engineering workbench. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web and native desktop demos exploring 3D graphics, visual design, and playful experiences. Built with Bun, TypeScript, Three.js, and Rust, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, a 7-a-side football game, a macOS and Ubuntu desktop companion, and a solution-engineering workbench. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 Here, “demos” means real applications that demonstrate GPT6's power to generate software and, in some cases, use GPT6 within the application itself. The apps conform to strictly defined use cases, documented in the `specs/` directory of most projects.
 
@@ -18,7 +18,7 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 ## Platform support
 
-The browser demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there. **NotAVirus has a native macOS app** requiring macOS 13 or later and a local **Ubuntu GNOME 50 Wayland extension**; the Ubuntu implementation and pending acceptance checks are documented in its [setup guide](./not-a-virus/README.md#ubuntu-gnome-50-build-and-run). It has no browser or Windows version.
+The browser demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there. **NotAVirus is tested on macOS and Ubuntu**: its native macOS app requires macOS 13 or later, and its Ubuntu extension requires **GNOME Shell 50 on Wayland** (verified with GNOME 50.1 on Ubuntu 26.04.1). Follow its [platform build and run instructions](./not-a-virus/README.md). It has no browser or Windows version; other Linux desktops and GNOME versions are not supported.
 
 ## Run all demos
 
@@ -80,8 +80,8 @@ For NotAVirus, follow its [platform build and run instructions](./not-a-virus/RE
 
 | Portal | Default address | Behavior |
 | --- | --- | --- |
-| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; browser cards open the apps, and NotAVirus links to macOS setup. |
-| New preview portal | [http://localhost:3000/portal/](http://localhost:3000/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. NotAVirus provides **Source and setup** for its native macOS app. |
+| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; browser cards open the apps, and NotAVirus links to macOS and Ubuntu setup. |
+| New preview portal | [http://localhost:3000/portal/](http://localhost:3000/portal/) | Cards open a dialog with a YouTube walkthrough and a fuller description. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. NotAVirus provides **Source and setup** for macOS and Ubuntu. |
 
 The original [index.html](./index.html) uses a four-column desktop grid, two columns on tablets, and one on phones. It uses plain HTML, inline CSS, and relative image paths, so it needs no build or JavaScript and can also be opened directly from disk. Directly opened files use the default demo ports.
 
@@ -229,9 +229,9 @@ A playable 7-a-side football game built with Three.js, React, and a Bun service 
 
 [Source and setup](./one-more-match/README.md) · [Demo specification](./one-more-match/specs/one-more-match.md) · [Validation report](./one-more-match/VALIDATION.md)
 
-### NotAVirus — macOS desktop companion
+### NotAVirus — macOS and Ubuntu desktop companion
 
-A native macOS desktop companion built with Rust and AppKit. The default character, gatita, is a playful tabby that follows the pointer, rolls and purrs visually while resting, and curls up to sleep. Switch to Paco for a slower, good-natured chase, Jellyfish UFO for a pulsing glide with swaying tendrils, or Living Ink for a glossy stretch-and-squash chase. Each animation pack has its own idle, movement and rest sequences. The transparent character lets clicks pass through to the apps below. Use the paw menu to pause, change character or size, import PNG/TOML packs, and quit. No network access, keystroke reading, or extra permissions are required.
+A desktop companion for macOS and Ubuntu. It uses Rust with AppKit on macOS and a GNOME Shell 50 extension on Ubuntu Wayland. The default character, gatita, is a playful tabby that follows the pointer, rolls and purrs visually while resting, and curls up to sleep. Switch to Paco for a slower, good-natured chase, Jellyfish UFO for a pulsing glide with swaying tendrils, or Living Ink for a glossy stretch-and-squash chase. Each animation pack has its own idle, movement and rest sequences. The transparent character lets clicks pass through to the apps below. Use the paw menu to pause, change character or size, import PNG/TOML packs, and quit. It does not access the network or read keystrokes.
 
 <a href="https://youtu.be/1tSwSbDjI2Q">
   <img src="./images/not-a-virus.png" alt="NotAVirus — gatita following the pointer on the macOS desktop" width="480">
