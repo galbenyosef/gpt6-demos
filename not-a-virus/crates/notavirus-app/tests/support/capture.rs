@@ -79,7 +79,7 @@ pub fn pack(panel: &NSPanel, root: &Path, id: &str, save: bool) {
                 assert_eq!(info.width as usize, pixel_size);
                 let side = pixel_size * columns;
                 assert!(
-                    pixels.chunks_exact(4).any(|p| p[3] > 0),
+                    pixels.as_chunks::<4>().0.iter().any(|p| p[3] > 0),
                     "empty native frame"
                 );
                 // Compare the native snapshot silhouette with the requested

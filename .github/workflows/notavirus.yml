@@ -1,9 +1,7 @@
 name: NotAVirus
 on:
   push:
-    paths: ['not-a-virus/**', '.github/workflows/notavirus.yml']
-  pull_request:
-    paths: ['not-a-virus/**', '.github/workflows/notavirus.yml']
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
 permissions:
   contents: read
 jobs:

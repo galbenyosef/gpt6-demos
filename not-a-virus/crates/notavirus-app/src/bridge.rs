@@ -13,7 +13,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn prepare(loaded: &mut LoadedPack) -> Result<Self, String> {
         // Decode yields straight RGBA. Premultiply exactly once at this boundary.
-        for p in loaded.rgba.chunks_exact_mut(4) {
+        for p in loaded.rgba.as_chunks_mut::<4>().0 {
             let alpha = u16::from(p[3]);
             for c in &mut p[..3] {
                 *c = ((u16::from(*c) * alpha + 127) / 255) as u8;
