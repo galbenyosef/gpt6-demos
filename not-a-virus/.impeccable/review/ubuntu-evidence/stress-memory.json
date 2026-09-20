@@ -1,0 +1,35 @@
+[
+  {
+    "stage": "bundled-before",
+    "shell": {
+      "rss_kib": 307160,
+      "peak_kib": 311152
+    },
+    "helper": {
+      "rss_kib": 6220,
+      "peak_kib": 6220
+    }
+  },
+  {
+    "stage": "prepared-stress-one-old-texture-retained",
+    "shell": {
+      "rss_kib": 521204,
+      "peak_kib": 585528
+    },
+    "helper": {
+      "rss_kib": 71776,
+      "peak_kib": 71776
+    }
+  },
+  {
+    "stage": "prepared-stress-two-old-texture-retained",
+    "shell": {
+      "rss_kib": 535380,
+      "peak_kib": 599544
+    },
+    "helper": {
+      "rss_kib": 71808,
+      "peak_kib": 71808
+    }
+  }
+]

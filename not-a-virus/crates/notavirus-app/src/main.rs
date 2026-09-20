@@ -47,5 +47,7 @@ fn main() {
         app::run();
     }
     #[cfg(not(target_os = "macos"))]
-    eprintln!("NotAVirus is a macOS menu bar app. Core and pack validation are portable.");
+    eprintln!(
+        "For Ubuntu GNOME 50, build and install with scripts/build-gnome.sh and scripts/install-gnome.sh. This binary runs the macOS frontend or validates a pack path."
+    );
 }

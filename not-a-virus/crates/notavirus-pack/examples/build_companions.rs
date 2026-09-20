@@ -57,7 +57,7 @@ fn compile(root: &Path, id: &str) {
     );
     // Same matte-tail normalization as gatita. Keep the generated soft edge
     // rather than introducing a binary silhouette or sampling hidden RGB.
-    for p in data.chunks_exact_mut(4) {
+    for p in data.as_chunks_mut::<4>().0 {
         p[3] = ((u16::from(p[3].saturating_sub(8)) * 255 / 240).min(255)) as u8;
     }
     // Source spacing is approximate. Cell crops would cut a tendril or satellite
@@ -109,7 +109,7 @@ fn compile(root: &Path, id: &str) {
         "expected sixteen separate character bodies"
     );
     bodies.sort_by_key(|c| c.top);
-    for row in bodies.chunks_exact_mut(COLS) {
+    for row in bodies.as_chunks_mut::<COLS>().0 {
         row.sort_by_key(|c| c.left);
     }
     let mut bounds = bodies.clone();

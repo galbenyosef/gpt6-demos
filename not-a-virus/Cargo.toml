@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/notavirus-core", "crates/notavirus-pack", "crates/notavirus-app"]
+members = ["crates/notavirus-core", "crates/notavirus-pack", "crates/notavirus-app", "crates/notavirus-gnome"]
 resolver = "2"
 
 [workspace.package]

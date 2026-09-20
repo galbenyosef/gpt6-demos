@@ -18,7 +18,7 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 ## Platform support
 
-The browser demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there. **NotAVirus is a native macOS app** requiring macOS 13 or later; it has no browser, Linux, or Windows version.
+The browser demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there. **NotAVirus has a native macOS app** requiring macOS 13 or later and a local **Ubuntu GNOME 50 Wayland extension**; the Ubuntu implementation and pending acceptance checks are documented in its [setup guide](./not-a-virus/README.md#ubuntu-gnome-50-build-and-run). It has no browser or Windows version.
 
 ## Run all demos
 
@@ -72,7 +72,7 @@ PORT=60000 bun run start
 
 For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [setup instructions](./cross-talk/README.md#run-europa-with-voice). The launcher installs Crosstalk's dependencies automatically. Europa loads that file and hosts the service itself, so the launcher needs no additional Crosstalk process. Without an API key, the architectural explorer remains usable through its normal controls.
 
-For NotAVirus, follow its [macOS build and run instructions](./not-a-virus/README.md#build-and-run). It runs independently of `run-all.sh` and does not use a web server.
+For NotAVirus, follow its [platform build and run instructions](./not-a-virus/README.md). It runs independently of `run-all.sh` and does not use a web server.
 
 ### Demo portals
 

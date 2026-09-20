@@ -258,6 +258,19 @@ name = "notavirus-core"
 version = "0.1.0"
 
 [[package]]
+name = "notavirus-gnome"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "notavirus-core",
+ "notavirus-pack",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "zip",
+]
+
+[[package]]
 name = "notavirus-pack"
 version = "0.1.0"
 dependencies = [

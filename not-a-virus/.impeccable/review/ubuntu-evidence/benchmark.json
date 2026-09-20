@@ -1,0 +1,71 @@
+{
+  "environment": "GNOME 50.1 headless virtual 1280x720 60Hz, AMD Cezanne, instrumented Shell, gatita Small; /proc USER_HZ=100",
+  "results": [
+    {
+      "mode": "baseline",
+      "seconds": 60.002342,
+      "hz": 0,
+      "p50_ms": null,
+      "p95_ms": null,
+      "shell_cpu": 0.38331837113957984,
+      "helper_cpu": 0,
+      "shell_rss": 254636032,
+      "helper_rss": 0
+    },
+    {
+      "mode": "idle",
+      "seconds": 60.000334,
+      "hz": 11.899933757035418,
+      "p50_ms": 0.499,
+      "p95_ms": 0.844,
+      "shell_cpu": 2.4166532139637753,
+      "helper_cpu": 0.0666662955576214,
+      "shell_rss": 254357504,
+      "helper_rss": 6488064
+    },
+    {
+      "mode": "chase",
+      "seconds": 60.000212,
+      "hz": 57.66646291183105,
+      "p50_ms": 0.411,
+      "p95_ms": 0.632,
+      "shell_cpu": 9.749965550121724,
+      "helper_cpu": 0.24999911666978777,
+      "shell_rss": 262238208,
+      "helper_rss": 6488064
+    },
+    {
+      "mode": "baseline",
+      "seconds": 60.002888,
+      "hz": 0,
+      "p50_ms": null,
+      "p95_ms": null,
+      "shell_cpu": 0.08332932241528108,
+      "helper_cpu": 0,
+      "shell_rss": 254287872,
+      "helper_rss": 0
+    },
+    {
+      "mode": "idle",
+      "seconds": 60.000286,
+      "hz": 11.933276451382248,
+      "p50_ms": 0.57,
+      "p95_ms": 0.9,
+      "shell_cpu": 2.6666539556161446,
+      "helper_cpu": 0.08333293611300452,
+      "shell_rss": 255639552,
+      "helper_rss": 6512640
+    },
+    {
+      "mode": "chase",
+      "seconds": 60.000242,
+      "hz": 57.71643387705003,
+      "p50_ms": 0.394,
+      "p95_ms": 0.558,
+      "shell_cpu": 9.733294075713895,
+      "helper_cpu": 0.21666579278130244,
+      "shell_rss": 262385664,
+      "helper_rss": 6512640
+    }
+  ]
+}

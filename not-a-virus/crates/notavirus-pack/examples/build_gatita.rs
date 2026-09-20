@@ -46,7 +46,7 @@ fn main() {
     );
     // Normalize only the generated matte's near-transparent/near-opaque tails;
     // retain smooth fractional alpha throughout the antialiased silhouette.
-    for p in data.chunks_exact_mut(4) {
+    for p in data.as_chunks_mut::<4>().0 {
         p[3] = ((u16::from(p[3].saturating_sub(8)) * 255 / 240).min(255)) as u8;
     }
     // Extract separated silhouettes rather than trusting the image model's grid.
@@ -89,7 +89,7 @@ fn main() {
         "source must contain 24 separate kitten silhouettes: {components:?}"
     );
     components.sort_by_key(|c| c.4);
-    for row in components.chunks_exact_mut(COLS) {
+    for row in components.as_chunks_mut::<COLS>().0 {
         row.sort_by_key(|c| c.1);
     }
     let mut atlas = vec![0; TILE * COLS * TILE * ROWS * 4];

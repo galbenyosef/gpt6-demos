@@ -1,0 +1,10 @@
+{
+  "uuid": "notavirus@local",
+  "name": "NotAVirus",
+  "description": "A small, click-through companion that follows your pointer. Local GNOME 50 build.",
+  "shell-version": ["50"],
+  "session-modes": ["user"],
+  "settings-schema": "org.gnome.shell.extensions.notavirus",
+  "version": 1,
+  "version-name": "0.1.0"
+}

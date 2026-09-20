@@ -1,0 +1,11 @@
+<schemalist>
+  <schema id="org.gnome.shell.extensions.notavirus" path="/org/gnome/shell/extensions/notavirus/">
+    <key name="pack" type="s"><default>'default'</default><summary>Committed companion pack</summary></key>
+    <key name="size" type="d"><default>1.0</default><range min="1.0" max="2.0"/><summary>Companion size</summary></key>
+    <key name="paused" type="b"><default>false</default><summary>Pause animation and movement</summary></key>
+    <key name="running" type="b"><default>true</default><summary>Show the companion</summary></key>
+    <key name="import-revision" type="u"><default>0</default><summary>Completed pack import revision</summary></key>
+    <key name="applied-import-revision" type="u"><default>0</default><summary>Last selected import revision</summary></key>
+    <key name="import-pack" type="s"><default>''</default><summary>Most recently imported pack</summary></key>
+  </schema>
+</schemalist>

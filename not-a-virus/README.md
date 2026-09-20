@@ -1,18 +1,65 @@
 # NotAVirus
 
-A macOS menu bar sprite. No network. No extra permissions.
+A small desktop companion for macOS and Ubuntu GNOME 50. No runtime network access.
 
 It follows the mouse. That is the entire product.
 
-**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco, Jellyfish UFO and Living Ink are also available from **Packs** in the paw menu. Each has its own artwork, movement settings and idle/chase/rest transitions. Release acceptance and the remaining desktop checks are tracked in [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md).
+**Current build:** gatita is the default character, bundled as `gatita (Default)` and `gatita`. Paco, Jellyfish UFO and Living Ink are also available from **Packs** in the paw menu. Each has its own artwork, movement settings and idle/chase/rest transitions. Release acceptance and the remaining desktop checks are tracked in [the Ubuntu implementation record](IMPLEMENTATION_PLAN_UBUNTU.md) and [the historical macOS record](IMPLEMENTATION_PLAN_MACOS.md).
 
 [Watch the NotAVirus demo on YouTube](https://youtu.be/1tSwSbDjI2Q).
 
 Open the [Paco animation preview](art/paco/preview.html) to inspect the shipped clips without opening the desktop app. [Artwork provenance and rebuilding instructions](art/paco/README.md) include the generated source, prompts and asset compiler. The original JPEGs and [static pose studies](specs/pose-studies/README.md) are preserved.
 
-## Build and run
+## Ubuntu GNOME 50 build and run
 
-Requires macOS 13 or later, Xcode Command Line Tools, and stable Rust (1.88 or newer; tested with 1.97.1). Mac only. On purpose. The build downloads Rust dependencies; the running app has no network client or telemetry.
+The Ubuntu frontend is a GNOME Shell extension with a private Rust helper. It targets **GNOME Shell 50 on Wayland**, tested in the isolated GNOME 50.1 compositor on Ubuntu 26.04.1. It does not support other compositors or GNOME versions. Physical desktop acceptance still has pending items; the original 1% CPU target is waived for now at the user’s request; see the [execution record](IMPLEMENTATION_PLAN_UBUNTU.md).
+
+Requires stable Rust (1.88+), Python 3, `glib-compile-schemas` (`libglib2.0-bin`), and `gnome-extensions`. Build on the architecture where you will run it:
+
+```sh
+cd not-a-virus
+./scripts/build-gnome.sh
+./scripts/install-gnome.sh
+```
+
+The versioned archive in `dist/` contains the helper, extension, compiled settings, icon, license, and all five pack folders. Installation uses GNOME's per-user extension installer. On first installation, log out and back in if Shell has not discovered the extension, then run `gnome-extensions enable notavirus@local`. Log out and back in after updating JavaScript; do not restart or replace the active Wayland compositor. Installation is local, not an extension-store release.
+
+Use the paw menu for **Pause/Resume**, **Packs**, **Size**, **Import Pack**, **About**, and **Quit**. Import opens native preferences and a `.petpack` file chooser. **Quit** stops the helper and removes the sprite while leaving **Start** in the menu. Disable the extension to remove the menu as well. A stopped/crashed helper offers **Restart**, without an automatic restart loop. Pack switches prepare a new texture before committing; failures preserve the current companion.
+
+The sprite is always click-through and stays within the pointer monitor's current work area. GNOME work-area changes account for reserved panel/fixed Dock space; an autohiding Dock does not reserve a permanent inset. Activities overview, screen lock, and fullscreen on the pointer monitor hide/suspend it. Your pause preference remains separate from temporary hiding. Sizes affect artwork, not chase speed; device scale stays under the compositor's control.
+
+Like every enabled Shell extension, this code runs with broad desktop access. It uses pointer coordinates, display geometry, its own actors/settings, and one owned subprocess. It does not read keyboard events, inject input, inspect other applications, open network connections, or expose a socket/service. GTK and the chooser run in the separate preferences process. The test harness's virtual input is confined to its isolated compositor and is never bundled.
+
+Ubuntu storage:
+
+- Packs: `$XDG_DATA_HOME/notavirus/packs` (default `~/.local/share/notavirus/packs`).
+- Preferences: GSettings schema `org.gnome.shell.extensions.notavirus`.
+- Temporary validated RGBA assets: private, owned session folders in `$XDG_RUNTIME_DIR/notavirus/`. A valid private runtime directory is required. Normal EOF/shutdown cleans the session; stale unleased sessions older than a minute are reclaimed on the next start.
+- Diagnostics: `journalctl --user -b | rg NotAVirus`. There is no per-frame or pointer-history logging.
+
+Uninstall with `./scripts/uninstall-gnome.sh`, or `gnome-extensions uninstall notavirus@local`. Packs and preferences are preserved. To explicitly erase preferences before uninstalling, use `GSETTINGS_SCHEMA_DIR="$HOME/.local/share/gnome-shell/extensions/notavirus@local/schemas" gsettings reset-recursively org.gnome.shell.extensions.notavirus`; separately remove the NotAVirus packs folder only if you want to discard your packs.
+
+Ubuntu verification:
+
+```sh
+cargo test --workspace --locked
+cargo clippy --workspace --all-targets --locked -- -D warnings
+node tests/gnome/protocol.test.mjs
+./scripts/build-gnome.sh
+python3 tests/gnome/process-test.py
+# These install only into the tool's temporary profile and use a separate compositor:
+dbus-run-session -- gnome-shell-test-tool --headless --extension dist/notavirus-0.1.0-gnome50-$(uname -m).zip "$PWD/tests/gnome/desktop-smoke.js"
+python3 tests/gnome/check-captures.py # requires Pillow; compares 432 native renders
+dbus-run-session -- gnome-shell-test-tool --headless --extension dist/notavirus-0.1.0-gnome50-$(uname -m).zip "$PWD/tests/gnome/benchmark.js"
+```
+
+The benchmark takes about six minutes (two 60-second baseline, idle, and chase rounds). It reports Shell and helper CPU/RSS, update rate, and sample-to-applied-frame latency. Headless measurements do not establish physical click-through, mixed-monitor/fractional-scale behavior, lock/unlock, suspend/resume, or an ordinary desktop performance pass.
+
+The GNOME protocol and ownership boundaries are documented in [gnome/PROTOCOL.md](gnome/PROTOCOL.md). Core/pack crates and the macOS frontend retain their existing behavior and artwork.
+
+## macOS build and run
+
+Requires macOS 13 or later, Xcode Command Line Tools, and stable Rust (1.88 or newer; tested with 1.97.1). The build downloads Rust dependencies; the running app has no network client or telemetry.
 
 ```sh
 cd not-a-virus
