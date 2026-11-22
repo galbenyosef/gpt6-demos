@@ -272,6 +272,30 @@ impl Game {
         self.rng = x;
         (x >> 8) as f32 / 16777216.
     }
+    /// Apply one 8 ms input sample from either host. Mouse motion is relative.
+    pub fn input(&mut self, forward: f32, side: f32, dx: f32, dy: f32, buttons: u8, weapon: usize) {
+        let b = self.actors[0].body;
+        self.tick(Cmd {
+            forward,
+            side,
+            yaw: b.yaw + dx,
+            pitch: b.pitch + dy,
+            jump: buttons & 1 != 0,
+            crouch: buttons & 2 != 0,
+            fire: buttons & 4 != 0,
+            weapon,
+        })
+    }
+
+    pub fn release_controls(&mut self) {
+        let player = &mut self.actors[0];
+        if player.body.grounded && player.hp > 0 {
+            player.body.vel.x = 0.;
+            player.body.vel.y = 0.;
+            player.previous = player.body.pos;
+        }
+        player.body.held_jump = false;
+    }
     pub fn set_bot_level(&mut self, level: u8) {
         let level = level.min(5);
         if self.bot_level != level {

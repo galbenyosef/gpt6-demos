@@ -1,6 +1,6 @@
 # Temblor
 
-Temblor is a first-person arena shooter for desktop browsers on Linux and macOS. Play a one-on-one match against a local bot in OpenArena’s *Trial by Error*. Collect weapons, health and armor, and score five frags to win. The engine is written in Rust, runs as WebAssembly and draws the arena with WebGPU. The bundled match requires no extra downloads or retail game files.
+Temblor is a first-person arena shooter with browser and native desktop versions for Linux and macOS. Play a one-on-one match against a local bot in OpenArena’s *Trial by Error*. Collect weapons, health and armor, and score five frags to win. Both versions run the same Rust simulation and draw the arena with wgpu. The bundled match requires no extra downloads or retail game files.
 
 [Canonical source on GitHub](https://github.com/soyrochus/gpt6-demos/tree/main/temblor)
 
@@ -11,6 +11,31 @@ Run **`./play`**, open **http://127.0.0.1:8080**, and click **Play** in desktop 
 From the GPT6 Demos repository root, run `./run-all.sh` and choose **Temblor** in the [preview gallery](http://localhost:3000/portal/). The shared launcher serves the game at base port + 15. To run just that service, use `bun run dev` from this directory and open [localhost:3015](http://localhost:3015/). Set `PORT` to choose another port.
 
 ![A first-person view from the upper walkway, with a grenade launcher in hand and water below the red arena banner](../images/temblor-atrium.png)
+
+## Play on desktop
+
+From `temblor/`, run the following command to build and open the native window.
+
+```sh
+cargo run --locked --release -p temblor-desktop
+```
+
+Use Rust 1.100.0. On Ubuntu, install the native build dependencies with `sudo apt install build-essential pkg-config libgtk-3-dev libasound2-dev libwayland-dev libxkbcommon-dev libx11-dev`. On an Apple Silicon Mac, install the Xcode Command Line Tools with `xcode-select --install`. The first build needs internet access to fetch crates. The executable at `target/release/temblor-desktop` embeds the arena and actor packs and runs offline from any directory. Linux uses a Vulkan-capable graphics driver on Wayland or X11. macOS uses Metal.
+
+Click **Play** for a Standard duel. The movement, weapons, bot levels and Peek controls match the browser version. Escape or switching to another window pauses the match and releases the mouse. **Resume** recaptures it. To play another arena, click **Load local game files**, select the map and its companion PK3s together, choose a map and click **Play selected map**. Canceling the chooser or encountering a load error keeps your previous match available.
+
+The Linux package has passed a local match and rematch check. Apple Silicon gameplay and the first pair of tagged downloads still await verification. [Desktop verification record](evidence/README.md#native-desktop-ui)
+
+### Download a tagged desktop build
+
+Open a successful tagged run in [Temblor desktop builds](https://github.com/soyrochus/gpt6-demos/actions/workflows/temblor.yml). Sign in to GitHub and choose the artifact for **linux-x86_64** or **macos-arm64** in the run summary. Unzip the downloaded artifact to find the `.tar.gz` archive. In the directory containing that archive, run the commands for your platform. Substitute the downloaded release tag for `v1.2.3`.
+
+| Platform | Extract | Launch |
+| --- | --- | --- |
+| Linux x86-64 | `tar -xzf temblor-v1.2.3-linux-x86_64.tar.gz` | `./temblor-v1.2.3-linux-x86_64/temblor-desktop` |
+| macOS Apple Silicon | `tar -xzf temblor-v1.2.3-macos-arm64.tar.gz` | `./temblor-v1.2.3-macos-arm64/temblor-desktop` |
+
+Both archives include the executable and license notices. Linux builds target Ubuntu 24.04 and compatible distributions with GTK 3, ALSA and a Vulkan driver.
 
 ## Where to download free PK3 files
 
@@ -26,7 +51,7 @@ A `.pk3` is a ZIP-format archive for game data. A map’s `.bsp` describes its g
 
 1. Start Temblor, click **Play**, then press **Escape** to pause.
 2. Click **Load local game files** → **Choose PK3 archives**. For the tested example, select `arena.pk3`. For a split distribution, select all required PK3s in one file selection. Leave each PK3 intact.
-3. Choose a level and click **Play selected map**. The picker lists every `.bsp` under `maps/` across the selected archives. Files are read locally in your browser.
+3. Choose a level and click **Play selected map**. The picker lists every `.bsp` under `maps/` across the selected archives. Both frontends read the selected files locally.
 
 If the picker reports **No maps found**, include the PK3 that contains the level. Temblor reads Quake III Arena IBSP version 46. When a selected level fails to load, the dialog reports the reason. You can choose another map from the same list or add companion PK3s if an asset is missing. [Current limitations](current-limitations.md)
 
@@ -79,7 +104,7 @@ cargo install wasm-bindgen-cli --version 0.2.114 --locked
 ./play
 ```
 
-`WASM_BINDGEN=/path/to/wasm-bindgen` selects an existing matching CLI. If the system Python predates 3.11, set `PYTHON=python3.14` or another installed 3.11+ interpreter. The build checks every content input in `assets/manifest.json`, packages the static application and records the source URL and checksum for each Rust dependency. For native development run `cargo test --release --locked`. Inspect the map with `cargo run --release --example inspect -- maps/oa_rpg3dm2.bsp assets/arena.pk3` and replay a seeded match with `cargo run --release --example replay`.
+`WASM_BINDGEN=/path/to/wasm-bindgen` selects an existing matching CLI. If the system Python predates 3.11, set `PYTHON=python3.14` or another installed 3.11+ interpreter. The build checks every content input in `assets/manifest.json`, packages the static application and records the source URL and checksum for each Rust dependency. Run `cargo test --workspace --locked` to check both crates. Inspect the map with `cargo run --release --example inspect -- maps/oa_rpg3dm2.bsp assets/arena.pk3` and replay a seeded match with `cargo run --release --example replay`.
 
 With the release server running, use `bun install --frozen-lockfile`, then `npm run test:browser`, `node tests/import.mjs`, `node tests/route.mjs`, `node tests/standard.mjs`, `node tests/peek.mjs`, `node tests/texture-batches.mjs`, `node tests/detail.mjs` and `RENDER_MODE=performance MATCHES=6 node tests/match.mjs`. The detail check uses FFmpeg to encode the combat sequence. Set `BASELINE_URL` to a server running the previous release for paired camera captures. Set `HEADLESS=1` for a headless hardware match. The match driver uses real keyboard and relative mouse input. Set `TEMBLOR_URL` to test another static deployment. Build output hashes are in [release/build.json](release/build.json). Package provenance and source revisions are in [notices/ENGINE.md](notices/ENGINE.md).
 

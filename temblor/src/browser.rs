@@ -1,12 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-use crate::{
-    bsp::Map,
-    content::Vfs,
-    game::Game,
-    material::Palette,
-    movement::Cmd,
-    renderer::{Renderer, Scene},
-};
+use crate::{content::Vfs, renderer::Renderer, session::Session};
 use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 pub struct Packages(Vfs);
@@ -23,50 +16,32 @@ impl Packages {
         self.0.read(path)
     }
     pub fn speakers(&mut self, map: &str) -> Result<String, String> {
-        let m = Map::parse(&self.0.read(map)?)?;
-        let mut sources = Vec::new();
-        for e in &m.entities {
-            if e["classname"] != "target_speaker" {
-                continue;
-            }
-            let Some(name) = e.get("noise") else { continue };
-            if name.starts_with('*') {
-                continue;
-            }
-            let key = crate::content::path(name)?;
-            let stem = key.trim_end_matches(".wav").trim_end_matches(".ogg");
-            let path = [key.clone(), format!("{stem}.wav"), format!("{stem}.ogg")]
-                .into_iter()
-                .find(|p| self.0.origin(p).is_some())
-                .ok_or_else(|| format!("Missing map sound {name}"))?;
-            sources.push(serde_json::json!({"file":path,"origin":self.0.origin(&path),"pos":crate::bsp::origin(e).to_array(),"flags":e.get("spawnflags").and_then(|v|v.parse::<i32>().ok()).unwrap_or(0)}));
-        }
-        Ok(serde_json::to_string(&sources).unwrap())
+        Ok(serde_json::to_string(&crate::session::speakers(&mut self.0, map)?).unwrap())
     }
     pub fn maps(&self) -> String {
-        serde_json::to_string(
-            &self
-                .0
-                .names()
-                .filter(|p| p.starts_with("maps/") && p.ends_with(".bsp"))
-                .collect::<Vec<_>>(),
-        )
-        .unwrap()
+        serde_json::to_string(&self.0.maps()).unwrap()
     }
 }
 #[wasm_bindgen]
 pub struct Engine {
     gpu: Renderer,
-    session: Option<(Scene, Game)>,
+    session: Option<Session>,
 }
 #[wasm_bindgen]
 impl Engine {
     pub async fn create(canvas: web_sys::HtmlCanvasElement) -> Result<Engine, JsValue> {
         console_error_panic_hook::set_once();
-        Ok(Self {
-            gpu: Renderer::new(canvas).await?,
-            session: None,
-        })
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::BROWSER_WEBGPU,
+            ..Default::default()
+        });
+        let surface = instance
+            .create_surface(wgpu::SurfaceTarget::Canvas(canvas))
+            .map_err(|e| e.to_string())?;
+        let gpu = Renderer::from_surface(&instance, surface, 1280, 720).await.map_err(|err| {
+            if err == "No compatible graphics adapter" { String::from("No WebGPU adapter. Check graphics acceleration in chrome://settings/system. On Linux, set chrome://flags/#enable-vulkan to Enabled. Relaunch Chromium and click Play.") } else { err }
+        })?;
+        Ok(Self { gpu, session: None })
     }
     pub fn load(
         &mut self,
@@ -75,44 +50,25 @@ impl Engine {
         name: &str,
         seed: u32,
     ) -> Result<String, String> {
-        let m = Map::parse(&packs.0.read(name)?)?;
-        let mut palette = Palette::load(&m, &mut packs.0)?;
-        let mut game = Game::new(&m, seed)?;
-        let aas = name.trim_end_matches(".bsp").to_owned() + ".aas";
-        if packs.0.origin(&aas).is_some() {
-            game.areas = Some(crate::aas::Areas::parse(&packs.0.read(&aas)?)?);
-        }
-        let assets = crate::models::Actors::load(&mut actors.0, &mut palette)?;
-        let scene = self.gpu.upload(&m, &palette, assets)?;
-        let mut info = crate::inventory::report(&m, &palette, &packs.0, name);
-        info["textureSizes"] = palette
-            .layers
-            .iter()
-            .map(|l| (l.name.clone(), serde_json::json!(l.image.dimensions())))
-            .collect::<serde_json::Map<String, _>>()
-            .into();
-        info["nodes"] = game.nav.points.len().into();
-        self.session = Some((scene, game));
-        Ok(info.to_string())
+        let session = Session::load(&self.gpu, &mut packs.0, &mut actors.0, name, seed)?;
+        let report = session.info.to_string();
+        self.session = Some(session);
+        Ok(report)
     }
     pub fn tick(&mut self, forward: f32, side: f32, dx: f32, dy: f32, buttons: u8, weapon: usize) {
-        if let Some((_, g)) = &mut self.session {
-            let b = g.actors[0].body;
-            g.tick(Cmd {
-                forward,
-                side,
-                yaw: b.yaw + dx,
-                pitch: b.pitch + dy,
-                jump: buttons & 1 != 0,
-                crouch: buttons & 2 != 0,
-                fire: buttons & 4 != 0,
-                weapon,
-            })
+        if let Some(s) = &mut self.session {
+            s.game.input(forward, side, dx, dy, buttons, weapon);
         }
     }
     pub fn frame(&mut self, alpha: f32) -> Result<(), String> {
-        if let Some((s, g)) = &self.session {
-            self.gpu.frame(s, g, alpha)?
+        if let Some(s) = &self.session {
+            if let Some(frame) = self.gpu.acquire()? {
+                let view = frame.texture.create_view(&Default::default());
+                let mut enc = self.gpu.device.create_command_encoder(&Default::default());
+                self.gpu.draw(&s.scene, &s.game, alpha, &view, &mut enc);
+                self.gpu.queue.submit(Some(enc.finish()));
+                frame.present();
+            }
         }
         Ok(())
     }
@@ -125,13 +81,14 @@ impl Engine {
     pub fn snapshot(&self) -> String {
         self.session
             .as_ref()
-            .map(|(_, g)| g.snapshot().to_string())
+            .map(|s| s.game.snapshot().to_string())
             .unwrap_or_default()
     }
     pub fn route(&self, x: f32, y: f32, z: f32) -> String {
-        let Some((_, g)) = &self.session else {
+        let Some(s) = &self.session else {
             return "[]".into();
         };
+        let g = &s.game;
         let p = g.actors[0].body.pos;
         let q = glam::Vec3::new(x, y, z);
         if !q.is_finite() {
@@ -145,50 +102,44 @@ impl Engine {
         serde_json::to_string(&r.iter().map(|p| p.to_array()).collect::<Vec<_>>()).unwrap()
     }
     pub fn items(&self) -> String {
-        let Some((_, g)) = &self.session else {
+        let Some(s) = &self.session else {
             return "[]".into();
         };
-        serde_json::to_string(&g.items.iter().map(|it|serde_json::json!({"class":it.class,"pos":it.pos.to_array(),"next":it.next})).collect::<Vec<_>>()).unwrap()
+        serde_json::to_string(&s.game.items.iter().map(|it|serde_json::json!({"class":it.class,"pos":it.pos.to_array(),"next":it.next})).collect::<Vec<_>>()).unwrap()
     }
     pub fn events(&mut self) -> String {
         self.session
             .as_mut()
-            .map(|(_, g)| serde_json::to_string(&std::mem::take(&mut g.events)).unwrap())
+            .map(|s| serde_json::to_string(&std::mem::take(&mut s.game.events)).unwrap())
             .unwrap_or_else(|| "[]".into())
     }
     /// Discard grounded walking momentum when the browser relinquishes controls.
     /// Airborne motion, projectiles and the match clock stay frozen until resume.
     pub fn release_controls(&mut self) {
-        if let Some((_, game)) = &mut self.session {
-            let player = &mut game.actors[0];
-            if player.body.grounded && player.hp > 0 {
-                player.body.vel.x = 0.;
-                player.body.vel.y = 0.;
-                player.previous = player.body.pos;
-            }
-            player.body.held_jump = false;
+        if let Some(s) = &mut self.session {
+            s.game.release_controls();
         }
     }
     pub fn set_bot_level(&mut self, level: u8) {
-        if let Some((_, game)) = &mut self.session {
-            game.set_bot_level(level);
+        if let Some(s) = &mut self.session {
+            s.game.set_bot_level(level);
         }
     }
     pub fn peek_geometry(&self) -> Vec<f32> {
         self.session
             .as_ref()
-            .map(|(scene, _)| scene.peek_mesh.clone())
+            .map(|s| s.scene.peek_mesh.clone())
             .unwrap_or_default()
     }
     pub fn peek_offsets(&self) -> Vec<f32> {
         self.session
             .as_ref()
-            .map(|(_, g)| g.offsets.concat())
+            .map(|s| s.game.offsets.concat())
             .unwrap_or_default()
     }
     pub fn rematch(&mut self) {
-        if let Some((_, g)) = &mut self.session {
-            g.reset()
+        if let Some(s) = &mut self.session {
+            s.game.reset()
         }
     }
 }

@@ -11,8 +11,8 @@ use glam::{Mat4, Vec3};
 use wgpu::util::DeviceExt;
 pub struct Renderer {
     surface: wgpu::Surface<'static>,
-    device: wgpu::Device,
-    queue: wgpu::Queue,
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
     layout: wgpu::BindGroupLayout,
     pipeline: wgpu::RenderPipeline,
@@ -88,14 +88,12 @@ fn buffer(d: &wgpu::Device, label: &str, size: u64, usage: wgpu::BufferUsages) -
     })
 }
 impl Renderer {
-    pub async fn new(canvas: web_sys::HtmlCanvasElement) -> Result<Self, String> {
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::BROWSER_WEBGPU,
-            ..Default::default()
-        });
-        let surface = instance
-            .create_surface(wgpu::SurfaceTarget::Canvas(canvas))
-            .map_err(|e| e.to_string())?;
+    pub async fn from_surface(
+        instance: &wgpu::Instance,
+        surface: wgpu::Surface<'static>,
+        width: u32,
+        height: u32,
+    ) -> Result<Self, String> {
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
@@ -103,7 +101,7 @@ impl Renderer {
                 force_fallback_adapter: false,
             })
             .await
-            .ok_or("No WebGPU adapter. Check graphics acceleration in chrome://settings/system. On Linux, set chrome://flags/#enable-vulkan to Enabled. Relaunch Chromium and click Play.")?;
+            .ok_or("No compatible graphics adapter")?;
         let (device, queue) = adapter
             .request_device(
                 &wgpu::DeviceDescriptor {
@@ -119,7 +117,7 @@ impl Renderer {
             .await
             .map_err(|e| format!("WebGPU device limits: {e}"))?;
         let mut config = surface
-            .get_default_config(&adapter, 1280, 720)
+            .get_default_config(&adapter, width.max(1), height.max(1))
             .ok_or("No supported surface format")?;
         let formats = surface.get_capabilities(&adapter).formats;
         config.format = formats
@@ -473,7 +471,29 @@ impl Renderer {
             self.depth = depth(&self.device, &self.config)
         }
     }
-    pub fn frame(&mut self, s: &Scene, g: &Game, alpha: f32) -> Result<(), String> {
+    pub fn format(&self) -> wgpu::TextureFormat {
+        self.config.format
+    }
+
+    pub fn acquire(&self) -> Result<Option<wgpu::SurfaceTexture>, String> {
+        match self.surface.get_current_texture() {
+            Ok(f) => Ok(Some(f)),
+            Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                self.surface.configure(&self.device, &self.config);
+                Ok(None)
+            }
+            Err(wgpu::SurfaceError::Timeout) => Ok(None),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+    pub fn draw(
+        &mut self,
+        s: &Scene,
+        g: &Game,
+        alpha: f32,
+        view: &wgpu::TextureView,
+        enc: &mut wgpu::CommandEncoder,
+    ) {
         self.queue
             .write_buffer(&s.offsets, 0, bytemuck::cast_slice(&g.offsets));
         let a = &g.actors[0];
@@ -503,22 +523,11 @@ impl Renderer {
             )
         }
         self.queue.write_buffer(&self.dynamic, 0, bytes);
-        let frame = match self.surface.get_current_texture() {
-            Ok(f) => f,
-            Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
-                self.surface.configure(&self.device, &self.config);
-                return Ok(());
-            }
-            Err(wgpu::SurfaceError::Timeout) => return Ok(()),
-            Err(e) => return Err(e.to_string()),
-        };
-        let view = frame.texture.create_view(&Default::default());
-        let mut enc = self.device.create_command_encoder(&Default::default());
         for overlay in [false, true] {
             let mut pass = enc.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: None,
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
+                    view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: if overlay {
@@ -558,8 +567,5 @@ impl Renderer {
                 s.draw_world(&mut pass, &s.translucent);
             }
         }
-        self.queue.submit(Some(enc.finish()));
-        frame.present();
-        Ok(())
     }
 }

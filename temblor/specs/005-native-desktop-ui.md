@@ -1,6 +1,6 @@
 # 005 — Native desktop UI
 
-**Status** Draft for discussion.
+**Status** Implemented in the working tree. The browser portal, Linux desktop gameplay and the locally packaged Linux build passed verification. Release acceptance remains open for an Apple Silicon playthrough and downloads of both artifacts from the same tagged GitHub Actions run. [Verification record](../evidence/README.md#native-desktop-ui)
 
 Temblor has two launch paths. The browser interface is the default. A player opens Temblor through the demos portal and clicks **Play** as they do today. A player who chooses the desktop version runs a command that opens a native Rust application window. Both play the same game on the same maps.
 

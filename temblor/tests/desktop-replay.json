@@ -1,0 +1,36 @@
+{
+  "seed": 1813,
+  "frameMs": [16, 8, 40, 24, 32],
+  "inputs": [
+    [2, "look", 16, -5],
+    [3, "Digit1", true],
+    [9, "Digit1", false],
+    [21, "Digit2", true],
+    [22, "Digit2", false],
+    [140002, "KeyW", true],
+    [140036, "KeyW", false],
+    [140044, "Space", true],
+    [140064, "Space", false],
+    [140096, "Fire", true],
+    [140360, "Fire", false]
+  ],
+  "expected": {
+    "counts": {
+      "0/shot/Machinegun": 3,
+      "1/frag/": 5,
+      "1/pickup/item_armor_combat": 1,
+      "1/pickup/item_armor_shard": 9,
+      "1/pickup/item_health_small": 5,
+      "1/pickup/weapon_lightning": 1,
+      "1/pickup/weapon_rocketlauncher": 1,
+      "1/pickup/weapon_shotgun": 2,
+      "1/shot/Lightning gun": 47,
+      "1/shot/Rocket launcher": 5,
+      "1/shot/Shotgun": 8
+    },
+    "scores": [
+      0,
+      5
+    ]
+  }
+}

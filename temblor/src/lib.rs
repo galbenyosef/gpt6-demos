@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pub mod aas;
-#[cfg(any(test, target_arch = "wasm32"))]
+#[cfg(any(test, feature = "native-renderer", target_arch = "wasm32"))]
 mod batches;
 mod bot;
 #[cfg(target_arch = "wasm32")]
@@ -17,7 +17,9 @@ pub mod models;
 pub mod movement;
 pub mod mover;
 pub mod nav;
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_arch = "wasm32", feature = "native-renderer"))]
 mod peek;
-#[cfg(target_arch = "wasm32")]
-mod renderer;
+#[cfg(any(target_arch = "wasm32", feature = "native-renderer"))]
+pub mod renderer;
+#[cfg(any(target_arch = "wasm32", feature = "native-renderer"))]
+pub mod session;

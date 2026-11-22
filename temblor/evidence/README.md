@@ -120,3 +120,20 @@ Chrome listed all four maps in the unmodified Quake III demo PK3. Arena Gate, Th
 A separate native replay used seed 1813 and a scripted player that pursued and fired at the Standard bot. Arena Gate, Temple of Retribution and The Proving Grounds reached five frags and reset the scores on rematch. The Longest Yard reached 1 to −1 after ten simulated minutes. A second run with an idle player also ended the ten-minute observation window below the frag limit on The Longest Yard and The Proving Grounds.
 
 The public import regression builds a PK3 with a renamed arena and an incompatible sibling. It selects the incompatible level, checks the version error, then starts the valid one from the same archive. It also checks an archive with no maps and both archive selection orders. [Import test](../tests/import.mjs) · [Results](import.json)
+
+## Native desktop UI
+
+Verified on Ubuntu 26.04.1 x86-64 with Rust 1.100.0 on 2026-11-22. The portal check and desktop runs used separate directories.
+
+| Spec check | Observed result |
+| --- | --- |
+| Browser launch | Started `./run-all.sh` from a clean copy of the tracked files with no Cargo build directory. The Temblor preview card opened the checked-in browser release. Play captured the mouse and the match clock advanced at 0–0. |
+| Offline desktop duel | Stopped the launcher, extracted the local Linux archive outside the checkout and launched its executable there. Standard reached a 0–5 finish. Rematch reset both scores to zero. The native window closed cleanly. [Final score](desktop/intermission.jpg) |
+| Input, audio and resize | Losing focus while W was held released the mouse. Resume recaptured it. The match continued after resizing from 1100 × 700 to 720 × 460. A private PipeWire stereo sink recorded nonzero, distinct left and right game audio during firing. Listening on physical speakers or headphones remains unverified. |
+| Peek | At level 0, P displayed both actor markers. Orbit and zoom changed the inspection view. Holding W during inspection and closing with P preserved the displayed match time and first-person view. The sampled wall and floor regions matched within four intensity levels per pixel. Opening Peek from paused Controls returned to Controls. |
+| Native file picker | Canceling the GTK chooser and selecting the mapless actor pack both preserved the playable match. Selecting `arena.pk3` offered `maps/oa_rpg3dm2.bsp`. Play loaded it, retained Explore and allowed Peek and Resume. [Peek after import](desktop/import-peek.jpg) |
+| Host parity | The native input clock and the shipping browser input queue replayed seed 1813 with the same recorded commands and frame intervals. Both matched every expected pickup, shot and frag count, including three player machinegun shots, and both ended 0–5. [Replay fixture](../tests/desktop-replay.json) |
+
+`cargo fmt --all -- --check`, all 19 tests in `cargo test --workspace --locked`, and the release build passed. Clippy completed with warnings in the engine and replay example. To repeat the browser half of the parity check, serve the release with `./play` and run `node tests/desktop-replay.mjs`.
+
+The Linux packaging script verified the executable permission, both embedded PK3s and license files. The extracted executable's `--check-bundle` check presented the lobby and arena under Xvfb with Mesa software rendering. The remaining release checks require an Apple Silicon Mac and both downloads from a single tagged Actions run. [Desktop build workflow](../../.github/workflows/temblor.yml)

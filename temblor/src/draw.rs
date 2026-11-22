@@ -15,7 +15,7 @@ pub struct Vertex {
     ids: [u32; 2],
 }
 impl Vertex {
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(any(target_arch = "wasm32", feature = "native-renderer"))]
     pub(crate) fn material(&self) -> usize {
         self.ids[0] as usize
     }

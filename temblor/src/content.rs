@@ -66,6 +66,12 @@ impl Vfs {
         self.total += size;
         Ok(())
     }
+    pub fn maps(&self) -> Vec<&str> {
+        self.names()
+            .filter(|p| p.starts_with("maps/") && p.ends_with(".bsp"))
+            .map(String::as_str)
+            .collect()
+    }
     pub fn names(&self) -> impl Iterator<Item = &String> {
         self.entries.keys()
     }
