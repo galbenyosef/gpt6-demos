@@ -1,0 +1,9 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
+set -eu
+cd "$(dirname "$0")"
+binary="${CARGO_TARGET_DIR:-target}/release/temblor-desktop"
+if [ -x "$binary" ]; then
+    exec "$binary" "$@"
+fi
+exec cargo run --locked --release -p temblor-desktop -- "$@"

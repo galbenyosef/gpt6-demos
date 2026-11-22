@@ -14,10 +14,10 @@ From the GPT6 Demos repository root, run `./run-all.sh` and choose **Temblor** i
 
 ## Play on desktop
 
-From `temblor/`, run the following command to build and open the native window.
+From `temblor/`, run the following command to open the native window. The launcher uses the existing release binary or builds it on first use.
 
 ```sh
-cargo run --locked --release -p temblor-desktop
+./play-native
 ```
 
 Use Rust 1.100.0. On Ubuntu, install the native build dependencies with `sudo apt install build-essential pkg-config libgtk-3-dev libasound2-dev libwayland-dev libxkbcommon-dev libx11-dev`. On an Apple Silicon Mac, install the Xcode Command Line Tools with `xcode-select --install`. The first build needs internet access to fetch crates. The executable at `target/release/temblor-desktop` embeds the arena and actor packs and runs offline from any directory. Linux uses a Vulkan-capable graphics driver on Wayland or X11. macOS uses Metal.
