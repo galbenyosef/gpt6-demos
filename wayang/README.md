@@ -1,21 +1,20 @@
 # Wyang
 
-Wyang turns a photograph and a written edit into a parallax wallpaper. The Rust editor opens with a harbor photograph you can use immediately. Drop your own PNG, JPEG or WebP to replace it. The preview, exported still and desktop players use the same wgpu shader.
+Wyang turns any photograph or AI-generated edit into a moving wallpaper. Open an image and the preview starts moving automatically. Choose **Apply to display** to play it on your desktop. With the pointer parked, the view drifts and foreground details travel farther than the skyline. Moving the pointer adds parallax. You can try it immediately with the bundled harbor photograph.
 
 ## Run the editor
 
 From this directory, run:
 
 ```sh
-cargo build --release --locked --bins
-./target/release/wyang
+./run-wayang.sh
 ```
 
 An optional argument opens an image, a project directory or its `project.json`. Building on Ubuntu requires Rust, a C toolchain, pkg-config and the GTK 3 development headers used by the file chooser. Building on macOS requires Rust and the Xcode command line tools. Use the native host to build each package.
 
 Enter a prompt and choose one to four variations. Generate submits one edit at a time. The editor keeps completed choices if a call fails or you cancel. **Retry unfinished edits** reuses the original batch's source and prompt. A submitted request can incur usage even when its response is lost.
 
-Select a thumbnail and choose a target display. Hold **View original** with the pointer or focus it and hold Space. In the preview, move the pointer or focus the canvas and use the arrow keys. Home centers the keyboard position. **Actual size** lets you scroll through the crop at source-pixel scale. **Framing** controls the focal point and **Depth** places the horizon in the artwork. **Pause** holds a frame. Still mode, zero strength and reduced motion use the centered pose.
+Select a thumbnail and choose a target display. Hold **View original** with the pointer or focus it and hold Space. In the preview, move the pointer or focus the canvas and use the arrow keys. Home centers the keyboard position. **Motion strength** adjusts the movement. Turning off **Animate at rest** keeps only pointer parallax. **Actual size** lets you scroll through the crop at source-pixel scale. **Framing** controls the focal point and **Depth** places the horizon in the artwork. **Pause** holds a frame. Still mode, zero strength and reduced motion use the centered pose.
 
 **Save project** writes an editable directory. Move the whole directory to reopen it offline. **Export still** writes the centered crop at the target's physical pixel dimensions. **Apply to display** snapshots the selected artwork and its settings. You can continue editing or close the editor while that scene plays.
 

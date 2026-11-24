@@ -517,19 +517,23 @@ impl Editor {
         if let Some(p) = &mut self.project {
             let mut s = p.settings(&display.id);
             title(ui, "Motion");
-            let mut percent = s.strength * 100.;
+            let mut percent = s.strength / scene::MAX_STRENGTH * 100.;
             let label = ui.label("Motion strength");
-            ui.add(
-                egui::Slider::new(&mut percent, 0.0..=1.0)
-                    .fixed_decimals(2)
-                    .suffix("%"),
-            )
-            .labelled_by(label.id)
-            .on_hover_text(
-                "Maximum foreground displacement as a fraction of the display's short edge",
-            );
-            s.strength = percent / 100.;
-            ui.checkbox(&mut s.ambient, "Ambient drift");
+            if ui
+                .add(
+                    egui::Slider::new(&mut percent, 0.0..=100.0)
+                        .fixed_decimals(0)
+                        .suffix("%"),
+                )
+                .labelled_by(label.id)
+                .changed()
+            {
+                s.strength = percent / 100. * scene::MAX_STRENGTH;
+            }
+            ui.checkbox(&mut s.ambient, "Animate at rest");
+            if s.motion && self.status.reduced {
+                ui.small("Your system’s reduced-motion setting is keeping the wallpaper still.");
+            }
             ui.add_space(4.);
             ui.collapsing("Framing", |ui| {
                 ui.checkbox(&mut self.framing, "Drag to reposition crop");

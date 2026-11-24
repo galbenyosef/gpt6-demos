@@ -13,18 +13,30 @@ static BOOL pressMenuItem(pid_t pid, NSString *title) {
     id app = CFBridgingRelease(AXUIElementCreateApplication(pid));
     NSArray *buttons = attribute(attribute(app, kAXExtrasMenuBarAttribute), kAXChildrenAttribute);
     // The detached helper owns exactly one status item.
-    if (buttons.count != 1) return NO;
+    if (buttons.count != 1) {
+        fprintf(stderr, "Expected one Wyang status item, found %lu\n", (unsigned long)buttons.count);
+        return NO;
+    }
     id button = buttons.firstObject;
-    if (AXUIElementPerformAction((__bridge AXUIElementRef)button, kAXPressAction) != kAXErrorSuccess) return NO;
-    for (int i = 0; i < 20; i++) {
+    if (![attribute(button, kAXChildrenAttribute) count]) {
+        // AppKit can enter menu tracking before replying to the open request.
+        AXUIElementPerformAction((__bridge AXUIElementRef)button, kAXPressAction);
+    }
+    for (int i = 0; i < 60; i++) {
         for (id menu in attribute(button, kAXChildrenAttribute)) {
             for (id item in attribute(menu, kAXChildrenAttribute)) {
-                if ([attribute(item, kAXTitleAttribute) isEqual:title])
-                    return AXUIElementPerformAction((__bridge AXUIElementRef)item, kAXPressAction) == kAXErrorSuccess;
+                if ([attribute(item, kAXTitleAttribute) isEqual:title]) {
+                    AXError result = AXUIElementPerformAction((__bridge AXUIElementRef)item, kAXPressAction);
+                    if (result == kAXErrorSuccess) return YES;
+                    if ([title isEqual:@"Stop"] && ![NSRunningApplication runningApplicationWithProcessIdentifier:pid]) return YES;
+                    fprintf(stderr, "Pressing %s returned AX error %d\n", title.UTF8String, result);
+                    return NO;
+                }
             }
         }
         [NSThread sleepForTimeInterval:0.05];
     }
+    fprintf(stderr, "Wyang status menu did not expose %s\n", title.UTF8String);
     return NO;
 }
 

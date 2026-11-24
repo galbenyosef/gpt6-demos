@@ -45,6 +45,7 @@ fn main() -> Result<()> {
     match action.as_str() {
         "idle" => ensure!(!active(), "Display already has a Wyang player"),
         "active" => ensure!(active(), "Display has no active player"),
+        "reduced" => println!("{}", desktop::status().reduced),
         "stop" => desktop::stop(&display)?,
         "invalid" => {
             ensure!(desktop::apply(&uuid::Uuid::new_v4().to_string(), &display).is_err());
@@ -60,13 +61,17 @@ fn main() -> Result<()> {
             } else {
                 Project::open(Path::new(&source))?
             };
-            let settings = Settings {
-                focal: [0.63, 0.36],
-                horizon: 0.46,
-                motion: action == "motion",
-                ..Default::default()
-            };
-            project.set_settings(&display, settings);
+            if action == "still" {
+                project.set_settings(
+                    &display,
+                    Settings {
+                        focal: [0.63, 0.36],
+                        horizon: 0.46,
+                        motion: false,
+                        ..Default::default()
+                    },
+                );
+            }
             if let Some(output) = args.next() {
                 let width = args.next().context("Expected width")?.parse()?;
                 let height = args.next().context("Expected height")?.parse()?;
@@ -75,7 +80,11 @@ fn main() -> Result<()> {
                 let (device, queue) =
                     pollster::block_on(adapter.request_device(&Default::default()))?;
                 let gpu = Renderer::new(&device, &queue, &project.chosen().pixels);
-                let rest = gpu.capture([width, height], settings, Default::default())?;
+                let rest = gpu.capture(
+                    [width, height],
+                    project.settings(&display),
+                    Default::default(),
+                )?;
                 atomic_write(Path::new(&output), &artwork::png(&rest)?)?;
             }
             let scene = Playback::stage(&playback_root()?, &project, &display)?;

@@ -4,11 +4,12 @@ project=${1:--}
 if [[ "$project" != "-" ]]; then project=$(cd "$project" && pwd); fi
 cd "$(dirname "$0")/.."
 bash scripts/package.sh
-cargo build --release --locked --example check_display
+cargo build --release --locked --example check_display --example check_motion
 target=$(cargo metadata --format-version 1 --no-deps | python3 -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')
 out=$(mktemp -d "${TMPDIR:-/tmp}/wyang-mac.XXXXXX")
 echo "Acceptance files in $out"
-ditto -x -k "dist/Wyang-0.1.0-macOS-$(uname -m).zip" "$out"
+version=$(cargo metadata --format-version 1 --no-deps | python3 -c 'import json,sys;print(json.load(sys.stdin)["packages"][0]["version"])')
+ditto -x -k "dist/Wyang-$version-macOS-$(uname -m).zip" "$out"
 macos="$out/Wyang.app/Contents/MacOS"
 codesign --verify --deep --strict "$out/Wyang.app"
 clang -fobjc-arc -framework AppKit -framework CoreGraphics -framework ApplicationServices tests/macos/display.m -o "$out/display"
@@ -51,7 +52,12 @@ owned_token=$(cat "$record")
 pid=$(pgrep -f "wyang-player .* $owned_token$")
 window=$(wait_for_window player "$pid")
 if ./display capture-access; then
-    screencapture -x -o -l "$window" player.png
+    # WindowServer can publish the window bounds before its first drawable appears.
+    for ((i=0; i<12; i++)); do
+        screencapture -x -o -l "$window" player.png
+        if ./check compare rest.png player.png >/dev/null 2>&1; then break; fi
+        sleep 0.2
+    done
     ./check compare rest.png player.png
 else
     echo "Window capture unavailable with the current Screen Recording permission"
@@ -81,7 +87,15 @@ export WYANG_PROFILE_DIR="$out"
 owned_token=$(cat "$record")
 motion_pid=$(pgrep -f "wyang-player .* $owned_token$")
 wait_for_exit "$pid"
-wait_for_window player "$motion_pid"
+motion_window=$(wait_for_window player "$motion_pid")
+if ./display capture-access && [[ "$(./check reduced "$display")" == false ]]; then
+    screencapture -x -o -l "$motion_window" moving-a.png
+    sleep 1.2
+    screencapture -x -o -l "$motion_window" moving-b.png
+    sleep 1.2
+    screencapture -x -o -l "$motion_window" moving-c.png
+    "$target/release/examples/check_motion" moving-{a,b,c}.png
+fi
 if [[ "${WYANG_BENCHMARK:-0}" == 1 ]]; then
     for ((i=0; i<85; i++)); do
         [[ -f "player-$motion_pid.json" ]] && break
@@ -91,6 +105,13 @@ if [[ "${WYANG_BENCHMARK:-0}" == 1 ]]; then
 fi
 if ./display accessibility-access; then
     ./display menu "$motion_pid" Pause
+    if ./display capture-access; then
+        sleep 0.3
+        screencapture -x -o -l "$motion_window" paused-a.png
+        sleep 1
+        screencapture -x -o -l "$motion_window" paused-b.png
+        ./check compare paused-a.png paused-b.png
+    fi
     ./display menu "$motion_pid" Resume
     ./display menu "$motion_pid" Stop
     echo "Exercised the status item's Pause, Resume and Stop"

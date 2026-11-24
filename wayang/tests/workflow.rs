@@ -247,20 +247,15 @@ fn restored_batches_use_new_ids_and_settings_validate() {
                 ..s
             };
             for pointer in [[-1.; 2], [1.; 2]] {
-                let u = scene::uniforms(
-                    [1500, 900],
-                    target,
-                    s,
-                    Pose {
-                        pointer,
-                        phase: 0.125,
-                    },
-                );
-                for i in 0..2 {
-                    assert!(
-                        u[i] - u[2 + i] / 2. - u[4 + i].abs() >= 0.
-                            && u[i] + u[2 + i] / 2. + u[4 + i].abs() <= 1.
-                    );
+                for step in 0..16 {
+                    let phase = step as f32 / 16.;
+                    let u = scene::uniforms([1500, 900], target, s, Pose { pointer, phase });
+                    for i in 0..2 {
+                        assert!(
+                            u[i] - u[2 + i] / 2. - u[4 + i].abs() >= 0.
+                                && u[i] + u[2 + i] / 2. + u[4 + i].abs() <= 1.
+                        );
+                    }
                 }
             }
         }

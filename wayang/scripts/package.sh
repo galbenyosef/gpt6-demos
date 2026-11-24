@@ -9,7 +9,7 @@ if [[ "$profile" = dev ]]; then bin="$target_dir/debug"; fi
 mkdir -p dist
 out=$(mktemp -d)
 trap 'rm -rf "$out"' EXIT
-version=0.1.0
+version=$(cargo metadata --format-version 1 --no-deps | python3 -c 'import json,sys;print(json.load(sys.stdin)["packages"][0]["version"])')
 copy_docs() {
     mkdir -p "$1/specs" "$1/tests"
     cp example.env README.md "$1/"

@@ -43,6 +43,7 @@ export async function run() {
     const procId=s.proc.get_identifier();
     await Scripting.sleep(500);assert(s.layer.contains(s.actor),'Surface stayed in the background group');await shot('wallpaper-a');
     await Scripting.sleep(1400);await shot('wallpaper-b');
+    await Scripting.sleep(1200);await shot('wallpaper-c');
     try {await call('Apply',display.id,'f'.repeat(64));throw Error('Unexpected success');}
     catch(e){assert(!e.message.includes('Unexpected success'),'Invalid replacement');}
     assert(ext.running.get(display.id)===s && s.layer.visible,'Failed replacement kept prior surface');

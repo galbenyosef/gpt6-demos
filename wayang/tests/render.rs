@@ -4,8 +4,53 @@ use image::{Rgba, RgbaImage};
 use wyang::{
     artwork,
     gpu::Renderer,
-    scene::{Pose, Settings},
+    scene::{Motion, Pose, Settings},
 };
+
+#[test]
+fn default_wallpaper_moves_the_foreground_against_the_background_with_a_parked_pointer()
+-> Result<()> {
+    let instance = wgpu::Instance::default();
+    let adapter = pollster::block_on(instance.request_adapter(&Default::default()))?;
+    let (device, queue) = pollster::block_on(adapter.request_device(&Default::default()))?;
+    // A vertical line crosses both depth regions. Track its center in the output pixels.
+    let size = [1920, 1080];
+    let photo = RgbaImage::from_fn(size[0], size[1], |x, _| {
+        let value = if x.abs_diff(960) < 3 { 255 } else { 0 };
+        Rgba([value, value, value, 255])
+    });
+    let renderer = Renderer::new(&device, &queue, &photo);
+    let s = Settings::default();
+    let mut motion = Motion::default();
+    let rest = renderer.capture(size, s, motion.pose)?;
+    for _ in 0..90 {
+        assert!(motion.step(s, [0.; 2], 1. / 30., false, false));
+    }
+    let moving = renderer.capture(size, s, motion.pose)?;
+    let center = |frame: &RgbaImage, y| {
+        let line = frame.rows().nth(y).unwrap();
+        let (weighted, total) = line.enumerate().fold((0., 0.), |(sum, total), (x, p)| {
+            let value = f64::from(p[0]);
+            (sum + x as f64 * value, total + value)
+        });
+        weighted / total
+    };
+    let far = center(&rest, 200) - center(&moving, 200);
+    let near = center(&rest, 1000) - center(&moving, 1000);
+    assert!((4.0..6.0).contains(&far), "Camera moved {far:.2} pixels");
+    assert!(
+        near - far > 5.,
+        "Foreground {near:.2}px, background {far:.2}px"
+    );
+    println!(
+        "Parked pointer after 3 seconds at 1080p: background {far:.2}px, foreground {near:.2}px"
+    );
+    assert!(!motion.step(s, [1.; 2], 0.1, true, false));
+    assert_eq!(renderer.capture(size, s, motion.pose)?, moving);
+    assert!(!motion.step(s, [1.; 2], 0.1, false, true));
+    assert_eq!(renderer.capture(size, s, motion.pose)?, rest);
+    Ok(())
+}
 #[test]
 fn shared_gpu_renderer_exports_repeatable_rest_and_depth_weighted_motion() -> Result<()> {
     let instance = wgpu::Instance::default();

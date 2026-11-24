@@ -6,7 +6,7 @@ if [[ -n "${1:-}" ]]; then
 fi
 cd "$(dirname "$0")/.."
 WYANG_BUILD_PROFILE=dev bash scripts/package.sh
-cargo build --locked --example stage_harbor
+cargo build --locked --example stage_harbor --example check_motion
 export WYANG_TEST_OUTPUT=${WYANG_TEST_OUTPUT:-$(mktemp -d)}
 export WYANG_STAGE_BINARY="$(pwd)/target/debug/examples/stage_harbor"
 echo "Screenshots: $WYANG_TEST_OUTPUT"
@@ -14,3 +14,4 @@ echo "Screenshots: $WYANG_TEST_OUTPUT"
 dbus-run-session -- gnome-shell-test-tool --headless --extra-filter org.wyang.Player \
     --extra-filter wyang-player --extension "$(pwd)/dist/wyang@local.shell-extension.zip" "$(pwd)/tests/gnome/desktop.js"
 python3 tests/gnome/check-images.py "$WYANG_TEST_OUTPUT"
+target/debug/examples/check_motion "$WYANG_TEST_OUTPUT"/wallpaper-{a,b,c}.png

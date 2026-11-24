@@ -1,6 +1,13 @@
 use anyhow::{Result, ensure};
 use serde::{Deserialize, Serialize};
 
+pub const MAX_STRENGTH: f32 = 0.01;
+const LOOP_SECONDS: f32 = 12.;
+// Gains relative to the stored pointer strength. At the default, the camera
+// travels 0.45% of the short edge and the nearest objects travel another 0.65%.
+const CAMERA_GAIN: [f32; 2] = [0.9, 0.4];
+const FOREGROUND_GAIN: [f32; 2] = [1.3, 0.5];
+
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Settings {
     pub depth_version: u8,
@@ -31,7 +38,7 @@ impl Settings {
         ensure!(
             self.depth_version == 1
                 && (0.0..=0.99).contains(&self.horizon)
-                && (0.0..=0.01).contains(&self.strength)
+                && (0.0..=MAX_STRENGTH).contains(&self.strength)
                 && self
                     .held_pose
                     .is_none_or(|p| p.pointer.iter().all(|v| (-1.0..=1.).contains(v))
@@ -86,7 +93,7 @@ impl Motion {
             }
         }
         if s.ambient {
-            self.pose.phase = (self.pose.phase + dt / 24.).fract();
+            self.pose.phase = (self.pose.phase + dt / LOOP_SECONDS).fract();
         }
         moving || s.ambient
     }
@@ -101,8 +108,9 @@ pub struct Crop {
 pub fn crop(image: [u32; 2], viewport: [u32; 2], focal: [f32; 2]) -> Crop {
     let [w, h] = viewport.map(|v| v.max(1) as f32);
     let [iw, ih] = image.map(|v| v.max(1) as f32);
-    // Reserve 1% pointer + 0.2% drift on either axis, and a source texel for filtering.
-    let guard = 0.012 * w.min(h);
+    // Keep the same crop in Still and Motion, including at maximum pointer reach.
+    let max_travel = MAX_STRENGTH * (1. + CAMERA_GAIN[0] + FOREGROUND_GAIN[0]);
+    let guard = max_travel * w.min(h);
     let scale = ((w + 2. * guard) / (iw - 1.).max(1.)).max((h + 2. * guard) / (ih - 1.).max(1.));
     let span = [w / (scale * iw), h / (scale * ih)];
     let bounds = [
@@ -119,24 +127,25 @@ pub fn crop(image: [u32; 2], viewport: [u32; 2], focal: [f32; 2]) -> Crop {
 }
 pub fn uniforms(image: [u32; 2], viewport: [u32; 2], s: Settings, pose: Pose) -> [f32; 8] {
     let crop = crop(image, viewport, s.focal);
-    let phase = pose.phase * std::f32::consts::TAU;
-    let drift = if s.ambient {
-        [phase.sin() * 0.2, (phase * 2.).sin() * 0.2]
+    let phase = if s.ambient {
+        pose.phase * std::f32::consts::TAU
     } else {
-        [0.; 2]
+        0.
     };
+    let sway = phase.sin();
+    let foreground_wave = [sway, (2. * phase).sin()];
     let short = viewport[0].min(viewport[1]) as f32;
-    let offset: [f32; 2] = std::array::from_fn(|i| {
-        if s.motion {
-            (pose.pointer[i] + drift[i]) * s.strength * short * crop.span[i]
-                / viewport[i].max(1) as f32
-        } else {
-            0.
-        }
-    });
+    let strength = if s.motion { s.strength } else { 0. };
+    let mut center = crop.center;
+    let mut offset = [0.; 2];
+    for i in 0..2 {
+        let unit = strength * short * crop.span[i] / viewport[i].max(1) as f32;
+        center[i] += unit * CAMERA_GAIN[i] * sway;
+        offset[i] = unit * (pose.pointer[i] + FOREGROUND_GAIN[i] * foreground_wave[i]);
+    }
     [
-        crop.center[0],
-        crop.center[1],
+        center[0],
+        center[1],
         crop.span[0],
         crop.span[1],
         offset[0],

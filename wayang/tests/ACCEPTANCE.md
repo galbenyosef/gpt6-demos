@@ -2,7 +2,9 @@
 
 ## Automated checks
 
-The release suite passed on macOS 27.2.1 (arm64, Apple M4 Pro) and the Rust suite passed on Ubuntu. The 11 tests cover credential resolution, multipart requests, error classification, sequential batches, cancellation, explicit retry, import and orientation checks, project relocation, damaged assets, scene settings, credential-free playback and GPU output at landscape, portrait and ultrawide sizes. The GPU test compares rest and displaced pixels through the renderer shared by the editor, export and player.
+Version 0.2 adds an automatic 12-second camera and foreground parallax loop. The GPU regression test supplies a stationary pointer, advances the default scene for three seconds, then tracks the same vertical marker in two depth regions. At 1920 × 1080 on Metal it measured 4.84 pixels of background travel and 11.40 pixels of foreground travel. Pause held the rendered frame and Reduce Motion returned it to the centered export.
+
+The 0.2 release suite has 12 tests on macOS 27.2.1 (arm64, Apple M4 Pro). The preceding 11-test suite passed on Ubuntu. Coverage includes credential resolution, multipart requests, error classification, sequential batches, cancellation, explicit retry, import and orientation, project relocation, damaged assets, scene settings, credential-free playback and GPU output at landscape, portrait and ultrawide sizes.
 
 ## Generation
 
@@ -12,11 +14,13 @@ The portable project archive contains the original, both edits and their manifes
 
 ## macOS desktop
 
+In the 0.2 packaged player, the saved blue-hour candidate used its default display settings. Registration of native wallpaper captures measured 3 pixels of sky travel and 7.5 pixels of foreground water travel, normalized to 1080p. The check follows the actual artwork on the desktop with no automated pointer input. The same registration check is included in the GNOME harness. Its 0.2 desktop rerun is pending.
+
 The packaged, ad-hoc signed app ran outside the checkout on macOS 27.2.1 (26B131). Launch Services opened the saved project with a blank provider key. A window capture showed the selected blue-hour harbor and the two edit thumbnails.
 
 On the built-in display at scale 2, WindowServer reported a 1728 × 1117 point player immediately above the system desktop and below Finder icons. The player stayed out of keyboard focus. A capture of its entire 3456 × 2234 backing surface matched the exported rest pose pixel for pixel with a non-default focal point and horizon. An invalid replacement left that wallpaper active. Quitting the editor left playback running. Applying the motion version replaced the old process. With the editor closed, macOS Accessibility activated the player's menu-bar Pause, Resume and Stop actions. Stop removed the wallpaper window and its helper.
 
-| Apple M4 Pro, 60-second run | Frames | FPS | Median render time | 95th percentile | Process CPU |
+| Apple M4 Pro, 0.1 baseline, 60-second run | Frames | FPS | Median render time | 95th percentile | Process CPU |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Packaged desktop player, 3456 × 2234 | 1801 | 30.02 | 1.29 ms | 2.16 ms | 9.35% |
 | Offscreen Metal renderer, 1920 × 1080 | 1801 | 30.01 | 1.52 ms | 2.48 ms | 3.21% |
