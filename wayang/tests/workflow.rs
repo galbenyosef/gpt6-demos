@@ -91,6 +91,7 @@ fn sequential_generation_retry_save_move_and_partial_recovery() -> Result<()> {
     p.manifest.selected = p.manifest.variants[1].id.clone();
     p.manifest.display = "panel".into();
     let settings = Settings {
+        effect: scene::Effect::Lights,
         focal: [0.72, 0.66],
         horizon: 0.55,
         strength: 0.008,
@@ -249,11 +250,20 @@ fn restored_batches_use_new_ids_and_settings_validate() {
             for pointer in [[-1.; 2], [1.; 2]] {
                 for step in 0..16 {
                     let phase = step as f32 / 16.;
-                    let u = scene::uniforms([1500, 900], target, s, Pose { pointer, phase });
+                    let u = scene::uniforms(
+                        [1500, 900],
+                        target,
+                        s,
+                        Pose {
+                            pointer,
+                            phase,
+                            animated: true,
+                        },
+                    );
                     for i in 0..2 {
                         assert!(
-                            u[i] - u[2 + i] / 2. - u[4 + i].abs() >= 0.
-                                && u[i] + u[2 + i] / 2. + u[4 + i].abs() <= 1.
+                            u.center[i] - u.span[i] / 2. - u.offset[i].abs() >= 0.
+                                && u.center[i] + u.span[i] / 2. + u.offset[i].abs() <= 1.
                         );
                     }
                 }

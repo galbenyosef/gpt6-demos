@@ -1,6 +1,6 @@
 [package]
 name = "wyang"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 publish = false
 default-run = "wyang"
@@ -8,7 +8,7 @@ default-run = "wyang"
 [dependencies]
 anyhow = "1"
 base64 = "0.22"
-bytemuck = "1"
+bytemuck = { version = "1", features = ["derive"] }
 dotenvy = "0.15"
 eframe = { version = "0.36.2", default-features = false, features = ["wgpu", "default_fonts", "accesskit", "wayland", "x11"] }
 hex = "0.4"

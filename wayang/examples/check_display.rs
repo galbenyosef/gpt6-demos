@@ -47,6 +47,11 @@ fn main() -> Result<()> {
         "active" => ensure!(active(), "Display has no active player"),
         "reduced" => println!("{}", desktop::status().reduced),
         "stop" => desktop::stop(&display)?,
+        "snapshot" => {
+            let id = args.next().context("Expected an existing scene ID")?;
+            desktop::apply(&id, &display)?;
+            ensure!(active(), "Replacement player did not become active");
+        }
         "invalid" => {
             ensure!(desktop::apply(&uuid::Uuid::new_v4().to_string(), &display).is_err());
             ensure!(active(), "Failed replacement stopped the original player");

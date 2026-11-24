@@ -1,6 +1,8 @@
 # Wyang
 
-Wyang turns any photograph or AI-generated edit into a moving wallpaper. Open an image and the preview starts moving automatically. Choose **Apply to display** to play it on your desktop. With the pointer parked, the view drifts and foreground details travel farther than the skyline. Moving the pointer adds parallax. You can try it immediately with the bundled harbor photograph.
+Wyang animates a photograph or AI-generated edit as soon as you open it. In the harbor scene, waves refract the reflections and moving highlights cross the water. For images without a detected water surface, two layers of colored lights drift through the scene. The camera also moves forward and back, and the pointer shifts foreground details. Choose **Apply to display** to play the animation on your desktop.
+
+**Scene effect** defaults to **Automatic**. Water detection looks for broad, cool-colored patches with horizontal texture in the lower half of the image. Choose **Water ripples**, **Drifting lights**, or **Camera only** to set the effect yourself. All effects run locally on your existing images.
 
 ## Run the editor
 
@@ -63,6 +65,8 @@ On Ubuntu, `scripts/check-gnome.sh` exercises the packaged extension and Rust pl
 On macOS, `bash scripts/check-macos.sh` temporarily applies the harbor on the main display, opens the packaged editor, checks player replacement and then stops playback. With Screen Recording access it also compares the wallpaper window with the exported PNG. Set `WYANG_BENCHMARK=1` to measure 60 seconds at the display's native backing resolution. The script prints the directory containing its captures and timings.
 
 Both desktop checks accept an optional saved harbor project directory. Pass the same directory on both machines to exercise the same selected candidate offline.
+
+To record the selected artwork with the default animation and a stationary pointer, run `cargo run --release --locked --example record_loop -- PROJECT NEW_VIDEO.mp4`. This verification tool uses the wallpaper renderer and requires ffmpeg.
 
 To measure the renderer at exactly 1920 × 1080 on a different-sized monitor, run `WYANG_PROFILE_DIR=/path/to/existing/output cargo run --release --locked --example benchmark_1080p -- /path/to/project`. This offscreen measurement excludes the window compositor.
 

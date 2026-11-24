@@ -2,14 +2,33 @@ use anyhow::{Result, ensure};
 use serde::{Deserialize, Serialize};
 
 pub const MAX_STRENGTH: f32 = 0.01;
-const LOOP_SECONDS: f32 = 12.;
-// Gains relative to the stored pointer strength. At the default, the camera
-// travels 0.45% of the short edge and the nearest objects travel another 0.65%.
-const CAMERA_GAIN: [f32; 2] = [0.9, 0.4];
-const FOREGROUND_GAIN: [f32; 2] = [1.3, 0.5];
+pub const LOOP_SECONDS: f32 = 12.;
+const CAMERA_GAIN: [f32; 2] = [2.3, 0.65];
+const FOREGROUND_GAIN: [f32; 2] = [2.5, 0.8];
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub enum Effect {
+    #[default]
+    Auto,
+    Water,
+    Lights,
+    Camera,
+}
+impl Effect {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Auto => "Automatic",
+            Self::Water => "Water ripples",
+            Self::Lights => "Drifting lights",
+            Self::Camera => "Camera only",
+        }
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Settings {
+    #[serde(default)]
+    pub effect: Effect,
     pub depth_version: u8,
     pub focal: [f32; 2],
     pub horizon: f32,
@@ -23,6 +42,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            effect: Effect::Auto,
             depth_version: 1,
             focal: [0.5; 2],
             horizon: 0.4,
@@ -54,6 +74,8 @@ impl Settings {
 pub struct Pose {
     pub pointer: [f32; 2],
     pub phase: f32,
+    #[serde(default)]
+    pub animated: bool,
 }
 
 #[derive(Default)]
@@ -92,6 +114,7 @@ impl Motion {
                 moving = true;
             }
         }
+        self.pose.animated = s.ambient;
         if s.ambient {
             self.pose.phase = (self.pose.phase + dt / LOOP_SECONDS).fract();
         }
@@ -125,7 +148,23 @@ pub fn crop(image: [u32; 2], viewport: [u32; 2], focal: [f32; 2]) -> Crop {
         bounds,
     }
 }
-pub fn uniforms(image: [u32; 2], viewport: [u32; 2], s: Settings, pose: Pose) -> [f32; 8] {
+// Mirrors the WGSL Scene uniform, including its final 16-byte alignment.
+#[derive(Clone, Copy, Debug, PartialEq, bytemuck::Pod, bytemuck::Zeroable)]
+#[repr(C)]
+pub struct Uniforms {
+    pub center: [f32; 2],
+    pub span: [f32; 2],
+    pub offset: [f32; 2],
+    horizon: f32,
+    phase: f32,
+    aspect: [f32; 2],
+    activity: f32,
+    effect: f32,
+    pub has_water: f32,
+    padding: [f32; 3],
+}
+
+pub fn uniforms(image: [u32; 2], viewport: [u32; 2], s: Settings, pose: Pose) -> Uniforms {
     let crop = crop(image, viewport, s.focal);
     let phase = if s.ambient {
         pose.phase * std::f32::consts::TAU
@@ -137,20 +176,33 @@ pub fn uniforms(image: [u32; 2], viewport: [u32; 2], s: Settings, pose: Pose) ->
     let short = viewport[0].min(viewport[1]) as f32;
     let strength = if s.motion { s.strength } else { 0. };
     let mut center = crop.center;
+    let zoom = 1. + strength * 8. * (1. - phase.cos());
+    let span = crop.span.map(|v| v / zoom);
     let mut offset = [0.; 2];
     for i in 0..2 {
-        let unit = strength * short * crop.span[i] / viewport[i].max(1) as f32;
+        let unit = strength * short * span[i] / viewport[i].max(1) as f32;
         center[i] += unit * CAMERA_GAIN[i] * sway;
         offset[i] = unit * (pose.pointer[i] + FOREGROUND_GAIN[i] * foreground_wave[i]);
     }
-    [
-        center[0],
-        center[1],
-        crop.span[0],
-        crop.span[1],
-        offset[0],
-        offset[1],
-        s.horizon,
-        0.,
-    ]
+    Uniforms {
+        center,
+        span,
+        offset,
+        horizon: s.horizon,
+        phase: pose.phase,
+        aspect: [viewport[0] as f32 / short, viewport[1] as f32 / short],
+        activity: if s.ambient && pose.animated {
+            strength / 0.005
+        } else {
+            0.
+        },
+        effect: match s.effect {
+            Effect::Auto => 0.,
+            Effect::Water => 1.,
+            Effect::Lights => 2.,
+            Effect::Camera => 3.,
+        },
+        has_water: 0.,
+        padding: [0.; 3],
+    }
 }

@@ -517,6 +517,14 @@ impl Editor {
         if let Some(p) = &mut self.project {
             let mut s = p.settings(&display.id);
             title(ui, "Motion");
+            egui::ComboBox::from_label("Scene effect")
+                .selected_text(s.effect.label())
+                .show_ui(ui, |ui| {
+                    use scene::Effect::*;
+                    for effect in [Auto, Water, Lights, Camera] {
+                        ui.selectable_value(&mut s.effect, effect, effect.label());
+                    }
+                });
             let mut percent = s.strength / scene::MAX_STRENGTH * 100.;
             let label = ui.label("Motion strength");
             if ui

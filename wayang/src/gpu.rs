@@ -1,5 +1,6 @@
 //! The display and PNG paths both render into the same RGBA8 target.
-use crate::scene::{self, Pose, Settings};
+use crate::scene::{self, Pose, Settings, Uniforms};
+use crate::surface::WaterMask;
 use anyhow::{Result, ensure};
 use eframe::{
     egui,
@@ -34,6 +35,7 @@ pub struct Renderer {
     uniform: wgpu::Buffer,
     group: wgpu::BindGroup,
     image: [u32; 2],
+    has_water: bool,
 }
 impl Renderer {
     pub fn new(device: &wgpu::Device, queue: &wgpu::Queue, pixels: &RgbaImage) -> Self {
@@ -83,9 +85,22 @@ impl Renderer {
             multiview_mask: None,
             cache: None,
         });
+        let water = WaterMask::from_image(data);
+        let mask = device.create_texture_with_data(
+            queue,
+            &wgpu::TextureDescriptor {
+                format: wgpu::TextureFormat::R8Unorm,
+                ..descriptor(
+                    [water.pixels.width(), water.pixels.height()],
+                    wgpu::TextureUsages::TEXTURE_BINDING,
+                )
+            },
+            Default::default(),
+            water.pixels.as_raw(),
+        );
         let uniform = device.create_buffer(&wgpu::BufferDescriptor {
             label: None,
-            size: 32,
+            size: std::mem::size_of::<Uniforms>() as u64,
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
@@ -112,6 +127,12 @@ impl Renderer {
                     binding: 2,
                     resource: uniform.as_entire_binding(),
                 },
+                wgpu::BindGroupEntry {
+                    binding: 3,
+                    resource: wgpu::BindingResource::TextureView(
+                        &mask.create_view(&Default::default()),
+                    ),
+                },
             ],
         });
         Self {
@@ -121,6 +142,7 @@ impl Renderer {
             uniform,
             group,
             image: size,
+            has_water: water.detected,
         }
     }
     pub fn target(&self, size: [u32; 2]) -> Result<wgpu::Texture> {
@@ -136,9 +158,10 @@ impl Renderer {
                 | wgpu::TextureUsages::COPY_SRC,
         )))
     }
-    pub fn draw(&self, view: &wgpu::TextureView, values: [f32; 8]) {
+    pub fn draw(&self, view: &wgpu::TextureView, mut values: Uniforms) {
+        values.has_water = u8::from(self.has_water) as f32;
         self.queue
-            .write_buffer(&self.uniform, 0, bytemuck::cast_slice(&values));
+            .write_buffer(&self.uniform, 0, bytemuck::bytes_of(&values));
         let mut encoder = self.device.create_command_encoder(&Default::default());
         {
             let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
@@ -206,7 +229,7 @@ pub struct Canvas {
     state: RenderState,
     source: Option<(Arc<RgbaImage>, Renderer)>,
     output: Option<([u32; 2], wgpu::TextureView, egui::TextureId)>,
-    last: Option<[f32; 8]>,
+    last: Option<Uniforms>,
     pub frames: u64,
 }
 impl Canvas {

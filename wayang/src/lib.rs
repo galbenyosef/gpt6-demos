@@ -5,3 +5,4 @@ pub mod gpu;
 pub mod project;
 pub mod provider;
 pub mod scene;
+mod surface;

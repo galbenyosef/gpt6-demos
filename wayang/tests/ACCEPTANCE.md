@@ -2,6 +2,8 @@
 
 ## Automated checks
 
+Version 0.3 adds animated water and drifting lights. The Metal regression compares the automatic harbor effect with a camera-only render at the same pose. Of 29,700 sampled water pixels, 7,416 changed by more than 12 channel levels. The sampled sky and ship regions stayed within that tolerance. A flat image selected drifting lights automatically; 23,202 of 480,000 pixels changed over 0.6 seconds. At 1080p the camera-only marker test measured 12.36 pixels of background travel and 24.24 pixels of foreground travel after three seconds. The 0.3 suite passed on Metal. Its GNOME desktop run is pending.
+
 Version 0.2 adds an automatic 12-second camera and foreground parallax loop. The GPU regression test supplies a stationary pointer, advances the default scene for three seconds, then tracks the same vertical marker in two depth regions. At 1920 × 1080 on Metal it measured 4.84 pixels of background travel and 11.40 pixels of foreground travel. Pause held the rendered frame and Reduce Motion returned it to the centered export.
 
 The 0.2 release suite has 12 tests on macOS 27.2.1 (arm64, Apple M4 Pro). The preceding 11-test suite passed on Ubuntu. Coverage includes credential resolution, multipart requests, error classification, sequential batches, cancellation, explicit retry, import and orientation, project relocation, damaged assets, scene settings, credential-free playback and GPU output at landscape, portrait and ultrawide sizes.
@@ -13,6 +15,8 @@ On November 24, 2026, two sequential live edits of the bundled Hamburg harbor ph
 The portable project archive contains the original, both edits and their manifest. After extracting it in a new directory, the GNOME test staging tool resolved the selected candidate to the same artwork digest offline.
 
 ## macOS desktop
+
+The 0.3 player replaced a running Mac wallpaper using the exact saved 0.2 scene. WindowServer captures of that player's window taken roughly one second apart differed by 19.84 channel levels on average (0–255). The 12-second blue-hour sample video was generated separately by the production GPU renderer at 1280 × 720 and 30 fps with the pointer parked.
 
 In the 0.2 packaged player, the saved blue-hour candidate used its default display settings. Registration of native wallpaper captures measured 3 pixels of sky travel and 7.5 pixels of foreground water travel, normalized to 1080p. The check follows the actual artwork on the desktop with no automated pointer input. The same registration check is included in the GNOME harness. Its 0.2 desktop rerun is pending.
 
