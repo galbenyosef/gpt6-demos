@@ -651,7 +651,7 @@ impl Game {
             if self.winner.is_some() {
                 return;
             }
-            if self.time % 1000 == 0 {
+            if self.time.is_multiple_of(1000) {
                 let a = &mut self.actors[i];
                 if a.hp > 100 {
                     a.hp -= 1
@@ -670,7 +670,7 @@ impl Game {
             self.hurt(i, i, 10000, Vec3::ZERO);
             return;
         }
-        if self.time % 304 == 0 && self.world.trace(p, p, Vec3::ZERO, 8 | 16).inside {
+        if self.time.is_multiple_of(304) && self.world.trace(p, p, Vec3::ZERO, 8 | 16).inside {
             self.hurt(i, i, 30, Vec3::ZERO)
         }
         if self.time < self.actors[i].pad {

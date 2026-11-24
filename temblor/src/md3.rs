@@ -160,7 +160,9 @@ impl Mesh {
                 .collect::<Result<Vec<_>>>()?;
             let bytes = s.block(s.offset(100)?, frames * verts * 8)?;
             let frames = bytes
-                .chunks_exact(8)
+                .as_chunks::<8>()
+                .0
+                .iter()
                 .map(|p| {
                     let val = |i: usize| i16::from_le_bytes([p[i], p[i + 1]]) as f32 / 64.;
                     let angle = std::f32::consts::TAU / 255.;

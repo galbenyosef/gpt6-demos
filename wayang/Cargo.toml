@@ -3,3 +3,40 @@ name = "wyang"
 version = "0.1.0"
 edition = "2024"
 publish = false
+default-run = "wyang"
+
+[dependencies]
+anyhow = "1"
+base64 = "0.22"
+bytemuck = "1"
+dotenvy = "0.15"
+eframe = { version = "0.36.2", default-features = false, features = ["wgpu", "default_fonts", "accesskit", "wayland", "x11"] }
+hex = "0.4"
+httpdate = "1"
+libc = "0.2"
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png", "webp"] }
+moxcms = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "multipart", "rustls-tls"] }
+rfd = { version = "0.15", default-features = false, features = ["gtk3"] }
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = "1"
+sha2 = "0.10"
+tempfile = "3"
+uuid = { version = "1", features = ["v4"] }
+winit = "0.30"
+raw-window-handle = "0.6"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gio = "0.18"
+
+[target.'cfg(target_os = "macos")'.build-dependencies]
+cc = "1"
+
+[dev-dependencies]
+pollster = "0.4"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

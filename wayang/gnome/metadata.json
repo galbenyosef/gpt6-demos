@@ -1,0 +1,8 @@
+{
+  "uuid": "wyang@local",
+  "name": "Wyang Wallpapers",
+  "description": "Play a Wyang scene behind the desktop icons on each selected display.",
+  "shell-version": ["50"],
+  "settings-schema": "org.gnome.shell.extensions.wyang",
+  "version": 1
+}

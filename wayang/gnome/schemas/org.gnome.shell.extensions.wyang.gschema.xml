@@ -1,0 +1,3 @@
+<schemalist><schema id="org.gnome.shell.extensions.wyang" path="/org/gnome/shell/extensions/wyang/">
+  <key name="scenes" type="a{ss}"><default>{}</default><summary>Applied scene per display connector</summary></key>
+</schema></schemalist>

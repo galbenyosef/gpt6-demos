@@ -280,9 +280,10 @@ impl Palette {
                 let mut stage = Stage::default();
                 stage.mode[0] = p.texture(vfs, &mut cache, &m.name, false)? as f32;
                 stages.push(stage);
-                let mut lm = Stage::default();
-                lm.mode = [-1., 2., 0., 0.];
-                stages.push(lm)
+                stages.push(Stage {
+                    mode: [-1., 2., 0., 0.],
+                    ..Stage::default()
+                })
             }
             if stages.len() > 8 {
                 return Err(format!("{} has too many material stages", m.name));
@@ -308,8 +309,10 @@ impl Palette {
         cache: &mut BTreeMap<String, usize>,
     ) -> Result<u32> {
         let layer = self.texture(vfs, cache, name, false)?;
-        let mut mat = GpuMaterial::default();
-        mat.meta = [1, 0, 0, 1];
+        let mut mat = GpuMaterial {
+            meta: [1, 0, 0, 1],
+            ..GpuMaterial::default()
+        };
         mat.stages[0].mode[0] = layer as f32;
         mat.stages[0].rgb[3] = 1.;
         if name.ends_with("/sight") {

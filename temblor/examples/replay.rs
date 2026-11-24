@@ -36,7 +36,7 @@ fn main() {
                 println!("{}", e)
             }
         }
-        if g.time % 30000 == 0 {
+        if g.time.is_multiple_of(30000) {
             println!(
                 "{} {:?} nav {:?}",
                 g.snapshot(),

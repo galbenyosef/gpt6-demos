@@ -9,6 +9,10 @@ use crate::{
 };
 use glam::{Mat4, Vec3};
 use wgpu::util::DeviceExt;
+struct TextureBank<'a> {
+    dimensions: (u32, u32),
+    layers: Vec<&'a [u8]>,
+}
 pub struct Renderer {
     surface: wgpu::Surface<'static>,
     pub device: wgpu::Device,
@@ -303,19 +307,23 @@ impl Renderer {
     ) -> Result<Scene, String> {
         // Only equal-sized images share an array. The layer table also handles
         // animated shader stages whose successive frames have different sizes.
-        let mut banks: Vec<((u32, u32), Vec<&[u8]>)> = Vec::new();
+        let mut banks: Vec<TextureBank> = Vec::new();
         let mut image_layers = Vec::new();
         for texture in &p.layers {
-            let dims = texture.image.dimensions();
-            let bank = match banks.iter().position(|(d, _)| *d == dims) {
+            let dimensions = texture.image.dimensions();
+            let bank = match banks.iter().position(|bank| bank.dimensions == dimensions) {
                 Some(i) => i,
                 None => {
-                    banks.push((dims, Vec::new()));
+                    banks.push(TextureBank {
+                        dimensions,
+                        layers: Vec::new(),
+                    });
                     banks.len() - 1
                 }
             };
-            image_layers.push([bank as u32, banks[bank].1.len() as u32]);
-            banks[bank].1.push(texture.image.as_raw());
+            let layers = &mut banks[bank].layers;
+            image_layers.push([bank as u32, layers.len() as u32]);
+            layers.push(texture.image.as_raw());
         }
         let first_skin = m.materials.len() + 1;
         let plan = TextureBatches::plan(banks.len(), &image_layers, &p.materials, first_skin)
@@ -325,13 +333,18 @@ impl Renderer {
             })?;
         let views: Vec<_> = banks
             .iter()
-            .map(|((w, h), layers)| self.array(*w, *h, layers, true))
+            .map(|bank| {
+                let (w, h) = bank.dimensions;
+                self.array(w, h, &bank.layers, true)
+            })
             .collect();
         let mut layers = vec![vec![255; 128 * 128 * 4]];
-        for l in m.lights.chunks_exact(49152) {
+        for lightmap in m.lights.as_chunks::<{ 128 * 128 * 3 }>().0 {
+            let (pixels, _) = lightmap.as_chunks::<3>();
             layers.push(
-                l.chunks_exact(3)
-                    .flat_map(|rgb| [rgb[0], rgb[1], rgb[2], 255])
+                pixels
+                    .iter()
+                    .flat_map(|&[r, g, b]| [r, g, b, 255])
                     .collect(),
             );
         }

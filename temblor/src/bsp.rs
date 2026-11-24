@@ -190,7 +190,7 @@ impl Map {
             return Err("BSP resource limit exceeded".into());
         }
         let mut materials = Vec::new();
-        for b in l[1].chunks_exact(72) {
+        for b in l[1].as_chunks::<72>().0 {
             let end = b[..64]
                 .iter()
                 .position(|&x| x == 0)
@@ -202,7 +202,9 @@ impl Map {
             })
         }
         let planes = l[2]
-            .chunks_exact(16)
+            .as_chunks::<16>()
+            .0
+            .iter()
             .map(|b| {
                 Ok(Plane {
                     n: vec3(b, 0)?,
@@ -210,7 +212,7 @@ impl Map {
                 })
             })
             .collect::<Result<Vec<_>>>()?;
-        for b in l[3].chunks_exact(36) {
+        for b in l[3].as_chunks::<36>().0 {
             index(int(b, 0), planes.len())?;
             for j in [4, 8] {
                 let c = int(b, j);
@@ -221,12 +223,12 @@ impl Map {
                 }
             }
         }
-        for b in l[4].chunks_exact(48) {
+        for b in l[4].as_chunks::<48>().0 {
             span(int(b, 32), int(b, 36), count(5))?;
             span(int(b, 40), int(b, 44), count(6))?;
         }
         for (which, n) in [(5, 13), (6, 8)] {
-            for b in l[which].chunks_exact(4) {
+            for b in l[which].as_chunks::<4>().0 {
                 index(int(b, 0), count(n))?;
             }
         }
@@ -239,7 +241,7 @@ impl Map {
             return Err("Bad visibility table".into());
         }
         let mut models = Vec::new();
-        for b in l[7].chunks_exact(40) {
+        for b in l[7].as_chunks::<40>().0 {
             models.push(Model {
                 min: vec3(b, 0)?,
                 max: vec3(b, 12)?,
@@ -251,7 +253,9 @@ impl Map {
             return Err("No world model".into());
         }
         let sides = l[9]
-            .chunks_exact(8)
+            .as_chunks::<8>()
+            .0
+            .iter()
             .map(|b| {
                 index(int(b, 4), materials.len())?;
                 Ok(planes[index(int(b, 0), planes.len())?])
@@ -259,7 +263,7 @@ impl Map {
             .collect::<Result<Vec<_>>>()?;
         let mut brushes = Vec::new();
         let mut side_budget = 0;
-        for b in l[8].chunks_exact(12) {
+        for b in l[8].as_chunks::<12>().0 {
             let r = span(int(b, 0), int(b, 4), sides.len())?;
             side_budget += r.len();
             if side_budget > 500000 {
@@ -285,7 +289,9 @@ impl Map {
             })
         }
         let verts = l[10]
-            .chunks_exact(44)
+            .as_chunks::<44>()
+            .0
+            .iter()
             .map(|b| {
                 Ok(Point {
                     pos: vec3(b, 0)?,
@@ -303,7 +309,7 @@ impl Map {
             .collect::<Result<Vec<_>>>()?;
         let mut faces = Vec::new();
         let mut budget = 0;
-        for b in l[13].chunks_exact(104) {
+        for b in l[13].as_chunks::<104>().0 {
             let material = index(int(b, 0), materials.len())?;
             let light = int(b, 28);
             if light >= 0 {

@@ -14,13 +14,14 @@ pub(crate) fn mesh(map: &Map, models: &[u32]) -> Vec<f32> {
         }
         let edge = |a: u32, b: u32| (a.min(b), a.max(b));
         let mut edges = HashMap::new();
-        for tri in f.indices.chunks_exact(3) {
+        let (triangles, _) = f.indices.as_chunks::<3>();
+        for tri in triangles {
             for i in 0..3 {
                 *edges.entry(edge(tri[i], tri[(i + 1) % 3])).or_insert(0u32) += 1;
             }
         }
-        for tri in f.indices.chunks_exact(3) {
-            let [a, b, c] = [0, 1, 2].map(|i| f.vertices[tri[i] as usize]);
+        for tri in triangles {
+            let [a, b, c] = tri.map(|i| f.vertices[i as usize]);
             let mut normal = (b.pos - a.pos).cross(c.pos - a.pos).normalize_or_zero();
             if normal.dot(a.normal + b.normal + c.normal) < 0. {
                 normal = -normal

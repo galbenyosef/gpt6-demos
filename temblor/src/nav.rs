@@ -20,8 +20,8 @@ impl Nav {
             if map.materials[f.material].contents & PLAYER == 0 {
                 continue;
             }
-            for t in f.indices.chunks_exact(3) {
-                let [a, b, c] = [t[0], t[1], t[2]].map(|i| f.vertices[i as usize].pos);
+            for triangle in f.indices.as_chunks::<3>().0 {
+                let [a, b, c] = triangle.map(|i| f.vertices[i as usize].pos);
                 let n = (b - a).cross(c - a);
                 if n.normalize_or_zero().z.abs() < 0.7 {
                     continue;

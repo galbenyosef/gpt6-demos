@@ -1,11 +1,67 @@
 # Wyang
 
-Wyang is a proposed Rust desktop app for turning a picture and a written prompt into an animated parallax wallpaper. You choose a variation, preview its movement, then apply it on macOS or Ubuntu GNOME on Wayland.
+Wyang turns a photograph and a written edit into a parallax wallpaper. The Rust editor opens with a harbor photograph you can use immediately. Drop your own PNG, JPEG or WebP to replace it. The preview, exported still and desktop players use the same wgpu shader.
 
-This directory contains the initial Cargo package, named `wyang`, and the [product and implementation specification](specs/001-spec-animated-wallpaper-gen.md). The editor and desktop integrations are planned.
+## Run the editor
+
+From this directory, run:
+
+```sh
+cargo run --release --locked
+```
+
+An optional argument opens an image, a project directory or its `project.json`. Building on Ubuntu requires Rust, a C toolchain, pkg-config and the GTK 3 development headers used by the file chooser. Building on macOS requires Rust and the Xcode command line tools. Use the native host to build each package.
+
+Enter a prompt and choose one to four variations. Generate submits one edit at a time. The editor keeps completed choices if a call fails or you cancel. **Retry unfinished edits** reuses the original batch's source and prompt. A submitted request can incur usage even when its response is lost.
+
+Select a thumbnail and choose a target display. Hold **View original** with the pointer or focus it and hold Space. In the preview, move the pointer or focus the canvas and use the arrow keys. Home centers the keyboard position. **Actual size** lets you scroll through the crop at source-pixel scale. **Framing** controls the focal point and **Depth** places the horizon in the artwork. **Pause** holds a frame. Still mode, zero strength and reduced motion use the centered pose.
+
+**Save project** writes an editable directory. Move the whole directory to reopen it offline. **Export still** writes the centered crop at the target's physical pixel dimensions. **Apply to display** snapshots the selected artwork and its settings. You can continue editing or close the editor while that scene plays.
 
 ## OpenAI configuration
 
-For development, set `OPENAI_API_KEY` in your shell or in `wayang/.env`. If you already have that file, keep it. To start a fresh configuration, run `cp -n example.env .env` from `wayang/`, then fill in the empty key locally. The [example configuration](example.env) is safe to commit. Git ignores the local `.env`.
+Set `OPENAI_API_KEY` in the environment or in a `.env` file in the editor's working directory. For a development launch from `wayang/`, create that file with:
 
-The editor will give exported environment variables precedence over matching entries in the working directory's `.env`. Set `OPENAI_IMAGE_MODEL` to override the default image model. Only generation requires an API key.
+```sh
+cp -n example.env .env
+```
+
+Process variables take precedence, including an explicitly blank key. The default model is `gpt-image-2.5-flare`. Set `OPENAI_IMAGE_MODEL` to override it. Restart the editor after changing configuration. The ignored local file stays out of packages. [Blank example configuration](example.env)
+
+Generate sends a metadata-stripped, sRGB copy of the source and the effective prompt to the OpenAI image edits endpoint. Projects retain the original bytes and record the prompt, framing guidance, model, image dimensions and source digest for each candidate. Preview, export and playback run locally. [Image edits API](https://developers.openai.com/api/reference/resources/images/methods/edit)
+
+## Desktop playback and installation
+
+Build the platform package in `dist/` with:
+
+```sh
+bash scripts/package.sh
+```
+
+- **Ubuntu 26.04, GNOME Shell 50 on Wayland.** Extract the Linux tarball and run the included `./install-linux.sh`. It installs the editor, launcher and matching per-user Shell extension. If GNOME first discovers the extension at the next login, run `gnome-extensions enable wyang@local` then. Select a display and apply. The Wyang panel menu pauses playback and stops an individual display with the editor closed.
+- **macOS.** Unzip the package and launch `Wyang.app`. Its AppKit helper places a click-through window between the desktop background and Finder icons. Each applied display has a Wyang menu-bar control for opening the editor, pausing and stopping playback. Development bundles are ad-hoc signed.
+- **Other Linux sessions.** The editor identifies the session or extension requirement beside Apply. Import, generation, preview, save and PNG export remain available.
+
+Playback snapshots live under `$XDG_DATA_HOME/wyang/scenes` (normally `~/.local/share/wyang/scenes`) on Linux and `~/Library/Application Support/wyang/scenes` on macOS. A snapshot contains lossless artwork and scene parameters. Stop removes the playback surface and reveals the existing system wallpaper.
+
+## Verification
+
+```sh
+cargo test --locked
+cargo clippy --all-targets --locked -- -D warnings
+```
+
+To try the generation workflow offline, create three deterministic color studies and launch the fixture provider with a dummy credential:
+
+```sh
+cargo run --example make_fixtures -- /tmp/wyang-fixtures
+OPENAI_API_KEY=fixture cargo run -- --fixtures /tmp/wyang-fixtures
+```
+
+On Ubuntu, `scripts/check-gnome.sh` exercises the packaged extension and Rust player in an isolated Wayland session. It requires GNOME Shell's test tool, the desktop extensions, zip and Python Pillow. `scripts/benchmark-gnome.sh` measures a 60-second 1080p run. On macOS, launch the editor with `WYANG_PROFILE_DIR` set to an existing directory before applying a scene. The player writes aggregate render timing and CPU measurements there after 60 seconds of motion.
+
+For the live generation acceptance check, `cargo run --release --example check_edits -- --live OUTPUT_DIRECTORY` submits up to two billable harbor edits and reopens the saved project. The command requires a credential and a new output directory.
+
+The bundled photograph is *Ships in the Harbor, Hamburg, Germany* from the Library of Congress Photochrom Print Collection. [Photograph and collection record](https://www.loc.gov/resource/ppmsca.00419/)
+
+[Acceptance record](tests/ACCEPTANCE.md) · [Implementation specification](specs/001-spec-animated-wallpaper-gen.md)

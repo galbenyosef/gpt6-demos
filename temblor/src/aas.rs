@@ -29,6 +29,20 @@ fn pos(b: &[u8], o: usize) -> Result<Vec3> {
     }
     Ok(p)
 }
+fn lump<'a, const SIZE: usize>(
+    data: &'a [u8],
+    header: &[u8],
+    n: usize,
+) -> Result<&'a [[u8; SIZE]]> {
+    let offset = int(header, 12 + n * 8) as usize;
+    let len = int(header, 16 + n * 8) as usize;
+    if !len.is_multiple_of(SIZE) || len / SIZE > 200000 {
+        return Err("Invalid AAS record count".into());
+    }
+    let end = offset.checked_add(len).ok_or("AAS overflow")?;
+    let bytes = data.get(offset..end).ok_or("Invalid AAS lump")?;
+    Ok(bytes.as_chunks::<SIZE>().0)
+}
 impl Areas {
     pub fn parse(b: &[u8]) -> Result<Self> {
         if b.len() < 124 || &b[..4] != b"EAAS" || !matches!(int(b, 4), 4 | 5) {
@@ -40,25 +54,16 @@ impl Areas {
                 *v ^= (i as u8).wrapping_mul(119)
             }
         }
-        let lump = |n, size| -> Result<&[u8]> {
-            let o = int(&h, 12 + n * 8) as usize;
-            let len = int(&h, 16 + n * 8) as usize;
-            if len % size != 0 || len / size > 200000 {
-                return Err("Invalid AAS record count".into());
-            }
-            b.get(o..o.checked_add(len).ok_or("AAS overflow")?)
-                .ok_or_else(|| "Invalid AAS lump".into())
-        };
-        let rec = lump(7usize, 48usize)?;
-        let cfg = lump(8, 28)?;
-        let edges = lump(9, 44)?;
-        if rec.len() / 48 != cfg.len() / 28 {
+        let rec = lump::<48>(b, &h, 7)?;
+        let cfg = lump::<28>(b, &h, 8)?;
+        let edges = lump::<44>(b, &h, 9)?;
+        if rec.len() != cfg.len() {
             return Err("AAS settings count mismatch".into());
         }
         let mut links = vec![];
-        for l in edges.chunks_exact(44) {
+        for l in edges {
             let to = int(l, 0) as usize;
-            if to >= rec.len() / 48 {
+            if to >= rec.len() {
                 return Err("Bad AAS destination".into());
             }
             links.push(Link {
@@ -70,7 +75,7 @@ impl Areas {
             })
         }
         let mut areas = vec![];
-        for (a, s) in rec.chunks_exact(48).zip(cfg.chunks_exact(28)) {
+        for (a, s) in rec.iter().zip(cfg) {
             let first = int(s, 24) as usize;
             let n = int(s, 20) as usize;
             if first > links.len() || n > links.len() - first {
@@ -83,8 +88,8 @@ impl Areas {
                 safe: int(s, 0) & 6 == 0,
             })
         }
-        let planes = lump(2, 20)?
-            .chunks_exact(20)
+        let planes = lump::<20>(b, &h, 2)?
+            .iter()
             .map(|b| {
                 let d = f32::from_bits(int(b, 12) as u32);
                 if !d.is_finite() {
@@ -93,8 +98,8 @@ impl Areas {
                 Ok((pos(b, 0)?, d))
             })
             .collect::<Result<Vec<_>>>()?;
-        let nodes = lump(10, 12)?
-            .chunks_exact(12)
+        let nodes = lump::<12>(b, &h, 10)?
+            .iter()
             .map(|b| [int(b, 0), int(b, 4), int(b, 8)])
             .collect();
         Ok(Self {
