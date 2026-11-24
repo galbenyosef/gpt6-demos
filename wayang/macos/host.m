@@ -37,19 +37,13 @@ static NSString *screenKey(uint32_t identifier) {
     NSString *value=CFBridgingRelease(CFUUIDCreateString(NULL,uuid));
     CFRelease(uuid); return value;
 }
-static BOOL neverKey(id self, SEL selector) { return NO; }
+static BOOL neverKey(__unused id self, __unused SEL selector) { return NO; }
 static void makeNonactivating(NSWindow *window) {
-    // Retain winit's NSWindow implementation and veto AppKit key/main status.
-    Class cls = object_getClass(window);
-    NSString *name = [@"WYDesktop_" stringByAppendingString:NSStringFromClass(cls)];
-    Class desktop = NSClassFromString(name);
-    if (!desktop) {
-        desktop = objc_allocateClassPair(cls,name.UTF8String,0);
-        class_addMethod(desktop,@selector(canBecomeKeyWindow),(IMP)neverKey,"B@:");
-        class_addMethod(desktop,@selector(canBecomeMainWindow),(IMP)neverKey,"B@:");
-        objc_registerClassPair(desktop);
-    }
-    object_setClass(window,desktop);
+    // This helper has exactly one winit window. Keep its KVO-managed isa intact.
+    Class cls = window.class;
+    if (cls == NSWindow.class) return;
+    class_replaceMethod(cls,@selector(canBecomeKeyWindow),(IMP)neverKey,"B@:");
+    class_replaceMethod(cls,@selector(canBecomeMainWindow),(IMP)neverKey,"B@:");
 }
 static BOOL hasFullscreenWindow(CGDirectDisplayID screen) {
     CGRect bounds = CGDisplayBounds(screen);
@@ -139,7 +133,7 @@ static BOOL hasFullscreenWindow(CGDirectDisplayID screen) {
     [dc addObserver:self selector:@selector(lock:) name:@"com.apple.screenIsLocked" object:nil];
     [dc addObserver:self selector:@selector(unlock:) name:@"com.apple.screenIsUnlocked" object:nil];
     __weak WYHost *weakSelf=self;
-    self.timer=[NSTimer scheduledTimerWithTimeInterval:1.0/30 repeats:YES block:^(NSTimer *t){ [weakSelf tick]; }];
+    self.timer=[NSTimer scheduledTimerWithTimeInterval:1.0/30 repeats:YES block:^(__unused NSTimer *timer){ [weakSelf tick]; }];
     [self tick];
 }
 - (void)showMenu {

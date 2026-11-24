@@ -9,10 +9,13 @@ fn main() -> Result<()> {
         .context("Expected display connector")?
         .into_string()
         .map_err(|_| anyhow::anyhow!("Invalid display"))?;
-    let p = Project::from_bytes(
-        "Hamburg harbor.jpg".into(),
-        include_bytes!("../assets/hamburg-harbor.jpg").to_vec(),
-    )?;
+    let p = match std::env::var_os("WYANG_TEST_PROJECT") {
+        Some(dir) => Project::open(std::path::Path::new(&dir))?,
+        None => Project::from_bytes(
+            "Hamburg harbor.jpg".into(),
+            include_bytes!("../assets/hamburg-harbor.jpg").to_vec(),
+        )?,
+    };
     if let Some(path) = args.next() {
         use eframe::wgpu;
         let width = args
@@ -30,8 +33,8 @@ fn main() -> Result<()> {
         let instance = wgpu::Instance::default();
         let adapter = pollster::block_on(instance.request_adapter(&Default::default()))?;
         let (device, queue) = pollster::block_on(adapter.request_device(&Default::default()))?;
-        let gpu = wyang::gpu::Renderer::new(&device, &queue, &p.source.pixels);
-        let pixels = gpu.capture([width, height], Default::default(), Default::default())?;
+        let gpu = wyang::gpu::Renderer::new(&device, &queue, &p.chosen().pixels);
+        let pixels = gpu.capture([width, height], p.settings(&display), Default::default())?;
         wyang::project::atomic_write(std::path::Path::new(&path), &wyang::artwork::png(&pixels)?)?;
     }
     println!(

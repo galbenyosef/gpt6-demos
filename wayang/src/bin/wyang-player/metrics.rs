@@ -36,15 +36,15 @@ struct Summary<'a> {
     process_cpu_percent: f64,
 }
 impl Metrics {
-    pub fn new(state: &eframe::egui_wgpu::RenderState) -> Option<Self> {
+    pub fn new(adapter: &wgpu::Adapter, device: &wgpu::Device) -> Option<Self> {
         let dir = PathBuf::from(std::env::var_os("WYANG_PROFILE_DIR")?);
         if !dir.is_dir() {
             return None;
         }
         Some(Self {
             path: dir.join(format!("player-{}.json", std::process::id())),
-            adapter: state.adapter.get_info().name,
-            device: state.device.clone(),
+            adapter: adapter.get_info().name,
+            device: device.clone(),
             start: Instant::now(),
             cpu: cpu_seconds(),
             samples: vec![],

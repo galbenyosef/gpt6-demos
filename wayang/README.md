@@ -7,7 +7,8 @@ Wyang turns a photograph and a written edit into a parallax wallpaper. The Rust 
 From this directory, run:
 
 ```sh
-cargo run --release --locked
+cargo build --release --locked --bins
+./target/release/wyang
 ```
 
 An optional argument opens an image, a project directory or its `project.json`. Building on Ubuntu requires Rust, a C toolchain, pkg-config and the GTK 3 development headers used by the file chooser. Building on macOS requires Rust and the Xcode command line tools. Use the native host to build each package.
@@ -58,7 +59,13 @@ cargo run --example make_fixtures -- /tmp/wyang-fixtures
 OPENAI_API_KEY=fixture cargo run -- --fixtures /tmp/wyang-fixtures
 ```
 
-On Ubuntu, `scripts/check-gnome.sh` exercises the packaged extension and Rust player in an isolated Wayland session. It requires GNOME Shell's test tool, the desktop extensions, zip and Python Pillow. `scripts/benchmark-gnome.sh` measures a 60-second 1080p run. On macOS, launch the editor with `WYANG_PROFILE_DIR` set to an existing directory before applying a scene. The player writes aggregate render timing and CPU measurements there after 60 seconds of motion.
+On Ubuntu, `scripts/check-gnome.sh` exercises the packaged extension and Rust player in an isolated Wayland session. It requires GNOME Shell's test tool, the desktop extensions, zip and Python Pillow. `scripts/benchmark-gnome.sh` measures a 60-second 1080p run.
+
+On macOS, `bash scripts/check-macos.sh` temporarily applies the harbor on the main display, opens the packaged editor, checks player replacement and then stops playback. With Screen Recording access it also compares the wallpaper window with the exported PNG. Set `WYANG_BENCHMARK=1` to measure 60 seconds at the display's native backing resolution. The script prints the directory containing its captures and timings.
+
+Both desktop checks accept an optional saved harbor project directory. Pass the same directory on both machines to exercise the same selected candidate offline.
+
+To measure the renderer at exactly 1920 × 1080 on a different-sized monitor, run `WYANG_PROFILE_DIR=/path/to/existing/output cargo run --release --locked --example benchmark_1080p -- /path/to/project`. This offscreen measurement excludes the window compositor.
 
 For the live generation acceptance check, `cargo run --release --example check_edits -- --live OUTPUT_DIRECTORY` submits up to two billable harbor edits and reopens the saved project. The command requires a credential and a new output directory.
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ -n "${1:-}" ]]; then
+    WYANG_TEST_PROJECT=$(cd "$1" && pwd)
+    export WYANG_TEST_PROJECT
+fi
 cd "$(dirname "$0")/.."
 WYANG_BUILD_PROFILE=dev bash scripts/package.sh
 cargo build --locked --example stage_harbor

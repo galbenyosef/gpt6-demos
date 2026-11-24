@@ -21,6 +21,8 @@ struct Player {
     motion: Motion,
     input: Arc<Mutex<Option<Input>>>,
     last: Instant,
+    next_frame: Instant,
+    #[cfg(target_os = "linux")]
     logical: [f32; 2],
     first: bool,
     #[cfg(target_os = "macos")]
@@ -45,8 +47,8 @@ impl eframe::App for Player {
             ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
             return;
         };
+        #[cfg(target_os = "linux")]
         if !input.suspended && input.logical != self.logical {
-            #[cfg(target_os = "linux")]
             ui.ctx()
                 .send_viewport_cmd(egui::ViewportCommand::MinInnerSize(input.logical.into()));
             ui.ctx()
@@ -54,44 +56,55 @@ impl eframe::App for Player {
             self.logical = input.logical;
         }
         let now = Instant::now();
-        let dt = (now - self.last).as_secs_f32();
-        self.last = now;
-        let continuing = !input.suspended
-            && self.motion.step(
+        let interval = Duration::from_secs_f64(1.0 / 30.0);
+        let mut continuing = false;
+        if !input.suspended && now >= self.next_frame {
+            continuing = self.motion.step(
                 self.scene.settings,
                 input.pointer,
-                dt,
+                (now - self.last).as_secs_f32(),
                 input.paused,
                 input.reduced,
             );
+            self.last = now;
+            self.next_frame += interval;
+            if self.next_frame <= now {
+                self.next_frame = now + interval;
+            }
+        } else if !input.suspended {
+            // A host event may precede the next animation tick.
+            continuing = true;
+        }
         if !input.suspended || self.first {
             let before = self.gpu.frames;
             let began = Instant::now();
-            match self.gpu.frame(
-                &self.pixels,
-                input.size,
-                input.size,
-                self.scene.settings,
-                self.motion.pose,
-            ) {
-                Ok(id) => {
-                    ui.painter().image(
-                        id,
-                        ui.max_rect(),
-                        egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1., 1.)),
-                        egui::Color32::WHITE,
-                    );
-                }
-                Err(_) => {
-                    ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
-                    return;
-                }
+            if self
+                .gpu
+                .frame(
+                    &self.pixels,
+                    input.size,
+                    input.size,
+                    self.scene.settings,
+                    self.motion.pose,
+                )
+                .is_err()
+            {
+                ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
+                return;
             }
             if before != self.gpu.frames
                 && let Some(m) = &mut self.metrics
             {
                 m.frame(began, input.size);
             }
+        }
+        if let Some(id) = self.gpu.texture_id() {
+            ui.painter().image(
+                id,
+                ui.max_rect(),
+                egui::Rect::from_min_max(egui::Pos2::ZERO, egui::pos2(1., 1.)),
+                egui::Color32::WHITE,
+            );
         }
         if self.first {
             self.first = false;
@@ -101,7 +114,12 @@ impl eframe::App for Player {
             self.host.ready();
         }
         if continuing {
-            ui.ctx().request_repaint_after(Duration::from_millis(33));
+            // egui subtracts one predicted frame from every timed repaint. Wake at
+            // the scene deadline so intervening UI passes do not spin the compositor.
+            let prediction = ui.input(|i| Duration::from_secs_f32(i.predicted_dt));
+            ui.ctx().request_repaint_after(
+                self.next_frame.saturating_duration_since(Instant::now()) + prediction,
+            );
         }
     }
 }
@@ -156,14 +174,16 @@ fn main() -> Result<()> {
             let host = wyang::desktop::platform::Host::attach(cc, &scene.display, &id)?;
             let state = cc.wgpu_render_state.as_ref().context("GPU unavailable")?;
             let player = Player {
-                metrics: metrics::Metrics::new(state),
+                metrics: metrics::Metrics::new(&state.adapter, &state.device),
                 scene,
                 pixels,
                 gpu: Canvas::new(state.clone()),
                 motion: Motion::default(),
                 input,
                 last: Instant::now(),
+                next_frame: Instant::now(),
                 first: true,
+                #[cfg(target_os = "linux")]
                 logical: initial.logical,
                 #[cfg(target_os = "macos")]
                 host,

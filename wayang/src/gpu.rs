@@ -222,6 +222,9 @@ impl Canvas {
     pub fn device(&self) -> (wgpu::Device, wgpu::Queue) {
         (self.state.device.clone(), self.state.queue.clone())
     }
+    pub fn texture_id(&self) -> Option<egui::TextureId> {
+        self.output.as_ref().map(|(_, _, id)| *id)
+    }
     pub fn frame(
         &mut self,
         pixels: &Arc<RgbaImage>,

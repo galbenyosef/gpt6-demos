@@ -7,7 +7,7 @@ use raw_window_handle::{HasWindowHandle, RawWindowHandle};
 use std::{
     ffi::{CString, c_char, c_void},
     fs::{self, File},
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
     process::{Command, Stdio},
     sync::{
@@ -15,7 +15,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
     },
     thread,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 #[repr(C)]
@@ -112,7 +112,7 @@ pub fn apply(scene: &str, display: &str) -> Result<()> {
         .args([scene, "640", "480", display, &token])
         .env_remove("OPENAI_API_KEY")
         .env_remove("OPENAI_IMAGE_MODEL")
-        .stdin(Stdio::null())
+        .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
         .spawn()
@@ -133,6 +133,8 @@ pub fn apply(scene: &str, display: &str) -> Result<()> {
     if result.is_err() {
         let _ = child.kill();
     }
+    // EOF tells the helper that publication finished. It also wakes it if the editor dies.
+    drop(child.stdin.take());
     thread::spawn(move || {
         let _ = child.wait();
     });
@@ -194,16 +196,14 @@ impl Host {
         let stop = Arc::new(AtomicBool::new(false));
         let (run, end, waker) = (alive.clone(), stop.clone(), cc.egui_ctx.clone());
         thread::spawn(move || {
-            let start = Instant::now();
-            let mut committed = false;
+            let _ = std::io::stdin().read(&mut [0]);
             while run.load(Ordering::Acquire) {
                 let mine = fs::read_to_string(&path).is_ok_and(|s| s == token);
-                if !mine && (committed || start.elapsed() > Duration::from_secs(25)) {
+                if !mine {
                     end.store(true, Ordering::Release);
                     waker.request_repaint();
                     break;
                 }
-                committed |= mine;
                 thread::sleep(Duration::from_millis(150));
             }
         });
