@@ -54,6 +54,8 @@ int main(int argc, const char **argv) {
         NSDictionary *a = choice(@"aerial", 10), *b = choice(@"photo", 20);
         assert(!observe(@{@"AllSpacesAndDisplays": @{@"Linked": a}}));
         assert(![monitor selectionChangedWithFallback:unused]);
+        NSString *saved = WYSelectionAtIndex(index, @"ABC", unused);
+        assert(saved && WYCompareSelections(saved, saved) == 1);
         assert(!observe(@{@"AllSpacesAndDisplays": @{@"Desktop": a, @"Idle": b},
                           @"Displays": @{@"OTHER": @{@"Desktop": b}},
                           @"Spaces": @{@"first": @{@"Default": @{@"Desktop": a}}}}));
@@ -65,6 +67,9 @@ int main(int argc, const char **argv) {
         assert(!observe(@{@"AllSpacesAndDisplays": @{@"Linked": a}}));
         assert(observe(@{@"AllSpacesAndDisplays": @{@"Linked": choice(@"aerial", 30)}}));
         assert(observe(@{@"AllSpacesAndDisplays": @"$null", @"Displays": @{@"abc": @{@"Desktop": b}}}));
+        NSString *other = WYSelectionAtIndex(index, @"ABC", unused);
+        assert(WYCompareSelections(saved, other) == 0);
+        assert(WYCompareSelections(@"invalid", other) == -1);
         NSMutableDictionary *used = b.mutableCopy;
         used[@"LastUse"] = NSDate.date;
         assert(!observe(@{@"Displays": @{@"abc": @{@"Desktop": used}}}));
@@ -76,6 +81,9 @@ int main(int argc, const char **argv) {
         assert([NSFileManager.defaultManager removeItemAtURL:index error:nil]);
         NSURL * (^first)(void) = ^{ return [NSURL fileURLWithPath:@"/first.heic"]; };
         NSURL * (^second)(void) = ^{ return [NSURL fileURLWithPath:@"/second.heic"]; };
+        NSString *legacy = WYSelectionAtIndex(index, @"ABC", first);
+        assert(WYCompareSelections(saved, legacy) == -1);
+        assert(WYCompareSelections(legacy, WYSelectionAtIndex(index, @"ABC", second)) == 0);
         assert(![monitor selectionChangedWithFallback:first]);
         [monitor forgetSpaceURL];
         assert(![monitor selectionChangedWithFallback:second]);

@@ -328,10 +328,11 @@ impl Playback {
     }
 }
 pub fn playback_root() -> Result<PathBuf> {
-    let home = std::env::var_os("HOME").context("Home directory unavailable")?;
-    let base = if cfg!(target_os = "macos") {
-        PathBuf::from(home).join("Library/Application Support")
-    } else {
+    #[cfg(target_os = "macos")]
+    let base = crate::desktop::platform::application_support()?;
+    #[cfg(not(target_os = "macos"))]
+    let base = {
+        let home = std::env::var_os("HOME").context("Home directory unavailable")?;
         std::env::var_os("XDG_DATA_HOME")
             .map_or_else(|| PathBuf::from(home).join(".local/share"), PathBuf::from)
     };

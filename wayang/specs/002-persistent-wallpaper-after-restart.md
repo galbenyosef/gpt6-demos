@@ -1,6 +1,6 @@
 # 002 — Resume the macOS wallpaper after restart
 
-Wyang already keeps an applied wallpaper playing when the editor closes. Today, restarting the Mac ends playback. This change adds an opt-in **Resume wallpaper at login** setting. After a restart or logout, signing back in restores the last applied scene on each eligible display. The editor stays closed and playback works offline. [Existing desktop behavior](001-spec-animated-wallpaper-gen.md#5-desktop-integration)
+Wyang already keeps an applied wallpaper playing when the editor closes. The packaged macOS app offers an opt-in **Resume wallpaper at login** setting. After a restart or logout, signing back in restores the last applied scene on each eligible display. The editor stays closed and playback works offline. [Existing desktop behavior](001-spec-animated-wallpaper-gen.md#5-desktop-integration)
 
 ## What the user controls
 

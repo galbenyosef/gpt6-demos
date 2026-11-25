@@ -26,6 +26,7 @@ typedef void (*WYWake)(void *);
 @property NSUInteger samples;
 @property WYInput previous;
 @property WYWake wake;
+@property WYWake explicitStop;
 @property void *context;
 @end
 
@@ -70,7 +71,11 @@ static BOOL hasFullscreenWindow(CGDirectDisplayID screen) {
     }
 }
 - (void)pause:(id)sender { self.paused = !self.paused; self.pauseItem.title = self.paused ? @"Resume" : @"Pause"; [self tick]; }
-- (void)stop:(id)sender { self.stopped = YES; [self tick]; }
+- (void)stop:(id)sender {
+    if (!self.stopped && self.explicitStop) self.explicitStop(self.context);
+    self.stopped = YES;
+    [self tick];
+}
 - (void)sleep:(NSNotification *)n { self.sleeping = YES; [self tick]; }
 - (void)wakeScreen:(NSNotification *)n { self.sleeping = NO; [self tick]; }
 - (void)lock:(NSNotification *)n { self.locked = YES; [self tick]; }
@@ -179,6 +184,7 @@ void *wy_attach(void *view,uint32_t display,const char *editor,WYWake wake, void
     [h configure]; return (__bridge_retained void *)h;
 }
 WYInput wy_input(void *ptr) { return [(__bridge WYHost *)ptr previous]; }
+void wy_on_stop(void *ptr, WYWake callback) { [(__bridge WYHost *)ptr setExplicitStop:callback]; }
 void wy_menu(void *ptr) { [(__bridge WYHost *)ptr showMenu]; }
 void wy_release(void *ptr) {
     WYHost *h=CFBridgingRelease(ptr);

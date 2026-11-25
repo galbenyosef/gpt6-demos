@@ -8,6 +8,14 @@ Version 0.2 adds an automatic 12-second camera and foreground parallax loop. The
 
 The 0.2 release suite has 12 tests on macOS 27.2.1 (arm64, Apple M4 Pro). The preceding 11-test suite passed on Ubuntu. Coverage includes credential resolution, multipart requests, error classification, sequential batches, cancellation, explicit retry, import and orientation, project relocation, damaged assets, scene settings, credential-free playback and GPU output at landscape, portrait and ultrawide sizes.
 
+## macOS login restoration (0.4.0)
+
+The release suite passed 16 Rust tests on macOS 27.2.1 (Apple Silicon). The lifecycle tests cover opting in after Apply, pending or revoked approval, an old player exiting after replacement, and a Stop arriving between render and publication. Native tests also compare serialized system wallpaper selections across player lifetimes.
+
+The packaged integration check registered a separate test launch agent through the editor checkbox and closed the editor. After the fixture player exited, `launchd` started the production restore command. WindowServer reported a new wallpaper window on the expected display. The restored snapshot kept its artwork and settings even when the fixture's saved numeric display ID differed. An absent display retained its selection. Repeated starts kept one player, a corrupt snapshot left the system wallpaper visible, and choosing a different native wallpaper while the player was absent cleared the saved choice. Disabling login restore allowed current playback to continue.
+
+This run simulated session teardown in an existing graphical login. An actual offline sign-in after a physical restart and playback across two physical displays remain open acceptance checks. [Restart specification](../specs/002-persistent-wallpaper-after-restart.md)
+
 ## Generation
 
 On November 24, 2026, two sequential live edits of the bundled Hamburg harbor photograph completed with `gpt-image-2.5-flare`. Both 1456 × 1088 results reopened from the saved project. Both preserve the large masted ship at the left, the central harbor and distant skyline. The evening sky is blue and the lit windows and their reflections are warm in both edits.

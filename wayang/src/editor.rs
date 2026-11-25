@@ -668,6 +668,8 @@ impl Editor {
                 });
             }
         });
+        #[cfg(target_os = "macos")]
+        self.login_control(ui);
         if !self.status.reason.is_empty() {
             ui.small(&self.status.reason);
         }
@@ -677,6 +679,49 @@ impl Editor {
         if !self.note.is_empty() {
             ui.label(RichText::new(&self.note).color(if self.failed { ACCENT } else { MUTED }));
         }
+    }
+    #[cfg(target_os = "macos")]
+    fn login_control(&mut self, ui: &mut egui::Ui) {
+        use desktop::platform::{Registration, open_login_settings, set_resume};
+        let service = self.status.registration;
+        let available = matches!(
+            service,
+            Registration::Enabled | Registration::Approval | Registration::Off
+        );
+        let mut checked = matches!(service, Registration::Enabled | Registration::Approval)
+            && self.status.resume_requested;
+        ui.horizontal_wrapped(|ui| {
+            if ui
+                .add_enabled(
+                    available && !self.busy,
+                    egui::Checkbox::new(&mut checked, "Resume wallpaper at login"),
+                )
+                .changed()
+            {
+                self.finish(move || {
+                    set_resume(checked)?;
+                    Ok(None)
+                });
+            }
+            match service {
+                Registration::Unbundled => {
+                    ui.small("Open the packaged Wyang.app to enable login playback.");
+                }
+                Registration::Missing => {
+                    ui.small("Reinstall Wyang.app to restore its login helper.");
+                }
+                Registration::Unsupported => {
+                    ui.small("Requires macOS 13 or later.");
+                }
+                Registration::Approval => {
+                    ui.small("Waiting for approval in macOS.");
+                    if ui.link("Open Login Items").clicked() {
+                        open_login_settings();
+                    }
+                }
+                _ => {}
+            }
+        });
     }
     fn preview(&mut self, ui: &mut egui::Ui) {
         let target = self.target();

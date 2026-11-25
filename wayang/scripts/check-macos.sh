@@ -24,10 +24,14 @@ echo "Main display $display, ${width}x${height} backing pixels, scale $scale"
 ./check idle "$display"
 editor_pid=
 owned_token=
-record="$HOME/Library/Application Support/wyang/players/$display.active"
+record="$HOME/Library/Application Support/wyang/players/playback.json"
+display_uuid=$(./display uuid)
+current_token() {
+    plutil -extract "displays.$display_uuid.token" raw "$record"
+}
 cleanup() {
     if [[ -n "$editor_pid" ]]; then kill "$editor_pid" 2>/dev/null || true; fi
-    if [[ -n "$owned_token" && -f "$record" && "$(cat "$record")" == "$owned_token" ]]; then
+    if [[ -n "$owned_token" && -f "$record" && "$(current_token)" == "$owned_token" ]]; then
         ./check stop "$display"
     fi
 }
@@ -51,7 +55,7 @@ wait_for_exit() {
     return 1
 }
 OPENAI_API_KEY=fixture ./check still "$display" "$project" rest.png "$width" "$height"
-owned_token=$(cat "$record")
+owned_token=$(current_token)
 pid=$(pgrep -f "wyang-player .* $owned_token$")
 window=$(wait_for_window player "$pid")
 if ./display capture-access; then
@@ -87,7 +91,7 @@ editor_pid=
 ./check active "$display"
 export WYANG_PROFILE_DIR="$out"
 ./check motion "$display" "$project"
-owned_token=$(cat "$record")
+owned_token=$(current_token)
 motion_pid=$(pgrep -f "wyang-player .* $owned_token$")
 wait_for_exit "$pid"
 motion_window=$(wait_for_window player "$motion_pid")

@@ -5,6 +5,10 @@ use std::path::PathBuf;
 use wyang::provider::Config;
 
 fn main() -> Result<()> {
+    #[cfg(target_os = "macos")]
+    if std::env::args_os().nth(1).as_deref() == Some(std::ffi::OsStr::new("--restore-wallpapers")) {
+        return wyang::desktop::platform::restore_at_login();
+    }
     let mut fixture = None;
     let mut open = None;
     let mut args = std::env::args_os().skip(1);

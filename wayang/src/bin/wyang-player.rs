@@ -135,8 +135,13 @@ fn main() -> Result<()> {
     let initial = Input::new([width, height]);
     ensure!(initial.valid(), "Invalid display geometry");
     let (scene, pixels) = Playback::load(&playback_root()?, &id)?;
+    let display = args.next().context("Missing target display")?;
+    #[cfg(target_os = "macos")]
+    let restore = args.nth(1).as_deref() == Some("restore");
+    #[cfg(not(target_os = "macos"))]
+    let restore = false;
     ensure!(
-        args.next().as_deref() == Some(&scene.display),
+        restore || display == scene.display,
         "Scene is for a different display"
     );
     let options = eframe::NativeOptions {
@@ -171,7 +176,7 @@ fn main() -> Result<()> {
             #[cfg(target_os = "linux")]
             listen_to_shell(input.clone(), cc.egui_ctx.clone());
             #[cfg(target_os = "macos")]
-            let host = wyang::desktop::platform::Host::attach(cc, &scene.display, &id)?;
+            let host = wyang::desktop::platform::Host::attach(cc, &display, &id)?;
             let state = cc.wgpu_render_state.as_ref().context("GPU unavailable")?;
             let player = Player {
                 metrics: metrics::Metrics::new(&state.adapter, &state.device),

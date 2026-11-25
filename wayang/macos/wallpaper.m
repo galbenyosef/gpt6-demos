@@ -11,7 +11,7 @@ static NSDictionary *selection(id node) {
     NSDictionary *entry = dict(dict(node)[@"Desktop"]) ?: dict(dict(node)[@"Linked"]);
     NSArray *choices = dict(entry[@"Content"])[@"Choices"];
     if (![choices isKindOfClass:NSArray.class] || !choices.count) return nil;
-    return @{@"choices": choices, @"set": entry[@"LastSet"] ?: NSNull.null};
+    return @{@"choices": choices, @"set": entry[@"LastSet"] ?: @""};
 }
 
 static NSDictionary *displaySelection(id displays, NSString *uuid) {
@@ -47,6 +47,43 @@ static BOOL changed(NSDictionary *old, NSDictionary *now) {
         if (old[scope] && ![before[@"set"] isEqual:after[@"set"]]) return YES;
     }
     return NO;
+}
+
+NSString *WYSelectionAtIndex(NSURL *index, NSString *display, NSURL *(^fallback)(void)) {
+    NSDictionary *store = snapshot([NSDictionary dictionaryWithContentsOfURL:index error:nil], display);
+    NSDictionary *value;
+    if (store) value = @{@"store": store};
+    else {
+        NSString *url = fallback().absoluteString;
+        if (!url) return nil;
+        value = @{@"url": url};
+    }
+    NSData *data = [NSPropertyListSerialization dataWithPropertyList:value format:NSPropertyListBinaryFormat_v1_0 options:0 error:nil];
+    return [data base64EncodedStringWithOptions:0];
+}
+
+static NSDictionary *decodeSelection(NSString *encoded) {
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:encoded options:0];
+    if (!data) return nil;
+    NSDictionary *value = dict([NSPropertyListSerialization propertyListWithData:data options:0 format:nil error:nil]);
+    if (value[@"store"]) {
+        NSDictionary *store = dict(value[@"store"]);
+        if (!store.count) return nil;
+        for (id key in store) {
+            NSDictionary *entry = dict(store[key]);
+            if (![key isKindOfClass:NSString.class] || ![entry[@"choices"] isKindOfClass:NSArray.class])
+                return nil;
+        }
+    }
+    return value;
+}
+
+int WYCompareSelections(NSString *before, NSString *after) {
+    NSDictionary *a = decodeSelection(before), *b = decodeSelection(after);
+    if (dict(a[@"store"]) && dict(b[@"store"])) return !changed(a[@"store"], b[@"store"]);
+    if ([a[@"url"] isKindOfClass:NSString.class] && [b[@"url"] isKindOfClass:NSString.class])
+        return [a[@"url"] isEqual:b[@"url"]];
+    return -1;
 }
 
 @implementation WYWallpaperMonitor {

@@ -13,12 +13,13 @@ version=$(cargo metadata --format-version 1 --no-deps | python3 -c 'import json,
 copy_docs() {
     mkdir -p "$1/specs" "$1/tests"
     cp example.env README.md "$1/"
-    cp specs/001-spec-animated-wallpaper-gen.md "$1/specs/"
+    cp specs/*.md "$1/specs/"
     cp tests/ACCEPTANCE.md "$1/tests/"
 }
 if [[ $(uname -s) = Darwin ]]; then
     app="$out/Wyang.app/Contents"
-    mkdir -p "$app/MacOS" "$app/Resources"
+    mkdir -p "$app/MacOS" "$app/Resources" "$app/Library/LaunchAgents"
+    cp macos/org.wyang.Editor.restore.plist "$app/Library/LaunchAgents/"
     install -m755 "$bin/wyang" "$bin/wyang-player" "$app/MacOS/"
     cp macos/Info.plist "$app/Info.plist"
     copy_docs "$app/Resources"

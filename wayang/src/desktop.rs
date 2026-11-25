@@ -12,6 +12,12 @@ pub struct Display {
 pub struct Status {
     pub protocol: u32,
     pub shell: u32,
+    #[cfg(target_os = "macos")]
+    #[serde(skip)]
+    pub registration: platform::Registration,
+    #[cfg(target_os = "macos")]
+    #[serde(skip)]
+    pub resume_requested: bool,
     pub displays: Vec<Display>,
     pub active: Vec<String>,
     pub reduced: bool,

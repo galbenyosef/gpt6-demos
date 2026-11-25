@@ -9,9 +9,29 @@ static id attribute(id element, CFStringRef key) {
     return CFBridgingRelease(value);
 }
 
+static id loginCheckbox(id element, unsigned depth) {
+    if (!element || depth > 18) return nil;
+    if ([attribute(element, kAXRoleAttribute) isEqual:(__bridge NSString *)kAXCheckBoxRole]) {
+        if ([attribute(element, kAXTitleAttribute) isEqual:@"Resume wallpaper at login"] ||
+            [attribute(element, kAXDescriptionAttribute) isEqual:@"Resume wallpaper at login"])
+            return element;
+    }
+    for (id child in attribute(element, kAXChildrenAttribute)) {
+        id match = loginCheckbox(child, depth + 1);
+        if (match) return match;
+    }
+    return nil;
+}
+
 static BOOL pressMenuItem(pid_t pid, NSString *title) {
     id app = CFBridgingRelease(AXUIElementCreateApplication(pid));
-    NSArray *buttons = attribute(attribute(app, kAXExtrasMenuBarAttribute), kAXChildrenAttribute);
+    NSArray *buttons = nil;
+    // The player installs its menu after the editor commits the new scene.
+    for (int i = 0; i < 50; ++i) {
+        buttons = attribute(attribute(app, kAXExtrasMenuBarAttribute), kAXChildrenAttribute);
+        if (buttons.count) break;
+        [NSThread sleepForTimeInterval:0.1];
+    }
     // The detached helper owns exactly one status item.
     if (buttons.count != 1) {
         fprintf(stderr, "Expected one Wyang status item, found %lu\n", (unsigned long)buttons.count);
@@ -48,6 +68,14 @@ int main(int argc, const char **argv) {
             if ([s.deviceDescription[@"NSScreenNumber"] unsignedIntValue] == display) screen = s;
         }
         if (!screen) { fprintf(stderr, "No WindowServer display available\n"); return 1; }
+        if (argc == 2 && strcmp(argv[1], "uuid") == 0) {
+            CFUUIDRef id = CGDisplayCreateUUIDFromDisplayID(display);
+            if (!id) return 1;
+            NSString *key = CFBridgingRelease(CFUUIDCreateString(NULL, id));
+            CFRelease(id);
+            puts(key.UTF8String);
+            return 0;
+        }
         if (argc == 1) {
             printf("%u %ld %ld %.2f\n", display,
                    lround(screen.frame.size.width * screen.backingScaleFactor),
@@ -72,6 +100,19 @@ int main(int argc, const char **argv) {
             return 1;
         }
         pid_t pid = atoi(argv[2]);
+        if (strcmp(argv[1], "enable-login") == 0) {
+            id app = CFBridgingRelease(AXUIElementCreateApplication(pid));
+            for (int i = 0; i < 80; ++i) {
+                id check = loginCheckbox(app, 0);
+                if ([attribute(check, kAXEnabledAttribute) boolValue]) {
+                    if ([attribute(check, kAXValueAttribute) boolValue]) return 1;
+                    return AXUIElementPerformAction((__bridge AXUIElementRef)check, kAXPressAction) != kAXErrorSuccess;
+                }
+                [NSThread sleepForTimeInterval:0.15];
+            }
+            fprintf(stderr, "Could not find enabled login checkbox in the test editor\n");
+            return 1;
+        }
         if (strcmp(argv[1], "quit") == 0) return [[NSRunningApplication runningApplicationWithProcessIdentifier:pid] terminate] ? 0 : 1;
         BOOL player = strcmp(argv[1], "player") == 0;
         if (player && NSWorkspace.sharedWorkspace.frontmostApplication.processIdentifier == pid) {

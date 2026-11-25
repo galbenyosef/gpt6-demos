@@ -12,6 +12,20 @@ use wyang::{
 fn main() -> Result<()> {
     let mut args = std::env::args().skip(1);
     let action = args.next().context("Expected action")?;
+    #[cfg(target_os = "macos")]
+    match action.as_str() {
+        "playback-root" => {
+            println!("{}", playback_root()?.display());
+            return Ok(());
+        }
+        "login-status" => {
+            println!("{:?}", desktop::status().registration);
+            return Ok(());
+        }
+        "login-enable" => return desktop::platform::set_resume(true),
+        "login-disable" => return desktop::platform::set_resume(false),
+        _ => {}
+    }
     if action == "preview" {
         let capture = image::open(args.next().context("Expected editor capture")?)?.into_rgb8();
         let mut colors = std::collections::HashSet::new();

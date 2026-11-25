@@ -50,6 +50,8 @@ bash scripts/package.sh
 
 Closing the editor leaves the animation running. To reveal your current system wallpaper immediately, choose **Stop** from the Wyang menu on macOS or **Stop wallpaper on …** from its GNOME panel menu. Choosing a different wallpaper in system settings also ends playback on the affected display. GNOME applies its system wallpaper across all displays. To bring the animation back, open Wyang and apply the scene again.
 
+**Resume after restarting your Mac.** Open the packaged `Wyang.app` on macOS 13 or later and select **Resume wallpaper at login** beside **Apply to display**. You can enable it before or after applying a wallpaper. If macOS asks for approval, choose **Open Login Items** and allow Wyang. At your next login, the player restores the last applied scene for each connected display, offline, with the editor closed. Stop or choose a system wallpaper to clear that display’s choice. Turning the checkbox off leaves current playback running. The setting defaults to off.
+
 Playback snapshots live under `$XDG_DATA_HOME/wyang/scenes` (normally `~/.local/share/wyang/scenes`) on Linux and `~/Library/Application Support/wyang/scenes` on macOS. A snapshot contains lossless artwork and scene parameters.
 
 ## Verification
@@ -69,6 +71,8 @@ OPENAI_API_KEY=fixture cargo run -- --fixtures /tmp/wyang-fixtures
 On Ubuntu, `scripts/check-gnome.sh` exercises the packaged extension and Rust player in an isolated Wayland session. It requires GNOME Shell's test tool, the desktop extensions, zip and Python Pillow. `scripts/benchmark-gnome.sh` measures a 60-second 1080p run.
 
 On macOS, `bash scripts/check-macos.sh` temporarily applies the harbor on the main display, opens the packaged editor, checks player replacement and then stops playback. With Screen Recording access it also compares the wallpaper window with the exported PNG. Set `WYANG_BENCHMARK=1` to measure 60 seconds at the display's native backing resolution. The script prints the directory containing its captures and timings.
+
+On macOS, `bash scripts/check-macos-login.sh` exercises registration and restore through launchd using a separate test app identity and temporary playback data. It briefly displays the harbor and unregisters the test agent on exit. A physical reboot is a separate acceptance step. [Restart specification](specs/002-persistent-wallpaper-after-restart.md)
 
 Both desktop checks accept an optional saved harbor project directory. Pass the same directory on both machines to exercise the same selected candidate offline.
 
