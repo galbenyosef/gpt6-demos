@@ -14,6 +14,7 @@ Each project tests a different part of software development.
 
 | Case study | Engineering focus | AI use while running the application |
 | --- | --- | --- |
+| Wyang | Animating a still photograph and keeping it playing behind desktop icons on macOS and GNOME | Optional OpenAI image edits create still variations. Animation runs locally. |
 | Temblor | Reproducing Quake III movement and running a full bot match on an existing OpenArena map | The bot runs locally in Rust/Wasm |
 | Dipper | Transforming real astronomical catalogues and checking the view against independent ephemerides | Runs locally in the browser |
 | Fuel Left | Translating a photographed table and written rules into an original 3D pinball game | Runs locally in the browser |
@@ -23,6 +24,12 @@ Each project tests a different part of software development.
 | Assemblavatar | Generating executable modelling code, inspecting rendered results, and managing refinement | GPT-6 Astra generates and evaluates models; handwritten examples and manual source builds work without an API key |
 
 The repository presents these applications as demonstrations of GPT6-assisted software development. Exact development-model attribution, original prompts, elapsed effort, and the division of human and agent work still need to be supplied for Digital Logic Laboratory, NotAVirus, and Assemblavatar. Assemblavatar's documented runtime model is a separate fact from the models used to build the application.
+
+## Wyang
+
+The harbor demo started with a photograph of Hamburg. An OpenAI edit turned the scene to dusk and lit the ships. Wyang’s Rust player then animated the reflections at the waterline. The foreground ship also shifts farther than the distant docks as the camera moves. The same GPU shader renders the editor preview and the desktop wallpaper, so visitors can try those effects on their own photos without generating another image. [Watch the 12-second render](./images/wayang-harbor.mp4) · [Implementation specification](./wayang/specs/001-spec-animated-wallpaper-gen.md)
+
+Closing the editor leaves a separate player running. AppKit places its window below Finder icons on macOS, and a GNOME Shell extension places the Wayland surface behind desktop icons on Ubuntu. The project records which behaviors were exercised on each platform. [Desktop verification](./wayang/tests/ACCEPTANCE.md)
 
 ## Temblor
 

@@ -8,7 +8,7 @@ web
 
 ## Product Purpose
 
-GPT6 Demos is a collection of fifteen browser demos and one native desktop demo. Its portal lets visitors discover the demos, watch walkthroughs, and open applications.
+GPT6 Demos is a collection of fifteen browser demos and two native desktop demos, NotAVirus and Wyang. Its portal lets visitors discover the demos, watch previews and find the instructions for running each application.
 
 ## Operating Context
 
@@ -16,7 +16,7 @@ The root README and index.html define the current demos, images, video links, an
 
 ## Capabilities and Constraints
 
-The requested new portal lives in portal/. Gallery items open a preview with a fuller description and either a screenshot or an embedded YouTube walkthrough. Video plays in the page on request. Demo title and launch links open the app in a new tab, preserving the portal. Use plain HTML, CSS, and JavaScript with the existing screenshots. YouTube playback requires internet access and an HTTP origin; apps require their local servers.
+The preview portal lives in portal/. Each card opens a description with a screenshot, a local clip or a YouTube walkthrough. Video plays in the page on request. Browser demos link to their local servers and native demos link to setup instructions. Both open in a new tab. The portal uses plain HTML, CSS and JavaScript. YouTube playback requires internet access and an HTTP origin.
 
 ## Brand Commitments
 

@@ -1,8 +1,12 @@
 # Wyang
 
-Wyang animates a photograph or AI-generated edit as soon as you open it. In the harbor scene, waves refract the reflections and moving highlights cross the water. For images without a detected water surface, two layers of colored lights drift through the scene. The camera also moves forward and back, and the pointer shifts foreground details. Choose **Apply to display** to play the animation on your desktop.
+Wyang is a Rust app that turns photos into animated desktop wallpapers on macOS and Ubuntu GNOME on Wayland. Open a photo or an AI-generated edit to see it move, then choose **Apply to display** to play it on your desktop.
+
+In the harbor scene, waves refract the reflections and moving highlights cross the water. For images without a detected water surface, two layers of colored lights drift through the scene. The camera also moves forward and back, and the pointer shifts foreground details.
 
 **Scene effect** defaults to **Automatic**. Water detection looks for broad, cool-colored patches with horizontal texture in the lower half of the image. Choose **Water ripples**, **Drifting lights**, or **Camera only** to set the effect yourself. All effects run locally on your existing images.
+
+Watch the lamplight ripple with the pointer parked in this recording from Wyang’s renderer. [12-second harbor preview](https://github.com/soyrochus/gpt6-demos/blob/main/images/wayang-harbor.mp4)
 
 ## Run the editor
 
@@ -44,7 +48,9 @@ bash scripts/package.sh
 - **macOS.** Unzip the package and launch `Wyang.app`. Its AppKit helper places a click-through window between the desktop background and Finder icons. Each applied display has a Wyang menu-bar control for opening the editor, pausing and stopping playback. Development bundles are ad-hoc signed.
 - **Other Linux sessions.** The editor identifies the session or extension requirement beside Apply. Import, generation, preview, save and PNG export remain available.
 
-Playback snapshots live under `$XDG_DATA_HOME/wyang/scenes` (normally `~/.local/share/wyang/scenes`) on Linux and `~/Library/Application Support/wyang/scenes` on macOS. A snapshot contains lossless artwork and scene parameters. Stop removes the playback surface and reveals the existing system wallpaper.
+Closing the editor leaves the animation running. To reveal your current system wallpaper immediately, choose **Stop** from the Wyang menu on macOS or **Stop wallpaper on …** from its GNOME panel menu. Choosing a different wallpaper in system settings also ends playback on the affected display. GNOME applies its system wallpaper across all displays. To bring the animation back, open Wyang and apply the scene again.
+
+Playback snapshots live under `$XDG_DATA_HOME/wyang/scenes` (normally `~/.local/share/wyang/scenes`) on Linux and `~/Library/Application Support/wyang/scenes` on macOS. A snapshot contains lossless artwork and scene parameters.
 
 ## Verification
 

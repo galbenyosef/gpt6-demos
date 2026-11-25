@@ -17,10 +17,15 @@ for (const base of [3000, 30000, 65520]) {
     const data = JSON.parse(preview.match(/<script id="demo-data" type="application\/json">([\s\S]*?)<\/script>/)![1]);
     expect(data.filter((demo: { portOffset?: number }) => demo.portOffset !== undefined).map((demo: { url: string }) => demo.url)).toEqual(expected);
     expect(data.find((demo: { name: string }) => demo.name === "Tracework").video).toBe("BVBlbm_zQL0");
-    const native = data.find((demo: { name: string }) => demo.name === "NotAVirus");
-    expect(native.url).toBe("https://github.com/soyrochus/gpt6-demos/blob/main/not-a-virus/README.md");
-    expect(native.launchLabel).toBe("Source and setup");
-    expect(plain).toContain(native.url);
+    for (const [name, branch, directory] of [["NotAVirus", "main", "not-a-virus"], ["Wyang", "wayang", "wayang"]]) {
+      const native = data.find((demo: { name: string }) => demo.name === name);
+      expect(native.url).toBe(`https://github.com/soyrochus/gpt6-demos/blob/${branch}/${directory}/README.md`);
+      expect(native.launchLabel).toBe("Source and setup");
+      expect(plain).toContain(native.url);
+    }
+    const wyang = data.find((demo: { name: string }) => demo.name === "Wyang");
+    expect(wyang.clip).toBe("../images/wayang-harbor.mp4");
+    expect(wyang.image).toBe("../images/wayang.jpg");
     const indices = [...preview.matchAll(/data-demo="(\d+)"/g)].map(match => Number(match[1]));
     expect(indices).toEqual(data.map((_: unknown, index: number) => index));
     expect(preview).toContain('id="demo-link-label"');
@@ -35,6 +40,8 @@ test("portal routing retains redirect, HEAD, and source-file protection", async 
   expect(await (await get("/portal/", "HEAD")).text()).toBe("");
   expect((await get("/run-all.sh")).status).toBe(404);
   for (const name of ["not-a-virus", "tracework", "dmt-experience", "fuel-left", "dipper", "temblor", "temblor-atrium"]) expect((await get(`/images/${name}.png`)).status).toBe(200);
+  expect((await get("/images/wayang.jpg")).headers.get("Content-Type")).toBe("image/jpeg");
+  expect((await get("/images/wayang-harbor.mp4")).headers.get("Content-Type")).toBe("video/mp4");
   expect((await get("/%zz")).status).toBe(400);
   expect((await get("/", "POST")).status).toBe(405);
   for (const value of [0, -1, 65521, 3000.5, NaN]) expect(() => validateBasePort(value)).toThrow();

@@ -27,6 +27,8 @@ const assets = new Map([
     "dipper.png",
     "temblor.png",
     "temblor-atrium.png",
+    "wayang.jpg",
+    "wayang-harbor.mp4",
   ].map((name) => [`/images/${name}`, `images/${name}`]),
 ]);
 

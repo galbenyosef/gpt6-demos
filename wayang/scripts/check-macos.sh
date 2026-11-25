@@ -8,6 +8,9 @@ cargo build --release --locked --example check_display --example check_motion
 target=$(cargo metadata --format-version 1 --no-deps | python3 -c 'import json,sys; print(json.load(sys.stdin)["target_directory"])')
 out=$(mktemp -d "${TMPDIR:-/tmp}/wyang-mac.XXXXXX")
 echo "Acceptance files in $out"
+clang -fobjc-arc -framework AppKit -framework CoreGraphics tests/macos/wallpaper.m macos/{host,wallpaper}.m -o "$out/check-wallpaper"
+"$out/check-wallpaper" "$out/Index.plist"
+CFFIXED_USER_HOME="$out/fixture-home" "$out/check-wallpaper" --host
 version=$(cargo metadata --format-version 1 --no-deps | python3 -c 'import json,sys;print(json.load(sys.stdin)["packages"][0]["version"])')
 ditto -x -k "dist/Wyang-$version-macOS-$(uname -m).zip" "$out"
 macos="$out/Wyang.app/Contents/MacOS"

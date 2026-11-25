@@ -64,6 +64,18 @@ export async function run() {
     for(let i=0; i<120 && !Main.extensionManager.lookup('wyang@local').stateObj?.running.size; i++) await Scripting.sleep(100);
     const current=Main.extensionManager.lookup('wyang@local').stateObj;
     assert(current.running.has(display.id),'Re-enable restored saved scene');
-    await call('Stop',display.id);
+    const url = current.background.get_string('picture-uri');
+    const native = Gio.File.new_for_path(GLib.build_filenamev([GLib.getenv('WYANG_TEST_OUTPUT'), 'export.png'])).get_uri();
+    current.background.set_string('picture-uri', native);
+    for (let i=0; i<30 && current.running.size; i++) await Scripting.sleep(100);
+    assert(!current.running.size && !current.saved[display.id], 'System wallpaper replaced the player');
+    await call('Apply',display.id,id);
+    const settings = current.background;
+    await Main.extensionManager.disableExtension('wyang@local');
+    settings.set_string('picture-uri', url);
+    await Main.extensionManager.enableExtension('wyang@local');
+    const restored = Main.extensionManager.lookup('wyang@local').stateObj;
+    assert(!restored.saved[display.id] && !restored.pending.size && !restored.running.size,
+        'System wallpaper selected while disabled stayed active');
     console.log('WYANG_DESKTOP_PASS '+JSON.stringify(display));
 }

@@ -1,3 +1,4 @@
 <schemalist><schema id="org.gnome.shell.extensions.wyang" path="/org/gnome/shell/extensions/wyang/">
   <key name="scenes" type="a{ss}"><default>{}</default><summary>Applied scene per display connector</summary></key>
+  <key name="system-wallpaper" type="as"><default>[]</default><summary>System wallpaper selection observed by the player</summary></key>
 </schema></schemalist>

@@ -1,6 +1,6 @@
 # 001 — Wyang animated parallax wallpaper generator
 
-**Status:** Proposed. **Deliverable:** A Rust desktop demo for macOS and Ubuntu 26.04 LTS running GNOME Shell 50 on Wayland. **Package:** `wyang`.
+Wyang is implemented in Rust and runs on macOS and Ubuntu 26.04 LTS with GNOME Shell 50 on Wayland. Its Cargo package is `wyang`. [Run the app](../README.md#run-the-editor) · [Desktop test results](../tests/ACCEPTANCE.md)
 
 ## 1. The experience
 
@@ -23,7 +23,7 @@ The main window gives the canvas most of its area. Import and generation sit tog
 
 ## 3. Source image and OpenAI edits
 
-1. Decode locally, honor EXIF orientation and convert an upload copy to sRGB. Strip metadata from the upload. Enforce a proposed import limit of 32 megapixels and 40 MiB, reject malformed images before allocating full-size buffers, and bound the encoded upload to the selected model's limit. Keep the original file intact.
+1. Decode locally, honor EXIF orientation and convert an upload copy to sRGB. Strip metadata from the upload. Enforce the import limits of 32 megapixels and 40 MiB, reject malformed images before allocating full-size buffers, and bound the encoded upload to the selected model's limit. Keep the original file intact.
 2. Use multipart `POST /v1/images/edits` with the normalized source in `image`, the user's text in `prompt`, an explicitly configured image model, and PNG output. Start with `gpt-image-2.5-flare`, also configured in the repository's Flip-slop demo. Request one result per call and process the batch sequentially. Each request starts from the same source. This makes individual failures and cancellation visible and prevents a chain of progressively altered compositions. [OpenAI image edits](https://developers.openai.com/api/reference/resources/images/methods/edit) · [Repository configuration](../../flip-slop/example.env)
 3. Use a short, recorded prompt suffix asking the model to preserve framing and subject identity unless the user's prompt requests a change. Keep the user's text separately from the effective prompt. Choose a model-supported size closest to the source aspect ratio. The final display crop is a local editor operation. Decode and validate the returned raster before marking a candidate ready. Record its model ID, pixel dimensions, effective prompt and source identity.
 4. Read `OPENAI_API_KEY` and the optional `OPENAI_IMAGE_MODEL` from the process environment, filling absent variables from a `.env` in the editor's working directory (`wayang/.env` for a development launch from `wayang/`). Use the model default above when no override is provided. A missing file is valid. If the resolved key is missing or blank, disable **Generate** and identify the variable to set. Only the editor's provider client uses the key. Exclude it from helper process environments, saved projects, logs and packages. Exclude prompts, image bytes and encoded responses from diagnostic logs. Local preview, export and playback work without a credential. Keep the local `.env` ignored by Git and distribute the blank-key [example configuration](../example.env).
@@ -35,7 +35,7 @@ The provider creates still artwork. Wyang computes every animation frame on the 
 
 The first demo uses a **local depth gradient** designed for scenes with a foreground and a horizon. It is deterministic, works on any generated raster, and can be adjusted visually. It approximates scene depth. Tall subjects crossing the horizon can appear to bend, so the editor must let the user reduce strength all the way to zero. The harbor is a suitable first acceptance scene because reflections and distant buildings make excess movement easy to spot.
 
-| Item | Proposed behavior |
+| Item | Specified behavior |
 | --- | --- |
 | Depth field | Use normalized image coordinates after orientation, with vertical coordinate increasing downward. The horizon defaults to 40% of image height. Depth is zero above it and increases smoothly from zero at the horizon to one at the bottom using smoothstep. Store the horizon in image space so changing the display crop preserves its relation to the artwork. |
 | Pointer | Normalize the pointer within the target display to the range −1 to +1 on each axis. Ease toward that target with a time constant of about 250 ms. Let other displays settle to center. Preview uses the same normalization inside its canvas. |
@@ -61,7 +61,7 @@ Define sampling, timing and crop math in the Rust core. Give the renderer explic
 
 | Component | Responsibility |
 | --- | --- |
-| Editor | A Rust desktop GUI, with egui and wgpu as the proposed starting point. Owns image selection, accessible controls, generation jobs, thumbnails, target-display preview and explicit Apply. Decoding, file I/O and HTTP run away from the GUI thread. |
+| Editor | A Rust desktop GUI built with egui and wgpu. Owns image selection, accessible controls, generation jobs, thumbnails, target-display preview and explicit Apply. Decoding, file I/O and HTTP run away from the GUI thread. |
 | Provider client | Performs authenticated edits, enforces limits, validates returned bytes and reports each result to its originating batch. Provide a fixture-backed implementation for offline tests. |
 | Scene core and renderer | Rust types for variants, crop, depth and motion. Share the same texture sampling and shader between preview, PNG capture and wallpaper playback. Keep native window handles and shell objects outside the scene model. |
 | Desktop hosts | AppKit adapter on macOS, Rust player plus a small GJS extension on GNOME. The GNOME bridge carries scene identity, display geometry, normalized pointer and lifecycle events. Load an image once per scene and keep texture data inside the renderer. The existing repo illustrates Rust helper packaging and GNOME version checks. [NotAVirus GNOME protocol](../../not-a-virus/gnome/PROTOCOL.md) |

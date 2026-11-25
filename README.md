@@ -14,7 +14,7 @@
 [![Canvas 2D](https://img.shields.io/badge/Graphics-Canvas%202D-355E3B)](./flip-slop/README.md)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](#principles-of-participation)
 
-A collection of interactive web and native desktop demos exploring 3D graphics, visual design, and playful experiences. Built with Bun, TypeScript, Three.js, and Rust, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, a 7-a-side football game, a macOS and Ubuntu desktop companion, a solution-engineering workbench, an interactive crystal cavern, a space pinball table, an Earth-based night sky simulator, and a Rust-based engine for Quake III Arena maps. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
+A collection of interactive web and native desktop demos exploring 3D graphics, visual design, and playful experiences. Built with Bun, TypeScript, Three.js, and Rust, the projects include an architectural explorer, a tarot reading room, a helicopter cave expedition, a music composition desk, an orbital mechanics laboratory, a digital logic laboratory, a generative canvas and stop-motion studio, an AI-assisted procedural 3D modelling studio, a 7-a-side football game, a macOS and Ubuntu desktop companion, a solution-engineering workbench, an interactive crystal cavern, a space pinball table, an Earth-based night sky simulator, a Rust-based engine for Quake III Arena maps, and Wyang, an animated wallpaper editor. Each demo is a standalone application with its own source code and setup instructions. YouTube walkthroughs are included where available.
 
 **Elfspace took 15 minutes in total to develop with GPT-6.2 Astra.** Fly through its crystal cavern, pause for the twelve figures to gather, and switch on the proximity-sensitive score. The whole experience fits in one HTML file. [Try Elfspace](./dmt-experience/README.md) · [How these demos were built](./HOW_THESE_WERE_BUILT.md)
 
@@ -28,6 +28,8 @@ Use this repository to try the demos, explore how they work, or build on their i
 
 The earlier browser demos are tested to run on **macOS and Linux**. They should also work on **Windows**, but have not been tested there. Elfspace, Fuel Left and Dipper require a browser with WebGL 2. Temblor requires desktop Chromium with hardware WebGPU. Tested configurations include macOS on an Apple M4 Pro and Ubuntu 26.04.1 on AMD Radeon Vega graphics with Vulkan enabled in Chrome 158. **NotAVirus is tested on macOS and Ubuntu**: its native macOS app requires macOS 13 or later, and its Ubuntu extension requires **GNOME Shell 50 on Wayland** (verified with GNOME 50.1 on Ubuntu 26.04.1). Follow its [platform build and run instructions](./not-a-virus/README.md). It has no browser or Windows version; other Linux desktops and GNOME versions are not supported.
 
+Wyang plays animated wallpapers on **macOS** and **Ubuntu 26.04 with GNOME Shell 50 on Wayland**. You can preview the bundled harbor offline. [Wyang platform setup](./wayang/README.md#desktop-playback-and-installation)
+
 ## Run all demos
 
 Run the shared launcher from the repository root with [Bun 1.4.4](https://bun.sh/).
@@ -38,7 +40,7 @@ Run the shared launcher from the repository root with [Bun 1.4.4](https://bun.sh
 ./run-all.sh --help
 ```
 
-The base port serves **both portals from one server**: the original gallery at `/` and the preview gallery at `/portal/`. Each demo uses the next port in the order below. For example, `./run-all.sh 30000` serves the portals at [http://localhost:30000/](http://localhost:30000/) and [http://localhost:30000/portal/](http://localhost:30000/portal/), with demo apps on ports **30001–30015**. Both portals automatically link to the assigned demo ports.
+The base port serves **both portals from one server**: the original gallery at `/` and the preview gallery at `/portal/`. Each browser demo uses the next port in the order below. For example, `./run-all.sh 30000` serves the portals at [http://localhost:30000/](http://localhost:30000/) and [http://localhost:30000/portal/](http://localhost:30000/portal/), with demo apps on ports **30001–30015**. Both portals automatically link to the assigned demo ports.
 
 | Service | Port assignment | Default port |
 | --- | --- | --- |
@@ -86,14 +88,16 @@ For Crosstalk voice control in Europa, configure `cross-talk/.env` using its [se
 
 For NotAVirus, follow its [platform build and run instructions](./not-a-virus/README.md). It runs independently of `run-all.sh` and does not use a web server.
 
+To launch Wyang from the repository root, run `./wayang/run-wayang.sh`. The editor opens with a harbor photograph you can animate immediately. Desktop playback on Ubuntu requires the Wyang GNOME Shell extension. [Wyang setup and installation](./wayang/README.md#desktop-playback-and-installation)
+
 ### Demo portals
 
 `./run-all.sh` serves these two pages on the same base port:
 
 | Portal | Default address | Behavior |
 | --- | --- | --- |
-| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Simple screenshot gallery; browser cards open the apps, and NotAVirus links to macOS and Ubuntu setup. |
-| New preview portal | [http://localhost:3000/portal/](http://localhost:3000/portal/) | Cards open a description with a walkthrough when available. Elfspace, Fuel Left, Dipper and Temblor open screenshot previews. Videos play in the page; demo titles and **Open demo** links open the app in a new tab. NotAVirus provides **Source and setup** for macOS and Ubuntu. |
+| Plain, original portal | [http://localhost:3000/](http://localhost:3000/) | Browser cards open the apps. NotAVirus and Wyang link to their native setup instructions. |
+| New preview portal | [http://localhost:3000/portal/](http://localhost:3000/portal/) | Cards open a description with a walkthrough when available. Elfspace, Fuel Left, Dipper and Temblor open screenshot previews. Wyang plays a local harbor clip. Browser titles and **Open demo** links open the app in a new tab. NotAVirus and Wyang provide **Source and setup** for macOS and Ubuntu. |
 
 The original [index.html](./index.html) uses a four-column desktop grid, two columns on tablets, and one on phones. It uses plain HTML, inline CSS, and relative image paths, so it needs no build or JavaScript and can also be opened directly from disk. Directly opened files use the default demo ports.
 
@@ -306,6 +310,16 @@ Temblor brings Quake III Arena maps to the browser using Rust, WebAssembly, and 
 <a href="./temblor/README.md"><img src="./images/temblor.png" alt="A blue lightning beam hits Major on the metal walkway in Trial by Error" width="480"></a>
 
 [Source, controls and setup](./temblor/README.md) · [Engine specification](./temblor/specs/spec-quake3-engine.md) · [Test results and map compatibility](./temblor/evidence/README.md)
+
+---
+
+### Wyang — Animated desktop wallpaper
+
+Open a photo and watch the water ripple or let lights drift through the scene. As you move the pointer, foreground details shift farther than the background. Choose **Apply to display** and close the editor to leave the wallpaper playing. The animation runs locally. An OpenAI API key lets you generate still variations, like the dusk version of Hamburg harbor shown here.
+
+<a href="./images/wayang-harbor.mp4"><img src="./images/wayang.jpg" alt="Lamplight on the water beside a tall ship in Hamburg harbor at dusk" width="480"></a>
+
+[Watch the 12-second wallpaper preview](./images/wayang-harbor.mp4) · [Source and setup](./wayang/README.md) · [Implementation specification](./wayang/specs/001-spec-animated-wallpaper-gen.md)
 
 ---
 

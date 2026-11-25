@@ -2,6 +2,7 @@
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <objc/runtime.h>
+#import "wallpaper.h"
 
 typedef struct {
     float x, y, logicalWidth, logicalHeight;
@@ -20,6 +21,8 @@ typedef void (*WYWake)(void *);
 @property BOOL detached;
 @property BOOL paused, locked, sleeping, stopped, visible, fullscreen;
 @property NSTimer *timer;
+@property NSTimer *wallpaperTimer;
+@property WYWallpaperMonitor *wallpaper;
 @property NSUInteger samples;
 @property WYInput previous;
 @property WYWake wake;
@@ -73,6 +76,17 @@ static BOOL hasFullscreenWindow(CGDirectDisplayID screen) {
 - (void)lock:(NSNotification *)n { self.locked = YES; [self tick]; }
 - (void)unlock:(NSNotification *)n { self.locked = NO; [self tick]; }
 - (void)geometry:(NSNotification *)n { self.samples = 0; [self tick]; }
+- (void)spaceChanged:(NSNotification *)n {
+    [self.wallpaper forgetSpaceURL];
+    [self geometry:n];
+}
+- (void)checkSystemWallpaper {
+    NSScreen *s = screenFor(self.identifier);
+    if (!s || self.stopped || self.detached) return;
+    if ([self.wallpaper selectionChangedWithFallback:^NSURL *{
+        return [NSWorkspace.sharedWorkspace desktopImageURLForScreen:s];
+    }]) [self stop:nil];
+}
 - (void)tick {
     NSScreen *s = screenFor(self.identifier);
     WYInput input = {0};
@@ -126,13 +140,17 @@ static BOOL hasFullscreenWindow(CGDirectDisplayID screen) {
     NSNotificationCenter *ws = NSWorkspace.sharedWorkspace.notificationCenter;
     [ws addObserver:self selector:@selector(sleep:) name:NSWorkspaceScreensDidSleepNotification object:nil];
     [ws addObserver:self selector:@selector(wakeScreen:) name:NSWorkspaceScreensDidWakeNotification object:nil];
-    [ws addObserver:self selector:@selector(geometry:) name:NSWorkspaceActiveSpaceDidChangeNotification object:nil];
+    [ws addObserver:self selector:@selector(spaceChanged:) name:NSWorkspaceActiveSpaceDidChangeNotification object:nil];
     [ws addObserver:self selector:@selector(geometry:) name:NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification object:nil];
     [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(geometry:) name:NSApplicationDidChangeScreenParametersNotification object:nil];
     NSDistributedNotificationCenter *dc = NSDistributedNotificationCenter.defaultCenter;
     [dc addObserver:self selector:@selector(lock:) name:@"com.apple.screenIsLocked" object:nil];
     [dc addObserver:self selector:@selector(unlock:) name:@"com.apple.screenIsUnlocked" object:nil];
     __weak WYHost *weakSelf=self;
+    NSURL *library = [NSFileManager.defaultManager URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
+    self.wallpaper = [[WYWallpaperMonitor alloc] initWithIndex:[library URLByAppendingPathComponent:@"com.apple.wallpaper/Store/Index.plist"] display:self.screenUUID];
+    [self checkSystemWallpaper];
+    self.wallpaperTimer = [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(__unused NSTimer *timer){ [weakSelf checkSystemWallpaper]; }];
     self.timer=[NSTimer scheduledTimerWithTimeInterval:1.0/30 repeats:YES block:^(__unused NSTimer *timer){ [weakSelf tick]; }];
     [self tick];
 }
@@ -165,6 +183,7 @@ void wy_menu(void *ptr) { [(__bridge WYHost *)ptr showMenu]; }
 void wy_release(void *ptr) {
     WYHost *h=CFBridgingRelease(ptr);
     [h.timer invalidate];
+    [h.wallpaperTimer invalidate];
     [NSNotificationCenter.defaultCenter removeObserver:h];
     [NSWorkspace.sharedWorkspace.notificationCenter removeObserver:h];
     [NSDistributedNotificationCenter.defaultCenter removeObserver:h];

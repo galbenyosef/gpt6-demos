@@ -16,6 +16,7 @@ const xml = `<node><interface name="${iface}">
 </interface></node>`;
 const path = '/org/gnome/Shell/Extensions/Wyang';
 const tick = (ms, f) => GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, f);
+const backgroundKeys = ['picture-uri', 'picture-uri-dark', 'picture-options'];
 
 export default class Wyang extends Extension {
     enable() {
@@ -40,6 +41,11 @@ export default class Wyang extends Extension {
         this.button = new PanelMenu.Button(0, 'Wyang wallpapers');
         this.button.add_child(new St.Icon({icon_name: 'preferences-desktop-wallpaper-symbolic', style_class: 'system-status-icon'}));
         Main.panel.addToStatusArea(this.uuid, this.button);
+        this.background = new Gio.Settings({schema_id: 'org.gnome.desktop.background'});
+        this.backgroundSignal = this.background.connect('changed', (_settings, key) => {
+            if (backgroundKeys.includes(key)) this.checkBackground();
+        });
+        this.checkBackground();
         this.rebuildMenu();
         this.mapped = global.window_manager.connect('map', (_wm, actor) => this.match(actor));
         this.layout = Main.layoutManager.connect('monitors-changed', () => this.reconcile());
@@ -80,6 +86,17 @@ export default class Wyang extends Extension {
         this.rebuildMenu();
     }
     persist() { this.settings.set_value('scenes', new GLib.Variant('a{ss}', this.saved)); }
+    checkBackground() {
+        // GNOME's wallpaper selection is shared by every monitor. Remember it
+        // across extension suspension so an older scene cannot return on unlock.
+        const current = backgroundKeys.map(key => this.background.get_string(key));
+        const previous = this.settings.get_strv('system-wallpaper');
+        if (previous.length && current.some((value, i) => value !== previous[i])) {
+            for (const display of new Set([...Object.keys(this.saved), ...this.pending.keys(), ...this.running.keys()]))
+                this.Stop(display);
+        }
+        this.settings.set_strv('system-wallpaper', current);
+    }
     rebuildMenu() {
         this.button.menu.removeAll();
         this.button.visible = this.running.size > 0;
@@ -237,6 +254,7 @@ export default class Wyang extends Extension {
         if (!exited) s.proc.force_exit();
     }
     disable() {
+        this.background.disconnect(this.backgroundSignal);
         this.bus.unexport();
         GLib.Source.remove(this.timer);
         this.cancel.cancel();

@@ -9,11 +9,33 @@ let playbackTimer;
 
 function stopVideo() {
   window.clearTimeout(playbackTimer);
+  video.querySelector('video')?.pause();
   video.replaceChildren();
 }
 
 function playVideo(demo) {
   stopVideo();
+  if (demo.clip) {
+    const player = document.createElement('video');
+    player.controls = true;
+    player.playsInline = true;
+    player.poster = demo.image;
+    player.src = demo.clip;
+    player.setAttribute('aria-label', demo.imageAlt);
+    player.addEventListener('error', () => {
+      if (!video.contains(player)) return;
+      const link = document.createElement('a');
+      link.className = 'video-status';
+      link.href = demo.clip;
+      link.textContent = 'Open the wallpaper clip';
+      video.replaceChildren(link);
+      link.focus();
+    }, { once: true });
+    video.append(player);
+    player.focus();
+    player.play().catch(() => { /* The native controls also offer Play. */ });
+    return;
+  }
   const status = document.createElement('span');
   status.className = 'video-status';
   status.setAttribute('role', 'status');
@@ -41,21 +63,21 @@ function playVideo(demo) {
 function showPreviewMedia(demo) {
   const youtubeLink = document.querySelector('#youtube-link');
   youtubeLink.hidden = !demo.video;
-  if (!demo.video) {
-    youtubeLink.removeAttribute('href');
+  if (demo.video) youtubeLink.href = `https://www.youtube.com/watch?v=${demo.video}`;
+  else youtubeLink.removeAttribute('href');
+  if (!demo.video && !demo.clip) {
     const screenshot = document.createElement('img');
     screenshot.src = demo.image;
     screenshot.alt = demo.imageAlt;
     video.append(screenshot);
     return;
   }
-  youtubeLink.href = `https://www.youtube.com/watch?v=${demo.video}`;
   const poster = document.createElement('button');
   poster.type = 'button';
   poster.className = 'video-poster';
-  poster.setAttribute('aria-label', `Play ${demo.name} walkthrough on YouTube`);
+  poster.setAttribute('aria-label', demo.clip ? `Play ${demo.name} wallpaper preview` : `Play ${demo.name} walkthrough on YouTube`);
   const thumbnail = document.createElement('img');
-  thumbnail.src = demo.poster || `https://i.ytimg.com/vi/${demo.video}/maxresdefault.jpg`;
+  thumbnail.src = demo.clip ? demo.image : demo.poster || `https://i.ytimg.com/vi/${demo.video}/maxresdefault.jpg`;
   thumbnail.alt = '';
   thumbnail.addEventListener('load', () => {
     // YouTube can return a tiny placeholder when a high-resolution poster is unavailable.
@@ -64,7 +86,10 @@ function showPreviewMedia(demo) {
   thumbnail.addEventListener('error', () => { thumbnail.src = demo.image; }, { once: true });
   const label = document.createElement('span');
   label.className = 'play-label';
-  label.innerHTML = '<span class="play-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7V5Z" fill="currentColor"/></svg></span><span>Play walkthrough · YouTube</span>';
+  label.innerHTML = '<span class="play-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7V5Z" fill="currentColor"/></svg></span>';
+  const caption = document.createElement('span');
+  caption.textContent = demo.clip ? 'Play wallpaper preview' : 'Play walkthrough · YouTube';
+  label.append(caption);
   poster.append(thumbnail, label);
   poster.addEventListener('click', () => playVideo(demo), { once: true });
   video.append(poster);
